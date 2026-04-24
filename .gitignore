@@ -38,3 +38,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# pnpm store (when using project-local store)
+.pnpm-store/
+
+# compiled workspace packages (regenerate via package build scripts)
+lib/**/dist/

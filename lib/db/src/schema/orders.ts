@@ -1,6 +1,7 @@
 import { pgTable, text, serial, boolean, numeric, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
+import { orderStatusesTable } from "./order_statuses";
 
 export const ordersTable = pgTable("orders", {
   id: serial("id").primaryKey(),
@@ -26,7 +27,10 @@ export const ordersTable = pgTable("orders", {
   shippingCost: numeric("shipping_cost", { precision: 10, scale: 2 }).notNull(),
   tax: numeric("tax", { precision: 10, scale: 2 }).notNull(),
   total: numeric("total", { precision: 10, scale: 2 }).notNull(),
-  status: text("status", { enum: ["received", "processed", "shipped"] }).notNull().default("received"),
+  statusId: integer("status_id")
+    .notNull()
+    .references(() => orderStatusesTable.id)
+    .default(1),
   isFreeOrder: boolean("is_free_order").notNull().default(false),
   discount: numeric("discount", { precision: 10, scale: 2 }).notNull().default("0"),
   notes: text("notes"),

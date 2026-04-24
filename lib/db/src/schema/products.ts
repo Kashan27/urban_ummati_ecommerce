@@ -1,14 +1,17 @@
 import { pgTable, text, serial, boolean, numeric, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
+import { categoriesTable } from "./categories";
 
 export const productsTable = pgTable("products", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description").notNull(),
+  status: text("status", { enum: ["draft", "active"] }).notNull().default("active"),
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
   comparePrice: numeric("compare_price", { precision: 10, scale: 2 }),
   category: text("category").notNull(),
+  categoryId: integer("category_id").notNull().references(() => categoriesTable.id),
   imageUrl: text("image_url").notNull(),
   images: jsonb("images").$type<string[]>().notNull().default([]),
   inStock: boolean("in_stock").notNull().default(true),
