@@ -81,6 +81,8 @@ export function Products() {
           const searchable = [
             p.name,
             p.description,
+            p.categoryName,
+            p.categorySlug,
             p.category,
             ...(p.colors || []),
           ]

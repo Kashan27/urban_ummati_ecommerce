@@ -64,6 +64,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (existingItemIndex >= 0) {
         const updatedItems = [...prevItems];
         updatedItems[existingItemIndex].quantity += newItem.quantity;
+        if (newItem.promoToken && !updatedItems[existingItemIndex].promoToken) {
+          updatedItems[existingItemIndex].promoToken = newItem.promoToken;
+          updatedItems[existingItemIndex].price = newItem.price;
+        }
         return updatedItems;
       } else {
         return [...prevItems, newItem];

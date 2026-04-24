@@ -7,10 +7,9 @@ export const productsTable = pgTable("products", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description").notNull(),
-  status: text("status", { enum: ["draft", "active"] }).notNull().default("active"),
+  status: text("status", { enum: ["draft", "active", "archived"] }).notNull().default("active"),
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
   comparePrice: numeric("compare_price", { precision: 10, scale: 2 }),
-  category: text("category").notNull(),
   categoryId: integer("category_id").notNull().references(() => categoriesTable.id),
   imageUrl: text("image_url").notNull(),
   images: jsonb("images").$type<string[]>().notNull().default([]),
@@ -22,8 +21,9 @@ export const productsTable = pgTable("products", {
   rating: numeric("rating", { precision: 3, scale: 1 }).notNull().default("4.8"),
   colors: jsonb("colors").$type<string[]>().notNull().default([]),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, createdAt: true });
+export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof productsTable.$inferSelect;

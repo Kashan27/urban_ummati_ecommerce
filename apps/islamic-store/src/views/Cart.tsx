@@ -1,10 +1,41 @@
-import { Link, useLocation } from "@/lib/router";
+import { Link, useLocation, useSearch } from "@/lib/router";
 import { useCart } from "@/lib/cart-context";
 import { Minus, Plus, X, ArrowRight, ShieldCheck } from "lucide-react";
+import { useEffect, useMemo } from "react";
+import { useGetFreeProductLink, getGetFreeProductLinkQueryKey } from "@workspace/api-client-react";
 
 export function Cart() {
-  const { items, removeItem, updateQuantity, subtotal } = useCart();
+  const { items, addItem, removeItem, updateQuantity, subtotal } = useCart();
   const [, setLocation] = useLocation();
+  const searchString = useSearch();
+  const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
+  const promoToken = searchParams.get("promoToken") || searchParams.get("freeProductToken") || "";
+
+  const { data: promoLink, isError: promoError } = useGetFreeProductLink(promoToken, {
+    query: {
+      enabled: Boolean(promoToken),
+      queryKey: getGetFreeProductLinkQueryKey(promoToken),
+    },
+  });
+
+  useEffect(() => {
+    if (!promoToken) return;
+    if (!promoLink?.product) return;
+    if (promoLink.usedByEmail) return;
+
+    const alreadyApplied = items.some((i) => i.promoToken === promoToken);
+    if (alreadyApplied) return;
+
+    addItem({
+      productId: promoLink.product.id,
+      name: promoLink.product.name,
+      price: 0,
+      quantity: 1,
+      color: promoLink.product.colors?.[0] || undefined,
+      imageUrl: promoLink.product.imageUrl,
+      promoToken,
+    });
+  }, [addItem, items, promoLink, promoToken]);
 
   const shipping = subtotal > 75 ? 0 : 15;
   const tax = subtotal * 0.13;
@@ -31,6 +62,11 @@ export function Cart() {
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         
         <h1 className="font-serif text-3xl md:text-4xl mb-8">Shopping Cart</h1>
+        {promoToken && promoError && (
+          <div className="mb-8 rounded-md border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+            This free product link is invalid or has expired.
+          </div>
+        )}
 
         <div className="flex flex-col lg:flex-row gap-12">
           

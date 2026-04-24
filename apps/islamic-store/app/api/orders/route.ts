@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db, ordersTable, productsTable, orderStatusesTable, freeProductLinksTable } from "@workspace/db";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { CreateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { formatOrder } from "@/lib/api-formatters";
 import { requireAdmin } from "@/lib/admin-auth";
@@ -68,16 +68,25 @@ export async function POST(request: Request) {
     }
 
     const data = parsed.data;
+    const email = data.customerEmail.toLowerCase().trim();
+    const freeProductToken = data.freeProductToken?.trim() || null;
+
     const allProducts = await db.select().from(productsTable);
     const productMap = new Map(allProducts.map((p) => [p.id, p]));
 
     let subtotal = 0;
     let isFreeOrder = false;
     let discount = 0;
+    let validatedPromoProductId: number | null = null;
+    let validatedPromoToken: string | null = null;
 
     const orderItems = data.items.map((item, idx) => {
       const product = productMap.get(item.productId);
       if (!product) throw new Error(`Product ${item.productId} not found`);
+      if (product.status !== "active") throw new Error(`Product ${item.productId} is not available`);
+      if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
+        throw new Error(`Invalid quantity for product ${item.productId}`);
+      }
 
       const itemTotal = parseFloat(product.price) * item.quantity;
       subtotal += itemTotal;
@@ -94,21 +103,74 @@ export async function POST(request: Request) {
       };
     });
 
-    if (data.freeProductToken) {
+    if (freeProductToken) {
       const promoLink = await db
         .select()
         .from(freeProductLinksTable)
-        .where(eq(freeProductLinksTable.token, data.freeProductToken))
+        .where(eq(freeProductLinksTable.token, freeProductToken))
         .limit(1);
 
-      if (promoLink.length > 0 && !promoLink[0].usedByEmail) {
-        const freeProduct = productMap.get(promoLink[0].productId);
-        if (freeProduct) {
-          isFreeOrder = true;
-          discount = parseFloat(freeProduct.price);
-          // Subtotal remains the sum of ALL items, we subtract discount later for total
-        }
+      if (promoLink.length === 0) {
+        return NextResponse.json({ error: "Invalid free product token" }, { status: 400 });
       }
+
+      const link = promoLink[0];
+      if (link.usedByEmail || link.usedAt) {
+        return NextResponse.json(
+          { error: "This free product token has already been used" },
+          { status: 409 },
+        );
+      }
+
+      const [existingOrders, usedLink] = await Promise.all([
+        db
+          .select({ id: ordersTable.id })
+          .from(ordersTable)
+          .where(sql`lower(${ordersTable.customerEmail}) = ${email}`)
+          .limit(1),
+        db
+          .select({ id: freeProductLinksTable.id })
+          .from(freeProductLinksTable)
+          .where(sql`lower(${freeProductLinksTable.usedByEmail}) = ${email}`)
+          .limit(1),
+      ]);
+
+      if (existingOrders.length > 0 || usedLink.length > 0) {
+        return NextResponse.json(
+          {
+            error: "This email has already been used for a free product",
+          },
+          { status: 409 },
+        );
+      }
+
+      const matchingItems = data.items.filter((item) => item.productId === link.productId);
+      if (matchingItems.length !== 1) {
+        return NextResponse.json(
+          { error: "Cart must contain exactly one eligible free product item" },
+          { status: 400 },
+        );
+      }
+
+      if (matchingItems[0].quantity !== 1) {
+        return NextResponse.json(
+          { error: "Eligible free product quantity must be exactly 1" },
+          { status: 400 },
+        );
+      }
+
+      const freeProduct = productMap.get(link.productId);
+      if (!freeProduct || freeProduct.status !== "active") {
+        return NextResponse.json(
+          { error: "Free product is not available" },
+          { status: 400 },
+        );
+      }
+
+      isFreeOrder = true;
+      discount = parseFloat(freeProduct.price);
+      validatedPromoProductId = link.productId;
+      validatedPromoToken = freeProductToken;
     }
 
     const effectiveSubtotal = Math.max(0, subtotal - discount);
@@ -121,7 +183,7 @@ export async function POST(request: Request) {
         .insert(ordersTable)
         .values({
           customerName: data.customerName,
-          customerEmail: data.customerEmail,
+          customerEmail: email,
           customerPhone: data.customerPhone,
           shippingAddress: data.shippingAddress,
           city: data.city,
@@ -140,14 +202,26 @@ export async function POST(request: Request) {
         })
         .returning();
 
-      if (data.freeProductToken) {
-        await tx
+      if (validatedPromoToken && validatedPromoProductId) {
+        const consumed = await tx
           .update(freeProductLinksTable)
           .set({
-            usedByEmail: data.customerEmail,
+            usedByEmail: email,
             usedAt: new Date(),
           })
-          .where(eq(freeProductLinksTable.token, data.freeProductToken));
+          .where(
+            and(
+              eq(freeProductLinksTable.token, validatedPromoToken),
+              eq(freeProductLinksTable.productId, validatedPromoProductId),
+              isNull(freeProductLinksTable.usedByEmail),
+              isNull(freeProductLinksTable.usedAt),
+            ),
+          )
+          .returning({ id: freeProductLinksTable.id });
+
+        if (consumed.length === 0) {
+          throw new Error("FREE_PRODUCT_TOKEN_ALREADY_USED");
+        }
       }
 
       return [newOrder];
@@ -155,6 +229,18 @@ export async function POST(request: Request) {
 
     return NextResponse.json(formatOrder(order), { status: 201 });
   } catch (err) {
+    if (err instanceof Error && err.message === "FREE_PRODUCT_TOKEN_ALREADY_USED") {
+      return NextResponse.json(
+        { error: "This free product token has already been used" },
+        { status: 409 },
+      );
+    }
+    if (
+      err instanceof Error &&
+      (err.message.startsWith("Product ") || err.message.startsWith("Invalid quantity"))
+    ) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
     console.error("Error creating order", err);
     return NextResponse.json(
       { error: "Internal server error" },

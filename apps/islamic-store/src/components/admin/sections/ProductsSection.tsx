@@ -57,8 +57,7 @@ export function ProductsSection({
   const filteredProducts = products?.filter((product) => 
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.categoryName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category?.toLowerCase().includes(searchTerm.toLowerCase())
+    product.categoryName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -140,7 +139,7 @@ export function ProductsSection({
                     </div>
                   </div>
                 </td>
-                <td className="p-4 text-muted-foreground">{product.categoryName || product.category || "—"}</td>
+                <td className="p-4 text-muted-foreground">{product.categoryName || "—"}</td>
                 <td className="p-4">${product.price.toFixed(2)}</td>
                 <td className="p-4">
                   <div className="flex flex-wrap items-center gap-2">

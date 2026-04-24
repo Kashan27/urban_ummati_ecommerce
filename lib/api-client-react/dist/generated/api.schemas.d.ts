@@ -18,6 +18,9 @@ export interface Product {
     price: number;
     comparePrice?: number | null;
     category: string;
+    categoryId?: number | null;
+    categoryName?: string | null;
+    categorySlug?: string | null;
     imageUrl: string;
     images: string[];
     inStock: boolean;
@@ -28,6 +31,7 @@ export interface Product {
     rating: number;
     colors: string[];
     createdAt: string;
+    updatedAt?: string | null;
 }
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus];
 export declare const OrderStatus: {
@@ -117,7 +121,7 @@ export interface CreateProductBody {
     description: string;
     price: number;
     comparePrice?: number | null;
-    category: string;
+    categoryId: number;
     imageUrl: string;
     images?: string[];
     inStock?: boolean;

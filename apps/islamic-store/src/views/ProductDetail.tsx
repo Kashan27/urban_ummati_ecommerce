@@ -102,6 +102,7 @@ export function ProductDetail() {
   }
 
   const allImages = [product.imageUrl, ...(product.images || [])].filter(Boolean);
+  const categoryLabel = product.categoryName || "";
 
   return (
     <main className="flex-1 w-full bg-background pt-8 pb-24">
@@ -111,8 +112,8 @@ export function ProductDetail() {
         <div className="flex items-center gap-2 text-xs font-sans uppercase tracking-widest text-muted-foreground mb-8">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <ChevronRight size={12} />
-          <Link href={`/products?category=${product.category}`} className="hover:text-primary transition-colors">
-            {(product.categoryName || product.category || "").replace('-', ' ')}
+          <Link href={`/products?category=${product.categorySlug}`} className="hover:text-primary transition-colors">
+            {categoryLabel}
           </Link>
           <ChevronRight size={12} />
           <span className="text-foreground truncate">{product.name}</span>

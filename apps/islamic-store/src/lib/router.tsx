@@ -22,15 +22,16 @@ export function useLocation(): [string, (to: string) => void] {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const search = searchParams.toString();
-  const location = search ? `${pathname}?${search}` : pathname;
+  const search = searchParams?.toString() ?? "";
+  const path = pathname ?? "/";
+  const location = search ? `${path}?${search}` : path;
 
   return [location, (to: string) => router.push(to)];
 }
 
 export function useSearch(): string {
   const searchParams = useSearchParams();
-  const search = searchParams.toString();
+  const search = searchParams?.toString() ?? "";
   return search ? `?${search}` : "";
 }
 
@@ -38,8 +39,11 @@ export function useParams<T extends Record<string, string>>() {
   const params = useNextParams();
   const normalized: Record<string, string> = {};
 
-  for (const [key, value] of Object.entries(params)) {
-    normalized[key] = Array.isArray(value) ? value[0] : value;
+  for (const [key, value] of Object.entries(params ?? {})) {
+    const firstValue = Array.isArray(value) ? value[0] : value;
+    if (typeof firstValue === "string") {
+      normalized[key] = firstValue;
+    }
   }
 
   return normalized as T;

@@ -11,7 +11,7 @@ export interface CreateProductBody {
   description: string;
   price: number;
   comparePrice?: number | null;
-  category: string;
+  categoryId: number;
   imageUrl: string;
   images?: string[];
   inStock?: boolean;

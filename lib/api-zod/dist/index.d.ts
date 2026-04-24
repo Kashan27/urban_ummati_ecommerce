@@ -1,3 +1,3 @@
 export * from "./generated/api";
-export * from "./generated/types";
+export type { AdminStats, AdminStatsOrdersByStatus, CheckFreeProductBody as CheckFreeProductBodyPayload, CreateFreeProductLinkBody as CreateFreeProductLinkBodyPayload, CreateOrderBody as CreateOrderBodyPayload, CreateOrderBodyItemsItem, CreateProductBody as CreateProductBodyPayload, DeleteProduct200, Error, FreeProductEligibility, FreeProductLink, GetFeaturedProducts200, GetUpsellProducts200, GetUpsellProductsParams, HealthStatus, ListOrders200, ListOrdersParams, ListOrdersStatus, ListProducts200, ListProductsParams, Order, OrderItem, OrderStatus, Product, UpdateOrderStatusBody as UpdateOrderStatusBodyPayload, UpdateOrderStatusBodyStatus, } from "./generated/types";
 //# sourceMappingURL=index.d.ts.map

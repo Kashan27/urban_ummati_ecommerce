@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db, ordersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { GetOrderParams } from "@workspace/api-zod";
@@ -7,11 +7,11 @@ import { formatOrder } from "@/lib/api-formatters";
 export const runtime = "nodejs";
 
 export async function GET(
-  _request: Request,
-  context: { params: { id: string } },
+  _request: NextRequest,
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
     const parsed = GetOrderParams.safeParse({ id: parseInt(id, 10) });
 
     if (!parsed.success) {

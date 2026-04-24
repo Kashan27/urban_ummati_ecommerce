@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db, freeProductLinksTable, productsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { GetFreeProductLinkParams } from "@workspace/api-zod";
@@ -7,11 +7,11 @@ import { formatFreeProductLink } from "@/lib/api-formatters";
 export const runtime = "nodejs";
 
 export async function GET(
-  _request: Request,
-  context: { params: { token: string } },
+  _request: NextRequest,
+  context: { params: Promise<{ token: string }> },
 ) {
   try {
-    const { token } = context.params;
+    const { token } = await context.params;
     const parsed = GetFreeProductLinkParams.safeParse({ token });
 
     if (!parsed.success) {

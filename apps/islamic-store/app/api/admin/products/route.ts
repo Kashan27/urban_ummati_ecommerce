@@ -91,7 +91,6 @@ export async function POST(request: Request) {
         status: data.status,
         price: String(data.price),
         comparePrice: data.comparePrice ? String(data.comparePrice) : null,
-        category: category.slug,
         categoryId: category.id,
         imageUrl: data.imageUrl,
         images: data.images || [],

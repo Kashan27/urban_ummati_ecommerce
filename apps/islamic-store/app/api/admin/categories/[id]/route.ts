@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { categoriesTable, db, productsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -22,14 +22,14 @@ function toSlug(input: string) {
 }
 
 export async function PUT(
-  request: Request,
-  context: { params: { id: string } },
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
     const admin = requireAdmin(request);
     if (!admin.ok) return admin.response;
 
-    const { id } = context.params;
+    const { id } = await context.params;
     const idParsed = ParamsSchema.safeParse({ id: parseInt(id, 10) });
     if (!idParsed.success) {
       return NextResponse.json({ error: "Invalid category ID" }, { status: 400 });
@@ -64,13 +64,6 @@ export async function PUT(
       .where(eq(categoriesTable.id, idParsed.data.id))
       .returning();
 
-    if (nextName !== current[0].name || nextSlug !== current[0].slug) {
-      await db
-        .update(productsTable)
-        .set({ category: nextSlug })
-        .where(eq(productsTable.categoryId, idParsed.data.id));
-    }
-
     return NextResponse.json(category);
   } catch (err) {
     console.error("Error updating category", err);
@@ -79,20 +72,29 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
-  context: { params: { id: string } },
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
     const admin = requireAdmin(request);
     if (!admin.ok) return admin.response;
 
-    const { id } = context.params;
+    const { id } = await context.params;
     const parsed = ParamsSchema.safeParse({ id: parseInt(id, 10) });
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid category ID" }, { status: 400 });
     }
 
-    await db.delete(categoriesTable).where(eq(categoriesTable.id, parsed.data.id));
+    const [category] = await db
+      .update(categoriesTable)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(categoriesTable.id, parsed.data.id))
+      .returning();
+
+    if (!category) {
+      return NextResponse.json({ error: "Category not found" }, { status: 404 });
+    }
+
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("Error deleting category", err);

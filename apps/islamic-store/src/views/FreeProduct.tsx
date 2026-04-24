@@ -113,7 +113,7 @@ export function FreeProduct() {
 
           <div className="p-8">
             <div className="mb-2">
-              <span className="text-xs uppercase tracking-widest text-muted-foreground">{product.category}</span>
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">{product.categoryName}</span>
             </div>
             <h2 className="font-serif text-2xl mb-3">{product.name}</h2>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6">{product.description}</p>

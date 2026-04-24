@@ -127,7 +127,7 @@ export function PromoSection({
   });
 
   const handleCopyLink = async (link: PromoLink) => {
-    const fullUrl = `${baseUrl}/free-product/${link.token}`;
+    const fullUrl = `${baseUrl}/cart?promoToken=${encodeURIComponent(link.token)}`;
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(fullUrl);

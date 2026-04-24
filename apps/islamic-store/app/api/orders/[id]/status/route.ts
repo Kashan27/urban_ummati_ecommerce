@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db, ordersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { UpdateOrderStatusBody, UpdateOrderStatusParams } from "@workspace/api-zod";
@@ -8,14 +8,14 @@ import { requireAdmin } from "@/lib/admin-auth";
 export const runtime = "nodejs";
 
 export async function PATCH(
-  request: Request,
-  context: { params: { id: string } },
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
     const admin = requireAdmin(request);
     if (!admin.ok) return admin.response;
 
-    const { id } = context.params;
+    const { id } = await context.params;
     const body = await request.json();
 
     const idParsed = UpdateOrderStatusParams.safeParse({ id: parseInt(id, 10) });

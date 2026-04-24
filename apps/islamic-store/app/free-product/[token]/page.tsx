@@ -1,6 +1,6 @@
 "use client";
 
-import { FreeProduct } from "@/pages/FreeProduct";
+import { FreeProduct } from "@/views/FreeProduct";
 
 export default function Page() {
   return <FreeProduct />;

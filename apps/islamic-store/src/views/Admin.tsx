@@ -58,8 +58,6 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   const [confirmLabel, setConfirmLabel] = useState("Confirm");
   const [confirmAction, setConfirmAction] = useState<(() => Promise<void> | void) | null>(null);
   const [confirmPending, setConfirmPending] = useState(false);
-  const [freeProductId, setFreeProductId] = useState("");
-  const [generatedLink, setGeneratedLink] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState<ListOrdersStatus | undefined>(undefined);
   const [orderPage, setOrderPage] = useState(0);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -395,11 +393,11 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   }
 
   async function handleDeleteProduct(product: AdminProduct) {
-    setConfirmTitle("Delete product?");
+    setConfirmTitle("Archive product?");
     setConfirmDescription(
-      `Are you sure you want to delete "${product.name}"? This action cannot be undone.`,
+      `Are you sure you want to archive "${product.name}"? This will remove it from the storefront and mark it as archived in the admin catalog.`,
     );
-    setConfirmLabel("Delete Product");
+    setConfirmLabel("Archive Product");
     setConfirmAction(() => async () => {
       setUpdatingProductId(product.id);
       try {
@@ -417,7 +415,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
           queryClient.invalidateQueries({ queryKey: ["adminProducts"] }),
           queryClient.invalidateQueries({ queryKey: getGetAdminStatsQueryKey() }),
         ]);
-        toast.success("Product deleted successfully");
+        toast.success("Product archived successfully");
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Deletion failed");
         throw error;
@@ -476,16 +474,14 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
     setIsOrderDetailsOpen(true);
   }
 
-  function handleGenerateFreeLink() {
-    const id = parseInt(freeProductId);
-    if (!id) return;
+  function handleGenerateFreeLink(data: { productId: number }) {
+    if (!data.productId) return;
     createFreeLink.mutate(
-      { data: { productId: id } },
+      { data: { productId: data.productId } },
       {
-        onSuccess: (link) => {
-          const baseUrl = window.location.origin;
-          setGeneratedLink(`${baseUrl}/free-product/${link.token}`);
+        onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ["adminPromoLinks"] });
+          toast.success("Free product link generated");
         },
       },
     );
@@ -535,11 +531,11 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   }
 
   async function handleDeleteCategory(id: number) {
-    setConfirmTitle("Delete category?");
+    setConfirmTitle("Deactivate category?");
     setConfirmDescription(
-      "This removes the category record. Products currently linked to this category will need reassignment.",
+      "This marks the category as inactive. It will no longer appear on the storefront, but existing product links will be preserved for history.",
     );
-    setConfirmLabel("Delete");
+    setConfirmLabel("Deactivate");
     setConfirmAction(() => async () => {
       setIsSavingCategory(true);
       try {
@@ -549,12 +545,12 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
         });
         if (!response.ok) {
           const error = await response.json().catch(() => null);
-          throw new Error(error?.error || "Failed to delete category");
+          throw new Error(error?.error || "Failed to deactivate category");
         }
         await queryClient.invalidateQueries({ queryKey: ["adminCategories"] });
-        toast.success("Category deleted");
+        toast.success("Category deactivated");
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Delete failed");
+        toast.error(error instanceof Error ? error.message : "Deactivation failed");
         throw error;
       } finally {
         setIsSavingCategory(false);
@@ -677,9 +673,6 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
 
             {activeSection === "promo" && (
               <PromoSection
-                freeProductId={freeProductId}
-                onFreeProductIdChange={setFreeProductId}
-                generatedLink={generatedLink}
                 products={productsData?.products}
                 generatePending={createFreeLink.isPending}
                 onGenerateLink={handleGenerateFreeLink}

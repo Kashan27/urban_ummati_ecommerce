@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useState, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { setBaseUrl } from "@workspace/api-client-react";
@@ -25,13 +25,15 @@ export function AppShell({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CartProvider>
-          <div className="flex min-h-[100dvh] flex-col">
-            {!isAdminRoute && <Navbar />}
-            {children}
-            {!isAdminRoute && <Footer />}
-            {!isAdminRoute && <CartDrawer />}
-            {!isAdminRoute && <UpsellModal />}
-          </div>
+          <Suspense fallback={null}>
+            <div className="flex min-h-[100dvh] flex-col">
+              {!isAdminRoute && <Navbar />}
+              {children}
+              {!isAdminRoute && <Footer />}
+              {!isAdminRoute && <CartDrawer />}
+              {!isAdminRoute && <UpsellModal />}
+            </div>
+          </Suspense>
           <Toaster />
         </CartProvider>
       </TooltipProvider>

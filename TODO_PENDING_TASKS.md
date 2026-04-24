@@ -32,11 +32,11 @@ Section headings below labelled **§5.x** quote **§5 Admin Panel Functionalitie
 
 ### 3. Free Product Flow Hardening — doc §3 additional requirements, §4.5
 
-- [ ] Enforce one specific free product at a time at API level (document scope).
-- [ ] Consume `freeProductToken` on order placement (`usedByEmail`, `usedAt` on link / order).
-- [ ] Reject reused or invalid tokens during order creation.
-- [ ] Ensure free-product link can land customer on cart with tokenized context.
-- [ ] Keep duplicate prevention by email fully enforced on checkout.
+- [x] Enforce one specific free product at a time at API level (document scope). *(verified via server validation in `/api/orders`)* 
+- [x] Consume `freeProductToken` on order placement (`usedByEmail`, `usedAt` on link / order). *(verified: token consumption is atomic in `/api/orders` transaction)* 
+- [x] Reject reused or invalid tokens during order creation. *(verified: 400 invalid token, 409 reused token)*
+- [x] Ensure free-product link can land customer on cart with tokenized context. *(verified: promo link copies to `/cart?promoToken=...` and cart auto-adds the item with token)*
+- [x] Keep duplicate prevention by email fully enforced on checkout. *(verified: `/api/orders` blocks duplicate email claims)*
 
 ### 4. Admin Panel — **document §5 Admin Panel Functionalities** (Syed Ali)
 
@@ -48,6 +48,8 @@ Section headings below labelled **§5.x** quote **§5 Admin Panel Functionalitie
 - [x] Product images via **URL list** in admin *(document also implies upload; true file upload TBD below).*
 - [ ] **Upload** product images (file storage + admin upload), if required as “upload” beyond URLs.
 - [x] **Categories** — management UI + APIs.
+- [x] **Normalized statuses** — Statuses are stored in a separate table (`order_statuses`) using IDs in the `orders` table.
+- [x] **Soft Delete & Normalization** — Products and categories use active/inactive/archived status instead of hard delete; products use categoryId without redundant text columns.
 - [ ] **Collections** — separate from categories: data model + admin UI + APIs *(not in codebase today).*
 
 #### §5.2 Offer management *(document wording)*
@@ -72,7 +74,6 @@ Section headings below labelled **§5.x** quote **§5 Admin Panel Functionalitie
 - [x] **Additional logic — receipt printed → set status to Processed** *(implemented in Admin UI).*
 - [x] **Clean Printing** — Print logic only prints the receipt layout, hiding the sidebar and dashboard.
 - [ ] **Additional logic — ShipStation:** fetch / display sync; map **Processed → Shipped** from carrier data *(depends on §2).*
-- [x] **Normalized statuses** — Statuses are stored in a separate table (`order_statuses`) using IDs in the `orders` table.
 - [ ] **Promotional logic (admin + rules engine):** Spend **X** → Free Shipping; Spend **X** → Free Product *(document §5.4).*
 
 #### Admin cross-cutting (security / contract)

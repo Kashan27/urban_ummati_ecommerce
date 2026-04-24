@@ -434,6 +434,15 @@ components:
           nullable: true
         category:
           type: string
+        categoryId:
+          type: integer
+          nullable: true
+        categoryName:
+          type: string
+          nullable: true
+        categorySlug:
+          type: string
+          nullable: true
         imageUrl:
           type: string
         images:
@@ -459,6 +468,9 @@ components:
             type: string
         createdAt:
           type: string
+        updatedAt:
+          type: string
+          nullable: true
       required:
         - id
         - name

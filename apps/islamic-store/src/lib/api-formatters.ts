@@ -11,8 +11,8 @@ export function formatProduct(
   categoryContext?: ProductCategoryContext,
 ) {
   const categoryId = categoryContext?.categoryId ?? p.categoryId ?? null;
-  const categoryName = categoryContext?.categoryName ?? p.category ?? null;
-  const categorySlug = categoryContext?.categorySlug ?? p.category ?? null;
+  const categoryName = categoryContext?.categoryName ?? null;
+  const categorySlug = categoryContext?.categorySlug ?? null;
 
   return {
     id: p.id,

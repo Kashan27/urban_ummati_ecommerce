@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db, freeProductLinksTable, ordersTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { CheckFreeProductBody } from "@workspace/api-zod";
 
 export const runtime = "nodejs";
@@ -17,11 +17,16 @@ export async function POST(request: Request) {
     const email = parsed.data.email.toLowerCase().trim();
 
     const [existingOrders, usedLink] = await Promise.all([
-      db.select().from(ordersTable).where(eq(ordersTable.customerEmail, email)),
       db
-        .select()
+        .select({ id: ordersTable.id })
+        .from(ordersTable)
+        .where(sql`lower(${ordersTable.customerEmail}) = ${email}`)
+        .limit(1),
+      db
+        .select({ id: freeProductLinksTable.id })
         .from(freeProductLinksTable)
-        .where(eq(freeProductLinksTable.usedByEmail, email)),
+        .where(sql`lower(${freeProductLinksTable.usedByEmail}) = ${email}`)
+        .limit(1),
     ]);
 
     if (existingOrders.length > 0 || usedLink.length > 0) {

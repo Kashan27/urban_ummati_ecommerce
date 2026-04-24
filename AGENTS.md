@@ -1,4 +1,4 @@
-Also check this /Users/kashanxensys/Desktop/Kashan/urban_ummati_ecommerce/TODO_PENDING_TASKS.md and mark done if we have completed . or choose next from this file
+Also check this /Users/kashanxensys/Desktop/Kashan/urban_ummati_ecommerce/TODO_PENDING_TASKS.md and /Users/kashanxensys/Desktop/Kashan/urban_ummati_ecommerce/DEVELOPMENT_GAP_TODO.md every time. Mark tasks done only after implementation and verification are complete, or choose the next pending task from these files.
 
 
 

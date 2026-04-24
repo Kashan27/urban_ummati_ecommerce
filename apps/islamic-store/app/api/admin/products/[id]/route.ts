@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { categoriesTable, db, productsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -32,14 +32,14 @@ const AdminProductBody = z.object({
 });
 
 export async function PUT(
-  request: Request,
-  context: { params: { id: string } },
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
     const admin = requireAdmin(request);
     if (!admin.ok) return admin.response;
 
-    const { id } = context.params;
+    const { id } = await context.params;
     const body = await request.json();
 
     const idParsed = ProductIdParams.safeParse({ id: parseInt(id, 10) });
@@ -68,7 +68,6 @@ export async function PUT(
         status: data.status,
         price: String(data.price),
         comparePrice: data.comparePrice ? String(data.comparePrice) : null,
-        category: category.slug,
         categoryId: category.id,
         imageUrl: data.imageUrl,
         images: data.images || [],
@@ -77,6 +76,7 @@ export async function PUT(
         isUpsell: data.isUpsell ?? false,
         upsellDiscount: data.upsellDiscount ? String(data.upsellDiscount) : null,
         colors: data.colors || [],
+        updatedAt: new Date(),
       })
       .where(eq(productsTable.id, idParsed.data.id))
       .returning();
@@ -102,21 +102,30 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
-  context: { params: { id: string } },
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
     const admin = requireAdmin(request);
     if (!admin.ok) return admin.response;
 
-    const { id } = context.params;
+    const { id } = await context.params;
     const parsed = ProductIdParams.safeParse({ id: parseInt(id, 10) });
 
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
     }
 
-    await db.delete(productsTable).where(eq(productsTable.id, parsed.data.id));
+    const [product] = await db
+      .update(productsTable)
+      .set({ status: "archived", updatedAt: new Date() })
+      .where(eq(productsTable.id, parsed.data.id))
+      .returning();
+
+    if (!product) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("Error deleting product", err);
