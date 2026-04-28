@@ -18,17 +18,17 @@ Section headings below labelled **§5.x** quote **§5 Admin Panel Functionalitie
 
 ### 1. Payments (Stripe) — doc §4.8, §6
 
-- [ ] Add Stripe Checkout / PaymentIntent flow.
-- [ ] Add secure server-side payment confirmation (webhooks).
-- [ ] Persist payment status with the order.
-- [ ] Add failed-payment handling and retry path.
+- [x] Add Stripe Checkout / PaymentIntent flow. *(verified: checkout redirects to Stripe via `/api/payments/stripe/checkout-session`; dummy card success)*
+- [x] Add secure server-side payment confirmation (webhooks). *(verified: `stripe listen --forward-to localhost:3009/api/payments/stripe/webhook` updates order payment status)*
+- [x] Persist payment status with the order. *(verified: `orders.payment_status`, Stripe session/intent IDs persisted)*
+- [x] Add failed-payment handling and retry path. *(verified: `/api/payments/stripe/retry-session` + Checkout “Retry Payment” button)*
 
 ### 2. Shipping Integration (ShipStation) — doc §4.9, §6
 
-- [ ] Create ShipStation integration service.
-- [ ] Sync confirmed orders to ShipStation automatically.
-- [ ] Store external shipment identifiers on order records.
-- [ ] Pull shipping updates and map them to local order statuses.
+- [x] Create ShipStation integration service. *(implemented: ShipStation client/service in `/app/api/integrations/shipstation/service.ts`)*
+- [x] Sync confirmed orders to ShipStation automatically. *(verified: Stripe webhook triggers ShipStation sync on `checkout.session.completed`)*
+- [x] Store external shipment identifiers on order records. *(verified: `orders.shipstation_order_id` + shipment/tracking fields persisted)*
+- [x] Pull shipping updates and map them to local order statuses. *(verified: admin endpoints refresh/poll shipments and set local status to shipped when tracking/shipDate present)*
 
 ### 3. Free Product Flow Hardening — doc §3 additional requirements, §4.5
 
@@ -46,11 +46,11 @@ Section headings below labelled **§5.x** quote **§5 Admin Panel Functionalitie
 - [x] Delete products from **admin UI** *(backend: `DELETE /api/admin/products/[id]` exists; UI button added).*
 - [x] Manage pricing (admin).
 - [x] Product images via **URL list** in admin *(document also implies upload; true file upload TBD below).*
-- [ ] **Upload** product images (file storage + admin upload), if required as “upload” beyond URLs.
+- [ ] **Upload** product images (file storage + admin upload), if required as “upload” beyond URLs *(in progress: supports Vercel Blob when `BLOB_READ_WRITE_TOKEN` is set; needs end-to-end verification in Vercel env).*
 - [x] **Categories** — management UI + APIs.
 - [x] **Normalized statuses** — Statuses are stored in a separate table (`order_statuses`) using IDs in the `orders` table.
 - [x] **Soft Delete & Normalization** — Products and categories use active/inactive/archived status instead of hard delete; products use categoryId without redundant text columns.
-- [ ] **Collections** — separate from categories: data model + admin UI + APIs *(not in codebase today).*
+- [x] **Collections** — separate from categories: data model + admin UI + APIs *(verified: `pnpm --filter @workspace/db run push-force` (no pending changes) + `curl http://localhost:3009/api/collections` and `/api/collections/ramzan-special/products?...` return expected data).*
 
 #### §5.2 Offer management *(document wording)*
 
@@ -91,7 +91,7 @@ Section headings below labelled **§5.x** quote **§5 Admin Panel Functionalitie
 
 - [ ] Privacy Policy — working route/page.
 - [ ] Terms & Conditions — working route/page.
-- [ ] Contact — working route/page + usable contact behavior.
+- [x] Contact — working route/page + usable contact behavior. *(verified: `/contact` route added and builds; includes mailto-based contact form)*
 - [ ] Footer: social platforms links (placeholders or real URLs).
 
 ### 7. Reliability & QA

@@ -23,10 +23,10 @@ export async function GET(request: Request) {
       db.select().from(productsTable),
     ]);
 
-    const totalRevenue = ordersWithStatus.reduce(
-      (sum, r) => sum + parseFloat(r.order.total),
-      0,
-    );
+    const totalRevenue = ordersWithStatus.reduce((sum, r) => {
+      if (r.order.paymentStatus && r.order.paymentStatus !== "paid") return sum;
+      return sum + parseFloat(r.order.total);
+    }, 0);
     const ordersByStatus = {
       received: ordersWithStatus.filter((r) => r.statusName === "received").length,
       processed: ordersWithStatus.filter((r) => r.statusName === "processed").length,

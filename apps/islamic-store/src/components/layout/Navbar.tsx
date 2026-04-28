@@ -9,6 +9,7 @@ const CATEGORIES = [
   { name: "TASBEEH", href: "/products?category=tasbeeh" },
   { name: "JEWELRY", href: "/products?category=jewelry" },
   { name: "NEW ARRIVALS", href: "/products?featured=true" },
+  { name: "COLLECTIONS", href: "/collections" },
   { name: "ALL PRODUCTS", href: "/products" },
 ];
 

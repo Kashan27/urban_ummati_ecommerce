@@ -7,6 +7,7 @@ export const productSchema = z.object({
   price: z.coerce.number().positive(),
   comparePrice: z.coerce.number().optional().nullable(),
   categoryId: z.coerce.number().int().positive(),
+  collectionIds: z.array(z.number().int().positive()).default([]),
   inStock: z.boolean().default(true),
   featured: z.boolean().default(false),
   isUpsell: z.boolean().default(false),

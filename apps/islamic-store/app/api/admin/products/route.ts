@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
-import { categoriesTable, db, productsTable } from "@workspace/db";
+import {
+  categoriesTable,
+  collectionsTable,
+  db,
+  productCollectionsTable,
+  productsTable,
+} from "@workspace/db";
 import { formatProduct } from "@/lib/api-formatters";
 import { requireAdmin } from "@/lib/admin-auth";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -22,6 +28,7 @@ const AdminProductBody = z.object({
   price: z.coerce.number().positive(),
   comparePrice: z.coerce.number().nullable().optional(),
   categoryId: z.coerce.number().int().positive(),
+  collectionIds: z.array(z.coerce.number().int().positive()).optional().default([]),
   imageUrl: imageValueSchema,
   images: z.array(imageValueSchema).default([]),
   inStock: z.boolean().default(true),
@@ -73,6 +80,7 @@ export async function POST(request: Request) {
     }
 
     const data = parsed.data;
+    const collectionIds = Array.from(new Set((data.collectionIds || []).filter(Boolean)));
     const [category] = await db
       .select()
       .from(categoriesTable)
@@ -83,24 +91,63 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Category not found" }, { status: 400 });
     }
 
-    const [product] = await db
-      .insert(productsTable)
-      .values({
-        name: data.name,
-        description: data.description,
-        status: data.status,
-        price: String(data.price),
-        comparePrice: data.comparePrice ? String(data.comparePrice) : null,
-        categoryId: category.id,
-        imageUrl: data.imageUrl,
-        images: data.images || [],
-        inStock: data.inStock ?? true,
-        featured: data.featured ?? false,
-        isUpsell: data.isUpsell ?? false,
-        upsellDiscount: data.upsellDiscount ? String(data.upsellDiscount) : null,
-        colors: data.colors || [],
-      })
-      .returning();
+    if (collectionIds.length > 0) {
+      const existingCollections = await db
+        .select({ id: collectionsTable.id })
+        .from(collectionsTable)
+        .where(inArray(collectionsTable.id, collectionIds));
+      if (existingCollections.length !== collectionIds.length) {
+        return NextResponse.json(
+          { error: "One or more collections were not found" },
+          { status: 400 },
+        );
+      }
+    }
+
+    const now = new Date();
+    const product = await db.transaction(async (tx) => {
+      const [inserted] = await tx
+        .insert(productsTable)
+        .values({
+          name: data.name,
+          description: data.description,
+          status: data.status,
+          price: String(data.price),
+          comparePrice: data.comparePrice ? String(data.comparePrice) : null,
+          categoryId: category.id,
+          imageUrl: data.imageUrl,
+          images: data.images || [],
+          inStock: data.inStock ?? true,
+          featured: data.featured ?? false,
+          isUpsell: data.isUpsell ?? false,
+          upsellDiscount: data.upsellDiscount ? String(data.upsellDiscount) : null,
+          colors: data.colors || [],
+        })
+        .returning();
+
+      if (collectionIds.length > 0) {
+        for (const collectionId of collectionIds) {
+          await tx
+            .insert(productCollectionsTable)
+            .values({
+              productId: inserted.id,
+              collectionId,
+              isActive: true,
+              createdAt: now,
+              updatedAt: now,
+            })
+            .onConflictDoUpdate({
+              target: [
+                productCollectionsTable.productId,
+                productCollectionsTable.collectionId,
+              ],
+              set: { isActive: true, updatedAt: now },
+            });
+        }
+      }
+
+      return inserted;
+    });
 
     return NextResponse.json(
       formatProduct(product, {

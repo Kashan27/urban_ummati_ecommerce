@@ -61,6 +61,22 @@ export function formatOrder(
     statusId: (o as any).statusId,
     isFreeOrder: o.isFreeOrder,
     discount: parseFloat(o.discount),
+    paymentProvider: (o as any).paymentProvider ?? null,
+    paymentStatus: (o as any).paymentStatus ?? null,
+    stripeCheckoutSessionId: (o as any).stripeCheckoutSessionId ?? null,
+    stripePaymentIntentId: (o as any).stripePaymentIntentId ?? null,
+    paidAt: (o as any).paidAt ? (o as any).paidAt.toISOString() : null,
+    shipstationOrderId: (o as any).shipstationOrderId ?? null,
+    shipstationOrderKey: (o as any).shipstationOrderKey ?? null,
+    shipstationShipmentId: (o as any).shipstationShipmentId ?? null,
+    shipstationShipmentStatus: (o as any).shipstationShipmentStatus ?? null,
+    shipstationTrackingNumber: (o as any).shipstationTrackingNumber ?? null,
+    shipstationCarrierCode: (o as any).shipstationCarrierCode ?? null,
+    shipstationServiceCode: (o as any).shipstationServiceCode ?? null,
+    shipstationSyncedAt: (o as any).shipstationSyncedAt
+      ? (o as any).shipstationSyncedAt.toISOString()
+      : null,
+    shippedAt: (o as any).shippedAt ? (o as any).shippedAt.toISOString() : null,
     notes: o.notes,
     createdAt: o.createdAt.toISOString(),
   };

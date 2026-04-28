@@ -2,15 +2,16 @@
   "name": "@workspace/islamic-store",
   "version": "0.0.0",
   "private": true,
-  "scripts": { 
-
+  "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3009",
     "build": "next build",
     "start": "next start -H 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "drizzle-orm": "catalog:"
+    "@vercel/blob": "^2.3.3",
+    "drizzle-orm": "catalog:",
+    "stripe": "^22.0.2"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",

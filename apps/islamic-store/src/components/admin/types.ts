@@ -1,6 +1,13 @@
 import type { ComponentType, SVGProps } from "react";
 
-export type AdminSection = "dashboard" | "products" | "categories" | "orders" | "promo" | "settings";
+export type AdminSection =
+  | "dashboard"
+  | "products"
+  | "categories"
+  | "collections"
+  | "orders"
+  | "promo"
+  | "settings";
 
 export type AdminProduct = {
   id: number;
@@ -23,6 +30,15 @@ export type AdminProduct = {
 };
 
 export type AdminCategory = {
+  id: number;
+  name: string;
+  slug: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AdminCollection = {
   id: number;
   name: string;
   slug: string;

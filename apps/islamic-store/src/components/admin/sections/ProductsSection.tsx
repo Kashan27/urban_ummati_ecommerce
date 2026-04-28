@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { AdminProductDialogContent } from "@/components/admin/AdminProductDialog";
-import type { AdminProduct, AdminCategory } from "@/components/admin/types";
+import type { AdminProduct, AdminCategory, AdminCollection } from "@/components/admin/types";
 import type { ProductFormValues } from "@/components/admin/product-form-schema";
 import { Link } from "@/lib/router";
 
 type Props = {
   products: AdminProduct[] | undefined;
   categories: AdminCategory[] | undefined;
+  collections: AdminCollection[] | undefined;
   productForm: UseFormReturn<ProductFormValues>;
   imageUrls: string[];
   setImageUrls: React.Dispatch<React.SetStateAction<string[]>>;
@@ -33,6 +34,7 @@ type Props = {
 export function ProductsSection({
   products,
   categories,
+  collections,
   productForm,
   imageUrls,
   setImageUrls,
@@ -96,6 +98,7 @@ export function ProductsSection({
           imageUrls={imageUrls}
           setImageUrls={setImageUrls}
           categories={categories}
+          collections={collections}
           productSaveError={productSaveError}
           isSavingProduct={isSavingProduct}
           onSubmit={onSaveProduct}

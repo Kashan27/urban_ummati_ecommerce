@@ -1,4 +1,4 @@
-import { Package, ShoppingBag, Users, Link as LinkIcon, Tag, Settings } from "lucide-react";
+import { Package, ShoppingBag, Users, Link as LinkIcon, Tag, Settings, Layers } from "lucide-react";
 import type { AdminNavItem } from "./types";
 
 export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
@@ -21,6 +21,16 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     children: [
       { key: "categories-all", label: "All Categories", href: "/admin/categories" },
       { key: "categories-new", label: "Add Category", href: "/admin/categories#new" },
+    ],
+  },
+  {
+    key: "collections",
+    label: "Collections",
+    href: "/admin/collections",
+    icon: Layers,
+    children: [
+      { key: "collections-all", label: "All Collections", href: "/admin/collections" },
+      { key: "collections-new", label: "Add Collection", href: "/admin/collections#new" },
     ],
   },
   {

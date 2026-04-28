@@ -15,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { ADMIN_NAV_ITEMS } from "@/components/admin/nav-config";
 import { productSchema, type ProductFormValues } from "@/components/admin/product-form-schema";
-import type { AdminSection, AdminProduct, AdminCategory } from "@/components/admin/types";
+import type { AdminSection, AdminProduct, AdminCategory, AdminCollection } from "@/components/admin/types";
 import { AdminLoadingScreen } from "@/components/admin/AdminLoadingScreen";
 import { AdminLoginForm } from "@/components/admin/AdminLoginForm";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
@@ -24,6 +24,7 @@ import { DashboardSection } from "@/components/admin/sections/DashboardSection";
 import { ProductsSection } from "@/components/admin/sections/ProductsSection";
 import { OrdersSection } from "@/components/admin/sections/OrdersSection";
 import { CategoriesSection } from "@/components/admin/sections/CategoriesSection";
+import { CollectionsSection } from "@/components/admin/sections/CollectionsSection";
 import { PromoSection } from "@/components/admin/sections/PromoSection";
 import { SettingsSection } from "@/components/admin/sections/SettingsSection";
 import { OrderDetailsDialog } from "@/components/admin/OrderDetailsDialog";
@@ -52,6 +53,10 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   const [isSavingCategory, setIsSavingCategory] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
   const [editingCategoryName, setEditingCategoryName] = useState("");
+  const [newCollectionName, setNewCollectionName] = useState("");
+  const [isSavingCollection, setIsSavingCollection] = useState(false);
+  const [editingCollectionId, setEditingCollectionId] = useState<number | null>(null);
+  const [editingCollectionName, setEditingCollectionName] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmDescription, setConfirmDescription] = useState("");
@@ -112,6 +117,21 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
     },
   });
 
+  const { data: collectionsData } = useQuery<{ collections: AdminCollection[]; total: number }>({
+    enabled: authenticated && (activeSection === "products" || activeSection === "collections"),
+    queryKey: ["adminCollections"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/collections", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to load admin collections");
+      }
+      return response.json();
+    },
+  });
+
   const { data: promoLinksData } = useQuery<{ links: any[]; total: number }>({
     enabled: authenticated && activeSection === "promo",
     queryKey: ["adminPromoLinks"],
@@ -154,6 +174,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       price: 0,
       comparePrice: null,
       categoryId: 1,
+      collectionIds: [],
       inStock: true,
       featured: false,
       isUpsell: false,
@@ -260,6 +281,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       price: 0,
       comparePrice: null,
       categoryId: categoriesData?.categories?.[0]?.id || 1,
+      collectionIds: [],
       inStock: true,
       featured: false,
       isUpsell: false,
@@ -273,7 +295,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
     setIsProductDialogOpen(true);
   }
 
-  function openEditProductDialog(product: AdminProduct) {
+  async function openEditProductDialog(product: AdminProduct) {
     setProductDialogMode("edit");
     setEditingProductId(product.id);
     productForm.reset({
@@ -283,6 +305,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       price: product.price,
       comparePrice: product.comparePrice ?? null,
       categoryId: product.categoryId || categoriesData?.categories?.[0]?.id || 1,
+      collectionIds: [],
       inStock: product.inStock,
       featured: product.featured,
       isUpsell: product.isUpsell,
@@ -291,6 +314,17 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
     });
     setImageUrls(Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.imageUrl]);
     setIsProductDialogOpen(true);
+
+    try {
+      const response = await fetch(`/api/admin/products/${product.id}/collections`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) return;
+      const data = (await response.json().catch(() => null)) as { collectionIds?: number[] } | null;
+      const ids = Array.isArray(data?.collectionIds) ? data!.collectionIds : [];
+      productForm.setValue("collectionIds", ids);
+    } catch {}
   }
 
   async function handleSaveProduct(values: ProductFormValues) {
@@ -559,6 +593,78 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
     setConfirmOpen(true);
   }
 
+  async function handleCreateCollection() {
+    const name = newCollectionName.trim();
+    if (!name) return;
+    setIsSavingCollection(true);
+    try {
+      const response = await fetch("/api/admin/collections", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, isActive: true }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to create collection");
+      }
+      setNewCollectionName("");
+      await queryClient.invalidateQueries({ queryKey: ["adminCollections"] });
+    } finally {
+      setIsSavingCollection(false);
+    }
+  }
+
+  async function handleUpdateCollection(id: number) {
+    const name = editingCollectionName.trim();
+    if (!name) return;
+    setIsSavingCollection(true);
+    try {
+      const response = await fetch(`/api/admin/collections/${id}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to update collection");
+      }
+      setEditingCollectionId(null);
+      setEditingCollectionName("");
+      await queryClient.invalidateQueries({ queryKey: ["adminCollections"] });
+    } finally {
+      setIsSavingCollection(false);
+    }
+  }
+
+  async function handleDeleteCollection(id: number) {
+    setConfirmTitle("Deactivate collection?");
+    setConfirmDescription(
+      "This marks the collection as inactive. It will no longer be visible on the storefront, but product relationships are preserved for history.",
+    );
+    setConfirmLabel("Deactivate");
+    setConfirmAction(() => async () => {
+      setIsSavingCollection(true);
+      try {
+        const response = await fetch(`/api/admin/collections/${id}`, {
+          method: "DELETE",
+          credentials: "include",
+        });
+        if (!response.ok) {
+          const error = await response.json().catch(() => null);
+          throw new Error(error?.error || "Failed to deactivate collection");
+        }
+        await queryClient.invalidateQueries({ queryKey: ["adminCollections"] });
+        toast.success("Collection deactivated");
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Deactivation failed");
+        throw error;
+      } finally {
+        setIsSavingCollection(false);
+      }
+    });
+    setConfirmOpen(true);
+  }
+
   async function handleConfirmSubmit() {
     if (!confirmAction) return;
     setConfirmPending(true);
@@ -613,6 +719,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
               <ProductsSection
                 products={productsData?.products}
                 categories={categoriesData?.categories}
+                collections={collectionsData?.collections}
                 productForm={productForm}
                 imageUrls={imageUrls}
                 setImageUrls={setImageUrls}
@@ -671,6 +778,29 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
               />
             )}
 
+            {activeSection === "collections" && (
+              <CollectionsSection
+                collections={collectionsData?.collections}
+                newCollectionName={newCollectionName}
+                onNewCollectionNameChange={setNewCollectionName}
+                isSavingCollection={isSavingCollection}
+                editingCollectionId={editingCollectionId}
+                editingCollectionName={editingCollectionName}
+                onEditingCollectionNameChange={setEditingCollectionName}
+                onStartEdit={(collection) => {
+                  setEditingCollectionId(collection.id);
+                  setEditingCollectionName(collection.name);
+                }}
+                onCancelEdit={() => {
+                  setEditingCollectionId(null);
+                  setEditingCollectionName("");
+                }}
+                onCreateCollection={handleCreateCollection}
+                onUpdateCollection={handleUpdateCollection}
+                onDeleteCollection={handleDeleteCollection}
+              />
+            )}
+
             {activeSection === "promo" && (
               <PromoSection
                 products={productsData?.products}
@@ -691,6 +821,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
         order={selectedOrder}
         open={isOrderDetailsOpen}
         onOpenChange={setIsOrderDetailsOpen}
+        onOrderUpdated={setSelectedOrder}
       />
 
       <OrderReceipt order={selectedOrder} />

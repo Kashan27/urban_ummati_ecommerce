@@ -1,19 +1,76 @@
 "use client";
 
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { Button } from "@/components/ui/button";
 import type { Order } from "@workspace/api-zod";
 
 type Props = {
   order: Order | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onOrderUpdated: (order: Order) => void;
 };
 
-export function OrderDetailsDialog({ order, open, onOpenChange }: Props) {
+export function OrderDetailsDialog({ order, open, onOpenChange, onOrderUpdated }: Props) {
   if (!order) return null;
+  const currentOrder = order;
+  const [syncPending, setSyncPending] = useState(false);
+  const [syncError, setSyncError] = useState("");
+
+  async function reloadOrder() {
+    const response = await fetch(`/api/orders/${currentOrder.id}`, { method: "GET" });
+    if (!response.ok) throw new Error("Failed to reload order");
+    const updated = (await response.json()) as Order;
+    onOrderUpdated(updated);
+  }
+
+  async function syncToShipStation() {
+    setSyncError("");
+    setSyncPending(true);
+    try {
+      const response = await fetch(`/api/orders/${currentOrder.id}/shipstation`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error || "ShipStation sync failed");
+      }
+
+      await reloadOrder();
+    } catch (err) {
+      setSyncError(err instanceof Error ? err.message : "ShipStation sync failed");
+    } finally {
+      setSyncPending(false);
+    }
+  }
+
+  async function refreshFromShipStation() {
+    setSyncError("");
+    setSyncPending(true);
+    try {
+      const response = await fetch(`/api/orders/${currentOrder.id}/shipstation`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error || "ShipStation refresh failed");
+      }
+
+      await reloadOrder();
+    } catch (err) {
+      setSyncError(err instanceof Error ? err.message : "ShipStation refresh failed");
+    } finally {
+      setSyncPending(false);
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -21,9 +78,9 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: Props) {
         <DialogHeader>
           <div className="flex items-center justify-between pr-8">
             <DialogTitle className="font-serif text-2xl">
-              Order #{order.id.toString().padStart(5, "0")}
+              Order #{currentOrder.id.toString().padStart(5, "0")}
             </DialogTitle>
-            <StatusBadge status={order.status} />
+            <StatusBadge status={currentOrder.status} />
           </div>
         </DialogHeader>
 
@@ -44,6 +101,76 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: Props) {
                   {order.city}, {order.province} {order.postalCode}<br />
                   {order.country}
                 </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Payment</h4>
+                <div className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Status:</span> {order.paymentStatus ?? "n/a"}
+                </div>
+                {order.paymentProvider ? (
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Provider:</span> {order.paymentProvider}
+                  </div>
+                ) : null}
+                {order.paidAt ? (
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Paid:</span>{" "}
+                    {new Date(order.paidAt).toLocaleString("en-CA")}
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">ShipStation</h4>
+                <div className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Order ID:</span>{" "}
+                  {order.shipstationOrderId ?? "not synced"}
+                </div>
+                {order.shipstationTrackingNumber ? (
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Tracking:</span>{" "}
+                    {order.shipstationTrackingNumber}
+                  </div>
+                ) : null}
+                {order.shippedAt ? (
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Shipped:</span>{" "}
+                    {new Date(order.shippedAt).toLocaleString("en-CA")}
+                  </div>
+                ) : null}
+                <div className="flex gap-2 pt-1">
+                  {!order.shipstationOrderId && order.paymentStatus === "paid" ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={syncPending}
+                      onClick={syncToShipStation}
+                      className="uppercase tracking-wider"
+                    >
+                      Sync
+                    </Button>
+                  ) : null}
+                  {order.shipstationOrderId ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={syncPending}
+                      onClick={refreshFromShipStation}
+                      className="uppercase tracking-wider"
+                    >
+                      Refresh
+                    </Button>
+                  ) : null}
+                </div>
+                {syncError ? (
+                  <div className="text-xs text-destructive">{syncError}</div>
+                ) : null}
               </div>
             </div>
 

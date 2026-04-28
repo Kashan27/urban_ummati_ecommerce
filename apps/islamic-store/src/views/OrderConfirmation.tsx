@@ -1,16 +1,26 @@
+import { useEffect } from "react";
 import { useParams, Link } from "@/lib/router";
 import { useGetOrder, getGetOrderQueryKey } from "@workspace/api-client-react";
 import { CheckCircle, Package, Truck, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useCart } from "@/lib/cart-context";
 
 export function OrderConfirmation() {
   const params = useParams<{ id: string }>();
   const orderId = parseInt(params.id || "0");
+  const { clearCart } = useCart();
 
   const { data: order, isLoading } = useGetOrder(orderId, {
     query: { enabled: !!orderId, queryKey: getGetOrderQueryKey(orderId) }
   });
+
+  useEffect(() => {
+    if (!order) return;
+    const isPaid =
+      order.paymentStatus === "paid" || order.total === 0 || order.isFreeOrder === true;
+    if (isPaid) clearCart();
+  }, [order, clearCart]);
 
   if (isLoading) {
     return (

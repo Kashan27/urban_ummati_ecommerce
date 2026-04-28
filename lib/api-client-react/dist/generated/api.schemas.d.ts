@@ -67,6 +67,20 @@ export interface Order {
     status: OrderStatus;
     isFreeOrder: boolean;
     discount: number;
+    paymentProvider?: string | null;
+    paymentStatus?: string | null;
+    stripeCheckoutSessionId?: string | null;
+    stripePaymentIntentId?: string | null;
+    paidAt?: string | null;
+    shipstationOrderId?: string | null;
+    shipstationOrderKey?: string | null;
+    shipstationShipmentId?: string | null;
+    shipstationShipmentStatus?: string | null;
+    shipstationTrackingNumber?: string | null;
+    shipstationCarrierCode?: string | null;
+    shipstationServiceCode?: string | null;
+    shipstationSyncedAt?: string | null;
+    shippedAt?: string | null;
     notes?: string | null;
     createdAt: string;
 }

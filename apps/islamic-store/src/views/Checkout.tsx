@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { useLocation } from "@/lib/router";
+import { useLocation, useSearch } from "@/lib/router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCart } from "@/lib/cart-context";
-import { useCreateOrder } from "@workspace/api-client-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -33,7 +32,12 @@ type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 export function Checkout() {
   const { items, subtotal, clearCart } = useCart();
   const [, setLocation] = useLocation();
-  const createOrder = useCreateOrder();
+  const searchString = useSearch();
+  const searchParams = new URLSearchParams(searchString);
+  const canceled = searchParams.get("canceled") === "1";
+  const canceledOrderId = searchParams.get("orderId");
+  const [paymentPending, setPaymentPending] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
 
   const shippingCost = subtotal >= 75 ? 0 : 15;
   const tax = (subtotal + shippingCost) * 0.13;
@@ -52,28 +56,51 @@ export function Checkout() {
     },
   });
 
-  function onSubmit(values: CheckoutFormValues) {
+  async function onSubmit(values: CheckoutFormValues) {
     if (items.length === 0) return;
 
     const promoToken = items.find(i => i.promoToken)?.promoToken;
 
-    createOrder.mutate({
-      data: {
-        ...values,
-        country: "Canada",
-        freeProductToken: promoToken,
-        items: items.map(item => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          color: item.color,
-        })),
+    setPaymentError("");
+    setPaymentPending(true);
+    try {
+      const response = await fetch("/api/payments/stripe/checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...values,
+          country: "Canada",
+          freeProductToken: promoToken,
+          items: items.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            color: item.color,
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error || "Unable to start payment");
       }
-    }, {
-      onSuccess: (order) => {
+
+      const data = (await response.json()) as { url?: string | null; redirectUrl?: string | null };
+
+      if (data.redirectUrl) {
         clearCart();
-        setLocation(`/order-confirmation/${order.id}`);
+        setLocation(data.redirectUrl);
+        return;
       }
-    });
+
+      if (!data.url) {
+        throw new Error("Stripe checkout URL missing");
+      }
+
+      window.location.href = data.url;
+    } catch (err) {
+      setPaymentError(err instanceof Error ? err.message : "Payment failed");
+      setPaymentPending(false);
+    }
   }
 
   if (items.length === 0) {
@@ -98,6 +125,67 @@ export function Checkout() {
       </div>
 
       <h1 className="font-serif text-3xl md:text-4xl mb-10 tracking-wide">Checkout</h1>
+      {canceled && (
+        <div className="mb-8 rounded-md border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <span>
+              Payment was canceled. {canceledOrderId ? `Order #${canceledOrderId} is still pending.` : ""}
+            </span>
+            {canceledOrderId ? (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={paymentPending}
+                onClick={async () => {
+                  const email = form.getValues("customerEmail");
+                  if (!email) {
+                    form.setError("customerEmail", {
+                      type: "manual",
+                      message: "Email is required to retry payment",
+                    });
+                    return;
+                  }
+                  setPaymentError("");
+                  setPaymentPending(true);
+                  try {
+                    const response = await fetch("/api/payments/stripe/retry-session", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ orderId: canceledOrderId, customerEmail: email }),
+                    });
+
+                    const data = await response.json().catch(() => null);
+
+                    if (!response.ok) {
+                      if (data?.redirectUrl) {
+                        clearCart();
+                        setLocation(data.redirectUrl);
+                        return;
+                      }
+                      throw new Error(data?.error || "Unable to retry payment");
+                    }
+
+                    if (data?.redirectUrl) {
+                      clearCart();
+                      setLocation(data.redirectUrl);
+                      return;
+                    }
+
+                    if (!data?.url) throw new Error("Stripe checkout URL missing");
+                    window.location.href = data.url;
+                  } catch (err) {
+                    setPaymentError(err instanceof Error ? err.message : "Payment retry failed");
+                    setPaymentPending(false);
+                  }
+                }}
+                className="uppercase tracking-wider"
+              >
+                Retry Payment
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <div>
@@ -225,16 +313,19 @@ export function Checkout() {
               <Button
                 type="submit"
                 data-testid="button-place-order"
-                disabled={createOrder.isPending}
+                disabled={paymentPending}
                 className="w-full py-6 text-sm uppercase tracking-[0.2em] font-sans"
               >
-                {createOrder.isPending ? "Processing..." : (
+                {paymentPending ? "Redirecting..." : (
                   <span className="flex items-center gap-2">
                     <Lock className="h-4 w-4" />
-                    Place Order - ${total.toFixed(2)} CAD
+                    Pay Securely - ${total.toFixed(2)} CAD
                   </span>
                 )}
               </Button>
+              {paymentError ? (
+                <p className="text-sm text-destructive">{paymentError}</p>
+              ) : null}
 
               <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
                 <Lock className="h-3 w-3" />

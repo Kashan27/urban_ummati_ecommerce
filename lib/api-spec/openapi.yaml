@@ -527,6 +527,48 @@ components:
           type: boolean
         discount:
           type: number
+        paymentProvider:
+          type: string
+          nullable: true
+        paymentStatus:
+          type: string
+          nullable: true
+        stripeCheckoutSessionId:
+          type: string
+          nullable: true
+        stripePaymentIntentId:
+          type: string
+          nullable: true
+        paidAt:
+          type: string
+          nullable: true
+        shipstationOrderId:
+          type: string
+          nullable: true
+        shipstationOrderKey:
+          type: string
+          nullable: true
+        shipstationShipmentId:
+          type: string
+          nullable: true
+        shipstationShipmentStatus:
+          type: string
+          nullable: true
+        shipstationTrackingNumber:
+          type: string
+          nullable: true
+        shipstationCarrierCode:
+          type: string
+          nullable: true
+        shipstationServiceCode:
+          type: string
+          nullable: true
+        shipstationSyncedAt:
+          type: string
+          nullable: true
+        shippedAt:
+          type: string
+          nullable: true
         notes:
           type: string
           nullable: true

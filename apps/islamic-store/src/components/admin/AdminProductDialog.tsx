@@ -1,11 +1,12 @@
 "use client";
 
 import type { UseFormReturn } from "react-hook-form";
+import { useRef, useState } from "react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import type { AdminCategory } from "@/components/admin/types";
+import type { AdminCategory, AdminCollection } from "@/components/admin/types";
 import type { ProductFormValues } from "@/components/admin/product-form-schema";
 
 type Props = {
@@ -14,6 +15,7 @@ type Props = {
   imageUrls: string[];
   setImageUrls: React.Dispatch<React.SetStateAction<string[]>>;
   categories: AdminCategory[] | undefined;
+  collections: AdminCollection[] | undefined;
   productSaveError: string;
   isSavingProduct: boolean;
   onSubmit: (values: ProductFormValues) => void;
@@ -25,11 +27,53 @@ export function AdminProductDialogContent({
   imageUrls,
   setImageUrls,
   categories,
+  collections,
   productSaveError,
   isSavingProduct,
   onSubmit,
   onCancel,
 }: Props & { onCancel: () => void }) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploadPending, setUploadPending] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  const uploadSelectedFile = async () => {
+    const file = fileInputRef.current?.files?.[0] ?? null;
+    if (!file) return;
+
+    setUploadError("");
+    setUploadPending(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch("/api/admin/uploads/product-image", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(data?.error || "Upload failed");
+      }
+
+      const data = (await response.json()) as { url: string };
+      const uploadedUrl = data.url;
+      setImageUrls((prev) => {
+        const next = [...prev];
+        const idx = next.findIndex((u) => !u.trim());
+        if (idx >= 0) next[idx] = uploadedUrl;
+        else next.push(uploadedUrl);
+        return next;
+      });
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploadPending(false);
+    }
+  };
+
   return (
     <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
@@ -128,8 +172,72 @@ export function AdminProductDialogContent({
                   </FormItem>
                 )}
               />
+              <FormField
+                control={productForm.control}
+                name="collectionIds"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel className="text-xs uppercase tracking-wider">Collections</FormLabel>
+                    <FormControl>
+                      <div className="grid grid-cols-1 gap-2 rounded-md border border-input bg-background p-3 sm:grid-cols-2">
+                        {(collections || [])
+                          .filter((c) => c.isActive)
+                          .map((collection) => {
+                            const checked = Array.isArray(field.value)
+                              ? field.value.includes(collection.id)
+                              : false;
+                            return (
+                              <label
+                                key={collection.id}
+                                className="flex items-center gap-2 text-sm text-foreground"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={(event) => {
+                                    const current = Array.isArray(field.value) ? field.value : [];
+                                    const next = event.target.checked
+                                      ? Array.from(new Set([...current, collection.id]))
+                                      : current.filter((id) => id !== collection.id);
+                                    field.onChange(next);
+                                  }}
+                                  className="accent-primary"
+                                />
+                                <span>{collection.name}</span>
+                              </label>
+                            );
+                          })}
+                        {!collections?.length ? (
+                          <div className="text-sm text-muted-foreground">
+                            Create a collection first to assign products.
+                          </div>
+                        ) : null}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <div className="col-span-2 space-y-2">
                 <label className="text-xs uppercase tracking-wider">Product Images</label>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    className="w-full text-sm"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={uploadSelectedFile}
+                    disabled={uploadPending}
+                  >
+                    {uploadPending ? "Uploading..." : "Upload"}
+                  </Button>
+                </div>
+                {uploadError ? <p className="text-sm text-destructive">{uploadError}</p> : null}
                 {imageUrls.map((url, index) => (
                   <div key={`${index}-${url}`} className="space-y-2">
                     <div className="flex items-center gap-2">

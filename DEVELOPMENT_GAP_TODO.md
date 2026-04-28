@@ -50,12 +50,12 @@ It complements `TODO_PENDING_TASKS.md`, which remains the main spec-aligned chec
   - Evidence: Added `updatedAt` to `productsTable` and `ordersTable`. Updated `PUT` routes to refresh `updatedAt`.
 
 - [ ] Add real product image upload/storage.
-  - Current: admin product form accepts URL/path strings.
-  - Required: add file upload API, storage target, saved asset URL/path, validation, and admin UI upload control.
+  - Current: URL/path strings still supported, plus upload is now implemented.
+  - Progress: `POST /api/admin/uploads/product-image` uploads to Vercel Blob when `BLOB_READ_WRITE_TOKEN` is set (returns a public blob URL). In dev (no token), it falls back to saving under `public/uploads/products` and returns a `/uploads/...` URL.
+  - Pending: end-to-end verification on Vercel (upload → blob URL → save product → storefront loads blob image).
 
-- [ ] Add collections as a separate module from categories.
-  - Current: no collection schema, admin UI, API, or storefront filtering.
-  - Required: create normalized collection tables and product relationship, then expose admin CRUD and storefront use.
+- [x] Add collections as a separate module from categories.
+  - Evidence: `pnpm --filter @workspace/db run push-force` (no pending changes) + `curl http://localhost:3009/api/collections` and `/api/collections/ramzan-special/products?...` return data; admin page `/admin/collections` and storefront pages `/collections`, `/collections/[slug]` are built.
 
 ### 2. Free Product And Offer Flow
 
@@ -139,27 +139,42 @@ It complements `TODO_PENDING_TASKS.md`, which remains the main spec-aligned chec
 
 ### 1. Stripe Payments
 
-- [ ] Add Stripe Checkout or PaymentIntent flow.
-- [ ] Add secure payment confirmation webhooks.
-- [ ] Persist payment provider IDs and payment status.
-- [ ] Add failed-payment handling and retry path.
-- [ ] Connect checkout completion to order confirmation only after payment success, unless COD/manual payment is explicitly agreed.
+- [x] Add Stripe Checkout or PaymentIntent flow.
+  - Evidence: `POST /api/payments/stripe/checkout-session` creates Checkout Session and redirects; dummy card success.
+- [x] Add secure payment confirmation webhooks.
+  - Evidence: `POST /api/payments/stripe/webhook` updates `orders.payment_status` on `checkout.session.completed` using `stripe listen --forward-to localhost:3009/api/payments/stripe/webhook`.
+- [x] Persist payment provider IDs and payment status.
+  - Evidence: `orders.payment_provider`, `orders.payment_status`, `orders.stripe_checkout_session_id`, `orders.stripe_payment_intent_id`, `orders.paid_at` populated.
+- [x] Add failed-payment handling and retry path.
+  - Evidence: `POST /api/payments/stripe/retry-session` + Checkout “Retry Payment” button when `?canceled=1&orderId=...`.
+- [x] Connect checkout completion to order confirmation only after payment success, unless COD/manual payment is explicitly agreed.
+  - Evidence: Stripe Checkout success returns to `/order-confirmation/[id]`; cart is cleared only when order is paid/free.
 
 ### 2. ShipStation Shipping Integration
 
-- [ ] Create ShipStation integration service.
-- [ ] Sync confirmed paid orders to ShipStation.
-- [ ] Store external ShipStation order/shipment IDs.
-- [ ] Pull or receive shipment updates.
-- [ ] Map shipment updates to local order statuses.
+- [x] Create ShipStation integration service.
+  - Evidence: `/app/api/integrations/shipstation/service.ts` implements Basic Auth client, create order, and list shipments.
+- [x] Sync confirmed paid orders to ShipStation.
+  - Evidence: Stripe webhook `/api/payments/stripe/webhook` calls ShipStation sync after marking order paid.
+- [x] Store external ShipStation order/shipment IDs.
+  - Evidence: `orders.shipstation_order_id` + shipment/tracking columns are persisted after sync/refresh.
+- [x] Pull or receive shipment updates.
+  - Evidence: Admin `POST /api/admin/shipstation/poll` and `GET /api/orders/[id]/shipstation` refresh from ShipStation shipments endpoint.
+- [x] Map shipment updates to local order statuses.
+  - Evidence: refresh sets `orders.status_id=3` and `orders.shipped_at` when ShipStation tracking/shipDate exists.
 
 ### 3. Collections
 
-- [ ] Create collections schema.
-- [ ] Add product-to-collection relationship.
-- [ ] Add admin collection CRUD.
-- [ ] Add storefront collection browsing/filtering.
-- [ ] Avoid storing collection names directly on product rows.
+- [x] Create collections schema.
+  - Evidence: `lib/db/src/schema/collections.ts` + `pnpm --filter @workspace/db run push-force` (no pending changes).
+- [x] Add product-to-collection relationship.
+  - Evidence: `lib/db/src/schema/product_collections.ts` + `curl http://localhost:3009/api/collections/ramzan-special/products?limit=1&offset=0`.
+- [x] Add admin collection CRUD.
+  - Evidence: `/api/admin/collections` + `/api/admin/collections/[id]` + admin UI at `/admin/collections`.
+- [x] Add storefront collection browsing/filtering.
+  - Evidence: `/collections` + `/collections/[slug]` + `GET /api/collections`.
+- [x] Avoid storing collection names directly on product rows.
+  - Evidence: products accept `collectionIds` and relationships persist via join table (no collection name field on products).
 
 ### 4. Product File Upload / Media Library
 
