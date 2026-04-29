@@ -257,12 +257,12 @@ export function Navbar() {
           >
             <Search className="h-5 w-5" />
           </button>
-          <button
+          {/* <button
             className="hidden rounded-md border border-transparent p-2 transition-colors hover:border-border hover:text-foreground md:block"
             aria-label="Account"
           >
             <User className="h-5 w-5" />
-          </button>
+          </button> */}
           <Link href="/cart" className="relative rounded-md border border-transparent p-2 transition-colors hover:border-border hover:text-foreground">
             <ShoppingBag className="h-6 w-6 md:h-5 md:w-5" />
             <span className="sr-only">Cart</span>
