@@ -257,7 +257,7 @@ export function Navbar() {
           >
             <Search className="h-5 w-5" />
           </button>
-          {/* <button
+          {/* <butto
             className="hidden rounded-md border border-transparent p-2 transition-colors hover:border-border hover:text-foreground md:block"
             aria-label="Account"
           >
