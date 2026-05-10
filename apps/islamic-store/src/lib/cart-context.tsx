@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { toast } from "sonner";
 
 export interface CartItem {
@@ -55,7 +55,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("noor_cart", JSON.stringify(items));
   }, [items]);
 
-  const addItem = (newItem: CartItem, options?: { skipUpsell?: boolean }) => {
+  const addItem = useCallback((newItem: CartItem, options?: { skipUpsell?: boolean }) => {
     setItems((prevItems) => {
       const existingItemIndex = prevItems.findIndex(
         (i) => i.productId === newItem.productId && i.color === newItem.color
@@ -81,15 +81,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     toast.success("Added to cart", {
       description: `${newItem.quantity}x ${newItem.name} ${newItem.color ? `(${newItem.color})` : ''}`
     });
-  };
+  }, []);
 
-  const removeItem = (productId: number, color?: string) => {
+  const removeItem = useCallback((productId: number, color?: string) => {
     setItems((prevItems) => 
       prevItems.filter((i) => !(i.productId === productId && i.color === color))
     );
-  };
+  }, []);
 
-  const updateQuantity = (productId: number, quantity: number, color?: string) => {
+  const updateQuantity = useCallback((productId: number, quantity: number, color?: string) => {
     if (quantity <= 0) {
       removeItem(productId, color);
       return;
@@ -100,9 +100,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         i.productId === productId && i.color === color ? { ...i, quantity } : i
       )
     );
-  };
+  }, [removeItem]);
 
-  const clearCart = () => setItems([]);
+  const clearCart = useCallback(() => setItems([]), []);
 
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
   const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);

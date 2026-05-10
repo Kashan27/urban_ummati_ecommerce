@@ -34,6 +34,8 @@ export interface Product {
     imageUrl: string;
     images: string[];
     inStock: boolean;
+    inventoryQuantity: number | null;
+    totalSold: number;
     featured: boolean;
     isUpsell: boolean;
     upsellDiscount?: number | null;

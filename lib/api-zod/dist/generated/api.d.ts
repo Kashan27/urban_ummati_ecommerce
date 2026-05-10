@@ -51,6 +51,8 @@ export declare const ListProductsResponse: zod.ZodObject<{
         imageUrl: zod.ZodString;
         images: zod.ZodArray<zod.ZodString, "many">;
         inStock: zod.ZodBoolean;
+        inventoryQuantity: zod.ZodNullable<zod.ZodNumber>;
+        totalSold: zod.ZodNumber;
         featured: zod.ZodBoolean;
         isUpsell: zod.ZodBoolean;
         upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
@@ -71,6 +73,8 @@ export declare const ListProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -94,6 +98,8 @@ export declare const ListProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -120,6 +126,8 @@ export declare const ListProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -146,6 +154,8 @@ export declare const ListProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -179,6 +189,8 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         imageUrl: zod.ZodString;
         images: zod.ZodArray<zod.ZodString, "many">;
         inStock: zod.ZodBoolean;
+        inventoryQuantity: zod.ZodNullable<zod.ZodNumber>;
+        totalSold: zod.ZodNumber;
         featured: zod.ZodBoolean;
         isUpsell: zod.ZodBoolean;
         upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
@@ -199,6 +211,8 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -222,6 +236,8 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -247,6 +263,8 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -272,6 +290,8 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -311,6 +331,8 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         imageUrl: zod.ZodString;
         images: zod.ZodArray<zod.ZodString, "many">;
         inStock: zod.ZodBoolean;
+        inventoryQuantity: zod.ZodNullable<zod.ZodNumber>;
+        totalSold: zod.ZodNumber;
         featured: zod.ZodBoolean;
         isUpsell: zod.ZodBoolean;
         upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
@@ -331,6 +353,8 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -354,6 +378,8 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -379,6 +405,8 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -404,6 +432,8 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -442,6 +472,8 @@ export declare const GetProductResponse: zod.ZodObject<{
     imageUrl: zod.ZodString;
     images: zod.ZodArray<zod.ZodString, "many">;
     inStock: zod.ZodBoolean;
+    inventoryQuantity: zod.ZodNullable<zod.ZodNumber>;
+    totalSold: zod.ZodNumber;
     featured: zod.ZodBoolean;
     isUpsell: zod.ZodBoolean;
     upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
@@ -462,6 +494,8 @@ export declare const GetProductResponse: zod.ZodObject<{
     imageUrl: string;
     images: string[];
     inStock: boolean;
+    inventoryQuantity: number | null;
+    totalSold: number;
     isUpsell: boolean;
     reviewCount: number;
     rating: number;
@@ -485,6 +519,8 @@ export declare const GetProductResponse: zod.ZodObject<{
     imageUrl: string;
     images: string[];
     inStock: boolean;
+    inventoryQuantity: number | null;
+    totalSold: number;
     isUpsell: boolean;
     reviewCount: number;
     rating: number;
@@ -618,6 +654,8 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         imageUrl: zod.ZodString;
         images: zod.ZodArray<zod.ZodString, "many">;
         inStock: zod.ZodBoolean;
+        inventoryQuantity: zod.ZodNullable<zod.ZodNumber>;
+        totalSold: zod.ZodNumber;
         featured: zod.ZodBoolean;
         isUpsell: zod.ZodBoolean;
         upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
@@ -638,6 +676,8 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -661,6 +701,8 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -687,6 +729,8 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -723,6 +767,8 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -1435,6 +1481,8 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             imageUrl: zod.ZodString;
             images: zod.ZodArray<zod.ZodString, "many">;
             inStock: zod.ZodBoolean;
+            inventoryQuantity: zod.ZodNullable<zod.ZodNumber>;
+            totalSold: zod.ZodNumber;
             featured: zod.ZodBoolean;
             isUpsell: zod.ZodBoolean;
             upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
@@ -1455,6 +1503,8 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             imageUrl: string;
             images: string[];
             inStock: boolean;
+            inventoryQuantity: number | null;
+            totalSold: number;
             isUpsell: boolean;
             reviewCount: number;
             rating: number;
@@ -1478,6 +1528,8 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             imageUrl: string;
             images: string[];
             inStock: boolean;
+            inventoryQuantity: number | null;
+            totalSold: number;
             isUpsell: boolean;
             reviewCount: number;
             rating: number;
@@ -1537,6 +1589,8 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             imageUrl: string;
             images: string[];
             inStock: boolean;
+            inventoryQuantity: number | null;
+            totalSold: number;
             isUpsell: boolean;
             reviewCount: number;
             rating: number;
@@ -1580,6 +1634,8 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             imageUrl: string;
             images: string[];
             inStock: boolean;
+            inventoryQuantity: number | null;
+            totalSold: number;
             isUpsell: boolean;
             reviewCount: number;
             rating: number;
@@ -1627,6 +1683,8 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             imageUrl: string;
             images: string[];
             inStock: boolean;
+            inventoryQuantity: number | null;
+            totalSold: number;
             isUpsell: boolean;
             reviewCount: number;
             rating: number;
@@ -1673,6 +1731,8 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             imageUrl: string;
             images: string[];
             inStock: boolean;
+            inventoryQuantity: number | null;
+            totalSold: number;
             isUpsell: boolean;
             reviewCount: number;
             rating: number;
@@ -1765,6 +1825,8 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         imageUrl: zod.ZodString;
         images: zod.ZodArray<zod.ZodString, "many">;
         inStock: zod.ZodBoolean;
+        inventoryQuantity: zod.ZodNullable<zod.ZodNumber>;
+        totalSold: zod.ZodNumber;
         featured: zod.ZodBoolean;
         isUpsell: zod.ZodBoolean;
         upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
@@ -1785,6 +1847,8 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -1808,6 +1872,8 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -1867,6 +1933,8 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -1910,6 +1978,8 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -1971,6 +2041,8 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         imageUrl: zod.ZodString;
         images: zod.ZodArray<zod.ZodString, "many">;
         inStock: zod.ZodBoolean;
+        inventoryQuantity: zod.ZodNullable<zod.ZodNumber>;
+        totalSold: zod.ZodNumber;
         featured: zod.ZodBoolean;
         isUpsell: zod.ZodBoolean;
         upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
@@ -1991,6 +2063,8 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -2014,6 +2088,8 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -2073,6 +2149,8 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -2116,6 +2194,8 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         imageUrl: string;
         images: string[];
         inStock: boolean;
+        inventoryQuantity: number | null;
+        totalSold: number;
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
@@ -2258,6 +2338,8 @@ export declare const UpdateProductResponse: zod.ZodObject<{
     imageUrl: zod.ZodString;
     images: zod.ZodArray<zod.ZodString, "many">;
     inStock: zod.ZodBoolean;
+    inventoryQuantity: zod.ZodNullable<zod.ZodNumber>;
+    totalSold: zod.ZodNumber;
     featured: zod.ZodBoolean;
     isUpsell: zod.ZodBoolean;
     upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
@@ -2278,6 +2360,8 @@ export declare const UpdateProductResponse: zod.ZodObject<{
     imageUrl: string;
     images: string[];
     inStock: boolean;
+    inventoryQuantity: number | null;
+    totalSold: number;
     isUpsell: boolean;
     reviewCount: number;
     rating: number;
@@ -2301,6 +2385,8 @@ export declare const UpdateProductResponse: zod.ZodObject<{
     imageUrl: string;
     images: string[];
     inStock: boolean;
+    inventoryQuantity: number | null;
+    totalSold: number;
     isUpsell: boolean;
     reviewCount: number;
     rating: number;

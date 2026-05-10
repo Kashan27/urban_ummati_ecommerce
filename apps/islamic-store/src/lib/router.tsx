@@ -3,8 +3,8 @@
 import NextLink from "next/link";
 import {
   useParams as useNextParams,
-  usePathname,
-  useRouter,
+  usePathname as useNextPathname,
+  useRouter as useNextRouter,
   useSearchParams,
 } from "next/navigation";
 import type { ComponentProps } from "react";
@@ -17,10 +17,13 @@ export function Link({ href, ...props }: LinkProps) {
   return <NextLink href={href} {...props} />;
 }
 
+export const useRouter = useNextRouter;
+export const usePathname = useNextPathname;
+
 export function useLocation(): [string, (to: string) => void] {
-  const pathname = usePathname();
+  const pathname = useNextPathname();
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const router = useNextRouter();
 
   const search = searchParams?.toString() ?? "";
   const path = pathname ?? "/";

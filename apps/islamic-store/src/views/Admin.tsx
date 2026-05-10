@@ -83,6 +83,10 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   const [confirmAction, setConfirmAction] = useState<(() => Promise<void> | void) | null>(null);
   const [confirmPending, setConfirmPending] = useState(false);
   const [orderStatusFilter, setOrderStatusFilter] = useState<ListOrdersStatus | undefined>(undefined);
+  const [orderPaymentStatusFilter, setOrderPaymentStatusFilter] = useState<"all" | "pending" | "paid" | "failed" | "refunded">("all");
+  const [orderSearchQuery, setOrderSearchQuery] = useState("");
+  const [orderDateFrom, setOrderDateFrom] = useState("");
+  const [orderDateTo, setOrderDateTo] = useState("");
   const [orderPage, setOrderPage] = useState(0);
   const [productSearch, setProductSearch] = useState("");
   const [productCategoryIds, setProductCategoryIds] = useState<number[]>([]);
@@ -103,19 +107,33 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
     query: { enabled: authenticated, queryKey: getGetAdminStatsQueryKey() },
   });
 
-  const { data: ordersData, isLoading: ordersLoading } = useListOrders(
-    {
-      status: orderStatusFilter,
-      limit: 50,
-      offset: orderPage * 50,
+  // Custom orders query with date filters
+  const { data: ordersData, isLoading: ordersLoading } = useQuery<{
+    orders: Order[];
+    total: number;
+  }>({
+    enabled: authenticated && activeSection === "orders",
+    queryKey: ["listOrders", orderStatusFilter, orderPage, orderDateFrom, orderDateTo],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (orderStatusFilter) params.set("status", orderStatusFilter);
+      if (orderDateFrom) params.set("dateFrom", orderDateFrom);
+      if (orderDateTo) params.set("dateTo", orderDateTo);
+      params.set("limit", "50");
+      params.set("offset", String(orderPage * 50));
+
+      const response = await fetch(`/api/orders?${params.toString()}`, {
+        method: "GET",
+        credentials: "include",
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to load orders");
+      }
+      
+      return response.json();
     },
-    {
-      query: {
-        enabled: authenticated && activeSection === "orders",
-        queryKey: ["listOrders", orderStatusFilter, orderPage],
-      },
-    },
-  );
+  });
 
   const productPageSize = 25;
   const debouncedProductSearch = useDebouncedValue(productSearch, 250);
@@ -969,6 +987,14 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
                 isLoading={ordersLoading}
                 statusFilter={orderStatusFilter}
                 onStatusFilterChange={setOrderStatusFilter}
+                paymentStatusFilter={orderPaymentStatusFilter}
+                onPaymentStatusFilterChange={setOrderPaymentStatusFilter}
+                searchQuery={orderSearchQuery}
+                onSearchQueryChange={setOrderSearchQuery}
+                dateFrom={orderDateFrom}
+                onDateFromChange={setOrderDateFrom}
+                dateTo={orderDateTo}
+                onDateToChange={setOrderDateTo}
                 page={orderPage}
                 onPageChange={setOrderPage}
                 totalOrders={ordersData?.total}

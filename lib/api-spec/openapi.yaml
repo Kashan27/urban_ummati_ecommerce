@@ -595,6 +595,11 @@ components:
             type: string
         inStock:
           type: boolean
+        inventoryQuantity:
+          type: integer
+          nullable: true
+        totalSold:
+          type: integer
         featured:
           type: boolean
         isUpsell:
@@ -634,6 +639,8 @@ components:
         - imageUrl
         - images
         - inStock
+        - inventoryQuantity
+        - totalSold
         - featured
         - isUpsell
         - reviewCount

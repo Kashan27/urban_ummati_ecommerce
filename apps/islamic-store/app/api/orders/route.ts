@@ -22,6 +22,10 @@ export async function GET(request: NextRequest) {
     const parsed = ListOrdersQueryParams.safeParse(rawQuery);
     const params = parsed.success ? parsed.data : { status: undefined, limit: 50, offset: 0 };
 
+    // Get date filters from query params
+    const dateFrom = search.get("dateFrom");
+    const dateTo = search.get("dateTo");
+
     const query = db
       .select({
         order: ordersTable,
@@ -36,6 +40,18 @@ export async function GET(request: NextRequest) {
     let filtered = results;
     if (params.status) {
       filtered = results.filter((r) => r.statusName === params.status);
+    }
+
+    // Apply date filtering
+    if (dateFrom || dateTo) {
+      filtered = filtered.filter((r) => {
+        const orderDate = new Date(r.order.createdAt);
+        const orderDateStr = orderDate.toISOString().split('T')[0]; // YYYY-MM-DD
+        
+        if (dateFrom && orderDateStr < dateFrom) return false;
+        if (dateTo && orderDateStr > dateTo) return false;
+        return true;
+      });
     }
 
     const limit = params.limit ?? 50;

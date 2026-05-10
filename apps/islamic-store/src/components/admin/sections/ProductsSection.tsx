@@ -397,7 +397,7 @@ export function ProductsSection({
               <th className="p-3 text-left font-semibold">Product</th>
               <th className="p-3 text-left font-semibold">Category</th>
               <th className="p-3 text-left font-semibold">Price</th>
-              <th className="p-3 text-left font-semibold">Stock</th>
+              <th className="p-3 text-left font-semibold">Inventory</th>
               <th className="p-3 text-left font-semibold">Sold</th>
               <th className="p-3 text-left font-semibold">Status</th>
               <th className="p-3 text-right font-semibold">Actions</th>
@@ -410,8 +410,8 @@ export function ProductsSection({
                   <td className="p-3"><div className="flex items-center gap-3"><div className="h-8 w-8 rounded bg-muted" /><div className="h-3 w-32 rounded bg-muted" /></div></td>
                   <td className="p-3"><div className="h-3 w-20 rounded bg-muted" /></td>
                   <td className="p-3"><div className="h-3 w-12 rounded bg-muted" /></td>
-                  <td className="p-3"><div className="h-3 w-12 rounded bg-muted" /></td>
-                  <td className="p-3"><div className="h-3 w-12 rounded bg-muted" /></td>
+                  <td className="p-3"><div className="h-3 w-12 rounded bg-muted" /></td> {/* Placeholder for Inventory */}
+                  <td className="p-3"><div className="h-3 w-12 rounded bg-muted" /></td> {/* Placeholder for Sold */}
                   <td className="p-3"><div className="h-6 w-24 rounded-full bg-muted" /></td>
                   <td className="p-3 text-right"><div className="h-6 w-20 ml-auto rounded bg-muted" /></td>
                 </tr>
