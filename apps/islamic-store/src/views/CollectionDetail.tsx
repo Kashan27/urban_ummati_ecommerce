@@ -7,6 +7,8 @@ type Collection = {
   id: number;
   name: string;
   slug: string;
+  description?: string | null;
+  imageUrl?: string | null;
 };
 
 export function CollectionDetail() {
@@ -75,9 +77,30 @@ export function CollectionDetail() {
   }
 
   return (
-    <main className="flex-1 w-full bg-background pt-10 pb-24">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="mb-10">
+    <main className="flex-1 w-full bg-background pb-24">
+      {/* Header Banner */}
+      {collection?.imageUrl ? (
+        <div className="relative w-full h-[300px] md:h-[400px] mb-12">
+          <img 
+            src={collection.imageUrl} 
+            alt={collection.name} 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-center p-4">
+            <div className="max-w-3xl">
+              <h1 className="font-serif text-4xl md:text-6xl text-white mb-4 uppercase tracking-tight">
+                {collection.name}
+              </h1>
+              {collection.description && (
+                <p className="text-white/90 text-lg md:text-xl font-sans max-w-2xl mx-auto leading-relaxed">
+                  {collection.description}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-7xl mx-auto px-4 md:px-8 pt-10 mb-10">
           <div className="text-xs uppercase tracking-widest text-muted-foreground">
             <Link href="/collections" className="hover:text-foreground">
               Collections
@@ -87,9 +110,16 @@ export function CollectionDetail() {
           <h1 className="mt-3 font-serif text-4xl md:text-5xl text-foreground">
             {collection?.name ?? "Collection"}
           </h1>
+          {collection?.description && (
+            <p className="mt-4 text-muted-foreground text-lg max-w-3xl font-sans leading-relaxed">
+              {collection.description}
+            </p>
+          )}
           <div className="mt-4 w-16 h-0.5 bg-secondary"></div>
         </div>
+      )}
 
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-10">
             {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -118,4 +148,3 @@ export function CollectionDetail() {
     </main>
   );
 }
-

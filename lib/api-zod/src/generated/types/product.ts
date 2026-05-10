@@ -25,6 +25,10 @@ export interface Product {
   reviewCount: number;
   rating: number;
   colors: string[];
+  /** List of products this item is an upsell for */
+  mainProductIds?: number[];
+  /** List of products that are upsells for this item */
+  linkedUpsellIds?: number[];
   createdAt: string;
   updatedAt?: string | null;
 }

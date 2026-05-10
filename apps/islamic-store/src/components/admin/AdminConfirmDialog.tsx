@@ -30,7 +30,7 @@ export function AdminConfirmDialog({
         onOpenChange(next);
       }}
     >
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md no-print">
         <DialogHeader>
           <DialogTitle className="font-serif text-xl">{title}</DialogTitle>
         </DialogHeader>

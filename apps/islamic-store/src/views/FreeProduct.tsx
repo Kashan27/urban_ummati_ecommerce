@@ -54,7 +54,7 @@ export function FreeProduct() {
         </div>
         <h1 className="font-serif text-3xl mb-4">Invalid Link</h1>
         <p className="text-muted-foreground mb-8">
-          This free product link is not valid or has expired. Please contact us for assistance.
+          This free product link is not valid, inactive, or has expired. Please contact us for assistance.
         </p>
         <Link href="/products">
           <Button className="uppercase tracking-widest">Browse Products</Button>
@@ -63,7 +63,16 @@ export function FreeProduct() {
     );
   }
 
-  if (linkData.usedByEmail) {
+  // Advanced rule validation
+  const isInactive = linkData.status !== "active";
+  const isExpired = linkData.expiresAt && new Date(linkData.expiresAt) < new Date();
+  const isLimitReached = linkData.currentUsage >= linkData.usageLimit;
+
+  if (isInactive || isExpired || isLimitReached) {
+    let reason = "This free product link is no longer valid.";
+    if (isExpired) reason = "This free product link has expired.";
+    if (isLimitReached) reason = "This free product link has reached its usage limit.";
+
     return (
       <div className="max-w-2xl mx-auto px-4 py-24 text-center">
         <div className="flex justify-center mb-6">
@@ -71,9 +80,9 @@ export function FreeProduct() {
             <XCircle className="h-12 w-12 text-muted-foreground" />
           </div>
         </div>
-        <h1 className="font-serif text-3xl mb-4">Link Already Used</h1>
+        <h1 className="font-serif text-3xl mb-4">Offer Not Available</h1>
         <p className="text-muted-foreground mb-8">
-          This free product offer has already been claimed.
+          {reason} Please explore our collection for other great products.
         </p>
         <Link href="/products">
           <Button className="uppercase tracking-widest">Browse Products</Button>

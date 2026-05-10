@@ -11,6 +11,16 @@ export interface HealthStatus {
 export interface Error {
     error: string;
 }
+export interface Collection {
+    id: number;
+    name: string;
+    slug: string;
+    description?: string | null;
+    imageUrl?: string | null;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt?: string | null;
+}
 export interface Product {
     id: number;
     name: string;
@@ -30,6 +40,10 @@ export interface Product {
     reviewCount: number;
     rating: number;
     colors: string[];
+    /** List of products this item is an upsell for */
+    mainProductIds?: number[];
+    /** List of products that are upsells for this item */
+    linkedUpsellIds?: number[];
     createdAt: string;
     updatedAt?: string | null;
 }
@@ -118,24 +132,71 @@ export interface FreeProductEligibility {
     eligible: boolean;
     reason?: string | null;
 }
+export type FreeProductLinkStatus = (typeof FreeProductLinkStatus)[keyof typeof FreeProductLinkStatus];
+export declare const FreeProductLinkStatus: {
+    readonly active: "active";
+    readonly disabled: "disabled";
+    readonly archived: "archived";
+};
+export type FreeProductLinkType = (typeof FreeProductLinkType)[keyof typeof FreeProductLinkType];
+export declare const FreeProductLinkType: {
+    readonly "single-use": "single-use";
+    readonly "multi-use": "multi-use";
+    readonly "time-limited": "time-limited";
+};
+export interface FreeProductRedemption {
+    id: number;
+    email: string;
+    orderId?: number | null;
+    usedAt: string;
+}
 export interface FreeProductLink {
     id: number;
     token: string;
     productId: number;
     product?: Product;
+    status: FreeProductLinkStatus;
+    type: FreeProductLinkType;
+    usageLimit: number;
+    currentUsage: number;
+    expiresAt?: string | null;
+    notes?: string | null;
     usedByEmail?: string | null;
     usedAt?: string | null;
+    redemptions?: FreeProductRedemption[];
     createdAt: string;
 }
+export type CreateFreeProductLinkBodyType = (typeof CreateFreeProductLinkBodyType)[keyof typeof CreateFreeProductLinkBodyType];
+export declare const CreateFreeProductLinkBodyType: {
+    readonly "single-use": "single-use";
+    readonly "multi-use": "multi-use";
+    readonly "time-limited": "time-limited";
+};
 export interface CreateFreeProductLinkBody {
     productId: number;
+    type?: CreateFreeProductLinkBodyType;
+    usageLimit?: number;
+    expiresAt?: string | null;
+    notes?: string | null;
+}
+export type UpdateFreeProductLinkBodyStatus = (typeof UpdateFreeProductLinkBodyStatus)[keyof typeof UpdateFreeProductLinkBodyStatus];
+export declare const UpdateFreeProductLinkBodyStatus: {
+    readonly active: "active";
+    readonly disabled: "disabled";
+    readonly archived: "archived";
+};
+export interface UpdateFreeProductLinkBody {
+    status?: UpdateFreeProductLinkBodyStatus;
+    usageLimit?: number;
+    expiresAt?: string | null;
+    notes?: string | null;
 }
 export interface CreateProductBody {
     name: string;
     description: string;
     price: number;
     comparePrice?: number | null;
-    categoryId: number;
+    category: string;
     imageUrl: string;
     images?: string[];
     inStock?: boolean;
@@ -143,6 +204,8 @@ export interface CreateProductBody {
     isUpsell?: boolean;
     upsellDiscount?: number | null;
     colors?: string[];
+    /** List of main products this item should be an upsell for */
+    mainProductIds?: number[];
 }
 export type AdminStatsOrdersByStatus = {
     received: number;
@@ -176,6 +239,18 @@ export type GetUpsellProductsParams = {
 export type GetUpsellProducts200 = {
     products: Product[];
 };
+export type ListCollections200 = {
+    collections: Collection[];
+};
+export type ListCollectionProductsParams = {
+    limit?: number;
+    offset?: number;
+};
+export type ListCollectionProducts200 = {
+    collection: Collection;
+    products: Product[];
+    total: number;
+};
 export type ListOrdersParams = {
     status?: ListOrdersStatus;
     limit?: number;
@@ -189,6 +264,10 @@ export declare const ListOrdersStatus: {
 };
 export type ListOrders200 = {
     orders: Order[];
+    total: number;
+};
+export type ListFreeProductLinks200 = {
+    links: FreeProductLink[];
     total: number;
 };
 export type DeleteProduct200 = {

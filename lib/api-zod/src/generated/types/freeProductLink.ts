@@ -5,6 +5,9 @@
  * Islamic Products E-Commerce API
  * OpenAPI spec version: 0.1.0
  */
+import type { FreeProductLinkStatus } from "./freeProductLinkStatus";
+import type { FreeProductLinkType } from "./freeProductLinkType";
+import type { FreeProductRedemption } from "./freeProductRedemption";
 import type { Product } from "./product";
 
 export interface FreeProductLink {
@@ -12,7 +15,14 @@ export interface FreeProductLink {
   token: string;
   productId: number;
   product?: Product;
+  status: FreeProductLinkStatus;
+  type: FreeProductLinkType;
+  usageLimit: number;
+  currentUsage: number;
+  expiresAt?: string | null;
+  notes?: string | null;
   usedByEmail?: string | null;
   usedAt?: string | null;
+  redemptions?: FreeProductRedemption[];
   createdAt: string;
 }

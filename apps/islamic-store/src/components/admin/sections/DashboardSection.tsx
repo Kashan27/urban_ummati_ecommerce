@@ -20,6 +20,8 @@ type Props = {
   onOrderStatusChange: (orderId: number, status: "received" | "processed" | "shipped") => void;
   onViewOrderDetails: (order: Order) => void;
   onPrintReceipt: (order: Order) => void;
+  onPrintPackingSlip: (order: Order) => void;
+  onPrintShippingLabel: (order: Order) => void;
 };
 
 export function DashboardSection({
@@ -29,6 +31,8 @@ export function DashboardSection({
   onOrderStatusChange,
   onViewOrderDetails,
   onPrintReceipt,
+  onPrintPackingSlip,
+  onPrintShippingLabel,
 }: Props) {
   return (
     <div>
@@ -129,11 +133,27 @@ export function DashboardSection({
                         >
                           Details
                         </button>
+                        {order.status === "received" && (
+                          <button
+                            onClick={() => onPrintPackingSlip(order)}
+                            className="text-xs font-medium text-primary hover:underline"
+                          >
+                            Pack
+                          </button>
+                        )}
+                        {order.status === "processed" && (
+                          <button
+                            onClick={() => onPrintShippingLabel(order)}
+                            className="text-xs font-medium text-primary hover:underline"
+                          >
+                            Ship
+                          </button>
+                        )}
                         <button
                           onClick={() => onPrintReceipt(order)}
-                          className="text-xs font-medium text-primary hover:underline"
+                          className="text-xs font-medium text-muted-foreground hover:text-foreground hover:underline"
                         >
-                          Print
+                          Receipt
                         </button>
                       </div>
                     </td>

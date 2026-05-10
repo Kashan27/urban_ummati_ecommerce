@@ -15,7 +15,7 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (item: CartItem) => void;
+  addItem: (item: CartItem, options?: { skipUpsell?: boolean }) => void;
   removeItem: (productId: number, color?: string) => void;
   updateQuantity: (productId: number, quantity: number, color?: string) => void;
   clearCart: () => void;
@@ -55,7 +55,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("noor_cart", JSON.stringify(items));
   }, [items]);
 
-  const addItem = (newItem: CartItem) => {
+  const addItem = (newItem: CartItem, options?: { skipUpsell?: boolean }) => {
     setItems((prevItems) => {
       const existingItemIndex = prevItems.findIndex(
         (i) => i.productId === newItem.productId && i.color === newItem.color
@@ -73,7 +73,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return [...prevItems, newItem];
       }
     });
-    setLastAddedProductId(newItem.productId);
+
+    if (!options?.skipUpsell) {
+      setLastAddedProductId(newItem.productId);
+    }
+
     toast.success("Added to cart", {
       description: `${newItem.quantity}x ${newItem.name} ${newItem.color ? `(${newItem.color})` : ''}`
     });

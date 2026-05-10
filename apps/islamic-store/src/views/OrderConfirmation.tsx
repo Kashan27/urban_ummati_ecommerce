@@ -1,19 +1,54 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useParams, Link } from "@/lib/router";
 import { useGetOrder, getGetOrderQueryKey } from "@workspace/api-client-react";
 import { CheckCircle, Package, Truck, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/lib/cart-context";
+import { useSearch } from "@/lib/router";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function OrderConfirmation() {
   const params = useParams<{ id: string }>();
   const orderId = parseInt(params.id || "0");
-  const { clearCart } = useCart();
+  const { clearCart, setIsCartOpen, setLastAddedProductId } = useCart();
+  const searchString = useSearch();
+  const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
+  const sessionId = searchParams.get("session_id") || "";
+  const queryClient = useQueryClient();
+  const confirmKeyRef = useRef<string>("");
 
   const { data: order, isLoading } = useGetOrder(orderId, {
     query: { enabled: !!orderId, queryKey: getGetOrderQueryKey(orderId) }
   });
+
+  useEffect(() => {
+    setIsCartOpen(false);
+    setLastAddedProductId(null);
+  }, [setIsCartOpen, setLastAddedProductId]);
+
+  useEffect(() => {
+    if (!orderId || !sessionId) return;
+    if (!order) return;
+    if (order.paymentStatus === "paid") return;
+
+    const key = `${orderId}:${sessionId}`;
+    if (confirmKeyRef.current === key) return;
+    confirmKeyRef.current = key;
+
+    fetch("/api/payments/stripe/confirm-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId, sessionId }),
+    })
+      .then(async (res) => {
+        const data = (await res.json().catch(() => null)) as { ok?: boolean } | null;
+        if (data?.ok) {
+          queryClient.invalidateQueries({ queryKey: getGetOrderQueryKey(orderId) });
+        }
+      })
+      .catch(() => {});
+  }, [orderId, order, sessionId, queryClient]);
 
   useEffect(() => {
     if (!order) return;

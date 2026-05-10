@@ -5,6 +5,8 @@ import {
   useGetAdminStats,
   useUpdateOrderStatus,
   useCreateFreeProductLink,
+  useUpdateFreeProductLink,
+  useDeleteFreeProductLink,
   getGetAdminStatsQueryKey,
   useListOrders,
 } from "@workspace/api-client-react";
@@ -29,7 +31,20 @@ import { PromoSection } from "@/components/admin/sections/PromoSection";
 import { SettingsSection } from "@/components/admin/sections/SettingsSection";
 import { OrderDetailsDialog } from "@/components/admin/OrderDetailsDialog";
 import { OrderReceipt } from "@/components/admin/OrderReceipt";
+import { OrderPackingSlip } from "@/components/admin/OrderPackingSlip";
+import { OrderShippingLabel } from "@/components/admin/OrderShippingLabel";
 import type { Order } from "@workspace/api-zod";
+
+function useDebouncedValue<T>(value: T, delayMs: number) {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(timer);
+  }, [value, delayMs]);
+
+  return debounced;
+}
 
 export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   const activeSection: AdminSection = ADMIN_NAV_ITEMS.some((item) => item.key === section)
@@ -54,9 +69,13 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
   const [editingCategoryName, setEditingCategoryName] = useState("");
   const [newCollectionName, setNewCollectionName] = useState("");
+  const [newCollectionDescription, setNewCollectionDescription] = useState("");
+  const [newCollectionImageUrl, setNewCollectionImageUrl] = useState("");
   const [isSavingCollection, setIsSavingCollection] = useState(false);
   const [editingCollectionId, setEditingCollectionId] = useState<number | null>(null);
   const [editingCollectionName, setEditingCollectionName] = useState("");
+  const [editingCollectionDescription, setEditingCollectionDescription] = useState("");
+  const [editingCollectionImageUrl, setEditingCollectionImageUrl] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmDescription, setConfirmDescription] = useState("");
@@ -65,8 +84,19 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   const [confirmPending, setConfirmPending] = useState(false);
   const [orderStatusFilter, setOrderStatusFilter] = useState<ListOrdersStatus | undefined>(undefined);
   const [orderPage, setOrderPage] = useState(0);
+  const [productSearch, setProductSearch] = useState("");
+  const [productCategoryIds, setProductCategoryIds] = useState<number[]>([]);
+  const [productStatusFilter, setProductStatusFilter] = useState<"all" | "active" | "draft" | "archived">("all");
+  const [productStockFilter, setProductStockFilter] = useState<"all" | "in_stock" | "out_of_stock" | "low_stock">(
+    "all",
+  );
+  const [productMinPrice, setProductMinPrice] = useState("");
+  const [productMaxPrice, setProductMaxPrice] = useState("");
+  const [lowStockThreshold, setLowStockThreshold] = useState(5);
+  const [productPage, setProductPage] = useState(0);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
+  const [printMode, setPrintMode] = useState<"receipt" | "packing-slip" | "shipping-label">("receipt");
   const queryClient = useQueryClient();
 
   const { data: statsData, isLoading: statsLoading } = useGetAdminStats({
@@ -87,9 +117,68 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
     },
   );
 
-  const { data: productsData } = useQuery<{ products: AdminProduct[]; total: number }>({
-    enabled: authenticated && (activeSection === "products" || activeSection === "promo"),
-    queryKey: ["adminProducts"],
+  const productPageSize = 25;
+  const debouncedProductSearch = useDebouncedValue(productSearch, 250);
+
+  const priceMin = productMinPrice.trim() ? Number(productMinPrice) : undefined;
+  const priceMax = productMaxPrice.trim() ? Number(productMaxPrice) : undefined;
+  const hasInvalidPriceRange =
+    typeof priceMin === "number" &&
+    typeof priceMax === "number" &&
+    Number.isFinite(priceMin) &&
+    Number.isFinite(priceMax) &&
+    priceMin > priceMax;
+
+  const { data: productsListData, isLoading: productsLoading, error: productsError } = useQuery<{
+    products: AdminProduct[];
+    total: number;
+    facets?: {
+      statuses: { active: number; draft: number; archived: number };
+      stock: { inStock: number; outOfStock: number; lowStock: number };
+      categories: Array<{ id: number; name: string; count: number }>;
+    };
+  }>({
+    enabled: authenticated && activeSection === "products" && !hasInvalidPriceRange,
+    queryKey: [
+      "adminProducts",
+      "filtered",
+      debouncedProductSearch,
+      productCategoryIds,
+      productStatusFilter,
+      productStockFilter,
+      productMinPrice,
+      productMaxPrice,
+      lowStockThreshold,
+      productPage,
+      productPageSize,
+    ],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (debouncedProductSearch.trim()) params.set("q", debouncedProductSearch.trim());
+      if (productCategoryIds.length) params.set("categoryIds", productCategoryIds.join(","));
+      if (productStatusFilter !== "all") params.set("status", productStatusFilter);
+      if (productStockFilter !== "all") params.set("stock", productStockFilter);
+      if (productMinPrice.trim()) params.set("minPrice", productMinPrice.trim());
+      if (productMaxPrice.trim()) params.set("maxPrice", productMaxPrice.trim());
+      params.set("lowStockThreshold", String(lowStockThreshold));
+      params.set("limit", String(productPageSize));
+      params.set("offset", String(productPage * productPageSize));
+
+      const response = await fetch(`/api/admin/products?${params.toString()}`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const json = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(json?.error || "Failed to load admin products");
+      }
+      return json;
+    },
+  });
+
+  const { data: promoProductsData } = useQuery<{ products: AdminProduct[]; total: number }>({
+    enabled: authenticated && activeSection === "promo",
+    queryKey: ["adminProducts", "promo"],
     queryFn: async () => {
       const response = await fetch("/api/admin/products", {
         method: "GET",
@@ -102,6 +191,18 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
     },
   });
 
+  useEffect(() => {
+    setProductPage(0);
+  }, [
+    productSearch,
+    productCategoryIds,
+    productStatusFilter,
+    productStockFilter,
+    productMinPrice,
+    productMaxPrice,
+    lowStockThreshold,
+  ]);
+
   const { data: categoriesData } = useQuery<{ categories: AdminCategory[]; total: number }>({
     enabled: authenticated && (activeSection === "products" || activeSection === "categories"),
     queryKey: ["adminCategories"],
@@ -113,6 +214,19 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       if (!response.ok) {
         throw new Error("Failed to load admin categories");
       }
+      return response.json();
+    },
+  });
+
+  const { data: allProductsForSelection, isLoading: isLoadingAllProducts, error: allProductsError } = useQuery<{ products: AdminProduct[] }>({
+    enabled: authenticated && isProductDialogOpen,
+    queryKey: ["adminProducts", "all-for-selection"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/products?limit=1000", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to load products for selection");
       return response.json();
     },
   });
@@ -164,6 +278,8 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
 
   const updateStatus = useUpdateOrderStatus();
   const createFreeLink = useCreateFreeProductLink();
+  const updateFreeLink = useUpdateFreeProductLink();
+  const deleteFreeLink = useDeleteFreeProductLink();
 
   const productForm = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -176,6 +292,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       categoryId: 1,
       collectionIds: [],
       inStock: true,
+      inventoryQuantity: null,
       featured: false,
       isUpsell: false,
       upsellDiscount: null,
@@ -255,9 +372,13 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
 
   function getProductPayload(values: ProductFormValues) {
     const normalizedImages = imageUrls.map((url) => url.trim()).filter(Boolean);
+    const quantity = values.inventoryQuantity;
+    // Auto-update inStock based on quantity if quantity is set
+    const inStock = typeof quantity === "number" ? quantity > 0 : values.inStock;
 
     return {
       ...values,
+      inStock,
       status: values.status,
       price: values.price,
       comparePrice: values.comparePrice ?? null,
@@ -266,6 +387,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       imageUrl: normalizedImages[0] || "",
       images: normalizedImages,
       colors: values.colors.split(",").map((c) => c.trim()).filter(Boolean),
+      mainProductIds: values.mainProductIds,
     };
   }
 
@@ -283,10 +405,12 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       categoryId: categoriesData?.categories?.[0]?.id || 1,
       collectionIds: [],
       inStock: true,
+      inventoryQuantity: null,
       featured: false,
       isUpsell: false,
       upsellDiscount: null,
       colors: "gold,silver,black",
+      mainProductIds: [],
     });
   }
 
@@ -307,10 +431,12 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       categoryId: product.categoryId || categoriesData?.categories?.[0]?.id || 1,
       collectionIds: [],
       inStock: product.inStock,
+      inventoryQuantity: product.inventoryQuantity ?? null,
       featured: product.featured,
       isUpsell: product.isUpsell,
       upsellDiscount: product.upsellDiscount ?? null,
       colors: Array.isArray(product.colors) ? product.colors.join(",") : "",
+      mainProductIds: product.mainProductIds || [],
     });
     setImageUrls(Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.imageUrl]);
     setIsProductDialogOpen(true);
@@ -494,6 +620,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   }
 
   function handlePrintReceipt(order: Order) {
+    setPrintMode("receipt");
     setSelectedOrder(order);
     setTimeout(() => {
       window.print();
@@ -503,15 +630,37 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
     }, 100);
   }
 
+  function handlePrintPackingSlip(order: Order) {
+    setPrintMode("packing-slip");
+    setSelectedOrder(order);
+    setTimeout(() => {
+      window.print();
+      if (order.status === "received") {
+        handleUpdateOrderStatus(order.id, "processed");
+      }
+    }, 100);
+  }
+
+  function handlePrintShippingLabel(order: Order) {
+    setPrintMode("shipping-label");
+    setSelectedOrder(order);
+    setTimeout(() => {
+      window.print();
+      if (order.status === "processed") {
+        handleUpdateOrderStatus(order.id, "shipped");
+      }
+    }, 100);
+  }
+
   function handleViewOrderDetails(order: Order) {
     setSelectedOrder(order);
     setIsOrderDetailsOpen(true);
   }
 
-  function handleGenerateFreeLink(data: { productId: number }) {
+  function handleGenerateFreeLink(data: any) {
     if (!data.productId) return;
     createFreeLink.mutate(
-      { data: { productId: data.productId } },
+      { data },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ["adminPromoLinks"] });
@@ -519,6 +668,40 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
         },
       },
     );
+  }
+
+  function handleUpdateFreeLink(id: string, updates: any) {
+    updateFreeLink.mutate(
+      { id: parseInt(id), data: updates },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["adminPromoLinks"] });
+          toast.success("Link updated successfully");
+        },
+      }
+    );
+  }
+
+  function handleDeleteFreeLink(id: string) {
+    setConfirmTitle("Delete promo link?");
+    setConfirmDescription("Are you sure you want to permanently delete this free product link?");
+    setConfirmLabel("Delete Link");
+    setConfirmAction(() => async () => {
+      deleteFreeLink.mutate(
+        { id: parseInt(id) },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["adminPromoLinks"] });
+            toast.success("Link deleted");
+          },
+        }
+      );
+    });
+    setConfirmOpen(true);
+  }
+
+  function handleArchiveFreeLink(id: string) {
+    handleUpdateFreeLink(id, { status: "archived" });
   }
 
   async function handleCreateCategory() {
@@ -602,12 +785,19 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, isActive: true }),
+        body: JSON.stringify({
+          name,
+          description: newCollectionDescription.trim() || null,
+          imageUrl: newCollectionImageUrl.trim() || null,
+          isActive: true
+        }),
       });
       if (!response.ok) {
         throw new Error("Failed to create collection");
       }
       setNewCollectionName("");
+      setNewCollectionDescription("");
+      setNewCollectionImageUrl("");
       await queryClient.invalidateQueries({ queryKey: ["adminCollections"] });
     } finally {
       setIsSavingCollection(false);
@@ -623,13 +813,19 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({
+          name,
+          description: editingCollectionDescription.trim() || null,
+          imageUrl: editingCollectionImageUrl.trim() || null,
+        }),
       });
       if (!response.ok) {
         throw new Error("Failed to update collection");
       }
       setEditingCollectionId(null);
       setEditingCollectionName("");
+      setEditingCollectionDescription("");
+      setEditingCollectionImageUrl("");
       await queryClient.invalidateQueries({ queryKey: ["adminCollections"] });
     } finally {
       setIsSavingCollection(false);
@@ -699,7 +895,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      <div className="flex min-h-screen flex-col md:flex-row">
+      <div className="flex min-h-screen flex-col md:flex-row no-print">
         <AdminSidebar navItems={ADMIN_NAV_ITEMS} activeSection={activeSection} onLogout={handleLogout} />
 
         <main className="min-h-screen min-w-0 flex-1 px-4 py-8 md:px-8 lg:px-10">
@@ -712,14 +908,41 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
                 onOrderStatusChange={handleUpdateOrderStatus}
                 onViewOrderDetails={handleViewOrderDetails}
                 onPrintReceipt={handlePrintReceipt}
+                onPrintPackingSlip={handlePrintPackingSlip}
+                onPrintShippingLabel={handlePrintShippingLabel}
               />
             )}
 
             {activeSection === "products" && (
               <ProductsSection
-                products={productsData?.products}
+                products={productsListData?.products}
+                total={productsListData?.total ?? 0}
+                facets={productsListData?.facets}
+                isLoading={productsLoading}
+                errorMessage={productsError instanceof Error ? productsError.message : ""}
+                hasInvalidPriceRange={hasInvalidPriceRange}
+                search={productSearch}
+                onSearchChange={setProductSearch}
+                selectedCategoryIds={productCategoryIds}
+                onSelectedCategoryIdsChange={setProductCategoryIds}
+                statusFilter={productStatusFilter}
+                onStatusFilterChange={setProductStatusFilter}
+                stockFilter={productStockFilter}
+                onStockFilterChange={setProductStockFilter}
+                minPrice={productMinPrice}
+                onMinPriceChange={setProductMinPrice}
+                maxPrice={productMaxPrice}
+                onMaxPriceChange={setProductMaxPrice}
+                lowStockThreshold={lowStockThreshold}
+                onLowStockThresholdChange={setLowStockThreshold}
+                page={productPage}
+                onPageChange={setProductPage}
+                pageSize={productPageSize}
                 categories={categoriesData?.categories}
                 collections={collectionsData?.collections}
+                allProducts={allProductsForSelection?.products}
+                isLoadingProducts={isLoadingAllProducts}
+                productFetchError={allProductsError instanceof Error ? allProductsError.message : ""}
                 productForm={productForm}
                 imageUrls={imageUrls}
                 setImageUrls={setImageUrls}
@@ -752,6 +975,8 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
                 onOrderStatusChange={handleUpdateOrderStatus}
                 onViewOrderDetails={handleViewOrderDetails}
                 onPrintReceipt={handlePrintReceipt}
+                onPrintPackingSlip={handlePrintPackingSlip}
+                onPrintShippingLabel={handlePrintShippingLabel}
               />
             )}
 
@@ -783,17 +1008,29 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
                 collections={collectionsData?.collections}
                 newCollectionName={newCollectionName}
                 onNewCollectionNameChange={setNewCollectionName}
+                newCollectionDescription={newCollectionDescription}
+                onNewCollectionDescriptionChange={setNewCollectionDescription}
+                newCollectionImageUrl={newCollectionImageUrl}
+                onNewCollectionImageUrlChange={setNewCollectionImageUrl}
                 isSavingCollection={isSavingCollection}
                 editingCollectionId={editingCollectionId}
                 editingCollectionName={editingCollectionName}
                 onEditingCollectionNameChange={setEditingCollectionName}
+                editingCollectionDescription={editingCollectionDescription}
+                onEditingCollectionDescriptionChange={setEditingCollectionDescription}
+                editingCollectionImageUrl={editingCollectionImageUrl}
+                onEditingCollectionImageUrlChange={setEditingCollectionImageUrl}
                 onStartEdit={(collection) => {
                   setEditingCollectionId(collection.id);
                   setEditingCollectionName(collection.name);
+                  setEditingCollectionDescription(collection.description || "");
+                  setEditingCollectionImageUrl(collection.imageUrl || "");
                 }}
                 onCancelEdit={() => {
                   setEditingCollectionId(null);
                   setEditingCollectionName("");
+                  setEditingCollectionDescription("");
+                  setEditingCollectionImageUrl("");
                 }}
                 onCreateCollection={handleCreateCollection}
                 onUpdateCollection={handleUpdateCollection}
@@ -803,10 +1040,13 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
 
             {activeSection === "promo" && (
               <PromoSection
-                products={productsData?.products}
+                products={promoProductsData?.products}
                 generatePending={createFreeLink.isPending}
                 onGenerateLink={handleGenerateFreeLink}
                 promoLinks={promoLinksData?.links}
+                onUpdateLink={handleUpdateFreeLink}
+                onDeleteLink={handleDeleteFreeLink}
+                onArchiveLink={handleArchiveFreeLink}
               />
             )}
 
@@ -822,9 +1062,14 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
         open={isOrderDetailsOpen}
         onOpenChange={setIsOrderDetailsOpen}
         onOrderUpdated={setSelectedOrder}
+        onPrintReceipt={handlePrintReceipt}
+        onPrintPackingSlip={handlePrintPackingSlip}
+        onPrintShippingLabel={handlePrintShippingLabel}
       />
 
-      <OrderReceipt order={selectedOrder} />
+      {printMode === "receipt" && <OrderReceipt order={selectedOrder} />}
+      {printMode === "packing-slip" && <OrderPackingSlip order={selectedOrder} />}
+      {printMode === "shipping-label" && <OrderShippingLabel order={selectedOrder} />}
 
       <AdminConfirmDialog
         open={confirmOpen}

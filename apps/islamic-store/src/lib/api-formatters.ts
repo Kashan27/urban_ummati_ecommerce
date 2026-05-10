@@ -28,6 +28,8 @@ export function formatProduct(
     imageUrl: p.imageUrl,
     images: (p.images as string[]) || [],
     inStock: p.inStock,
+    inventoryQuantity: p.inventoryQuantity,
+    totalSold: p.totalSold,
     featured: p.featured,
     isUpsell: p.isUpsell,
     upsellDiscount: p.upsellDiscount ? parseFloat(p.upsellDiscount) : null,
@@ -85,14 +87,22 @@ export function formatOrder(
 export function formatFreeProductLink(
   link: typeof freeProductLinksTable.$inferSelect,
   product?: typeof productsTable.$inferSelect,
+  redemptions?: any[],
 ) {
   return {
     id: link.id,
     token: link.token,
     productId: link.productId,
     product: product ? formatProduct(product) : undefined,
+    status: link.status,
+    type: link.type,
+    usageLimit: link.usageLimit,
+    currentUsage: link.currentUsage,
+    expiresAt: link.expiresAt?.toISOString() ?? null,
+    notes: link.notes,
     usedByEmail: link.usedByEmail,
     usedAt: link.usedAt?.toISOString() ?? null,
+    redemptions: redemptions || [],
     createdAt: link.createdAt.toISOString(),
   };
 }

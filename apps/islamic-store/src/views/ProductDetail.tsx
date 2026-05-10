@@ -4,6 +4,7 @@ import { useGetProduct, getGetProductQueryKey } from "@workspace/api-client-reac
 import { useCart } from "@/lib/cart-context";
 import { Star, StarHalf, Minus, Plus, Truck, ShieldCheck, RefreshCw, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -14,12 +15,15 @@ export function ProductDetail() {
   const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
   const [activeImage, setActiveImage] = useState<string>('');
 
-  const { data: product, isLoading, error } = useGetProduct(productId, {
+  const { data, isLoading, error } = useGetProduct(productId, {
     query: {
       enabled: !isNaN(productId),
       queryKey: getGetProductQueryKey(productId)
     }
   });
+
+  const product = (data as any)?.product;
+  const settings = (data as any)?.settings;
 
   // Set initial color and image when product loads
   if (product && !selectedColor && product.colors && product.colors.length > 0) {
@@ -29,11 +33,23 @@ export function ProductDetail() {
     setActiveImage(product.imageUrl || '/product-1.png');
   }
 
+  const isEnforced = settings?.enforce_stock_restrictions === "true";
+  const displayStock = settings?.display_stock_to_customers === "true";
+  const lowStockThreshold = parseInt(settings?.low_stock_threshold || "5", 10);
+  const stockQty = product?.inventoryQuantity;
+  const isLowStock = typeof stockQty === "number" && stockQty > 0 && stockQty <= lowStockThreshold;
+  const maxPurchaseQty = isEnforced && typeof stockQty === "number" ? stockQty : 99;
+
   const handleAddToCart = () => {
     if (!product) return;
     
     if (product.colors && product.colors.length > 0 && !selectedColor) {
       toast.error("Please select a color");
+      return;
+    }
+
+    if (isEnforced && typeof stockQty === "number" && quantity > stockQty) {
+      toast.error(`Only ${stockQty} items available in stock`);
       return;
     }
 
@@ -48,9 +64,6 @@ export function ProductDetail() {
     
     // Reset quantity
     setQuantity(1);
-    
-    // Cart is opened automatically if we don't have upsells,
-    // but the UpsellModal will intercept and show first if there are upsells
     setIsCartOpen(true);
   };
 
@@ -189,7 +202,7 @@ export function ProductDetail() {
                   <span className="font-sans text-sm text-muted-foreground capitalize">{selectedColor}</span>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  {product.colors.map(color => (
+                  {product.colors.map((color: string) => (
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
@@ -207,6 +220,25 @@ export function ProductDetail() {
               </div>
             )}
 
+            {/* Stock Indicator */}
+            {product.inStock && displayStock && (isLowStock || isEnforced) && (
+              <div className="mb-4 flex items-center gap-2">
+                <div className={cn(
+                  "h-2 w-2 rounded-full",
+                  isLowStock ? "bg-orange-500 animate-pulse" : "bg-green-500"
+                )} />
+                <span className={cn(
+                  "text-xs font-bold uppercase tracking-wider",
+                  isLowStock ? "text-orange-600" : "text-green-600"
+                )}>
+                  {typeof stockQty === "number" 
+                    ? (isLowStock ? `ONLY ${stockQty} LEFT IN STOCK` : `${stockQty} IN STOCK`)
+                    : "IN STOCK"
+                  }
+                </span>
+              </div>
+            )}
+
             {/* Quantity & Add to Cart */}
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <div className="flex items-center border border-border h-14 bg-white">
@@ -219,8 +251,9 @@ export function ProductDetail() {
                 </button>
                 <span className="w-12 text-center font-sans font-bold">{quantity}</span>
                 <button 
-                  onClick={() => setQuantity(quantity + 1)}
+                  onClick={() => setQuantity(Math.min(maxPurchaseQty, quantity + 1))}
                   className="px-5 h-full text-muted-foreground hover:text-foreground transition-colors hover:bg-muted"
+                  disabled={quantity >= maxPurchaseQty}
                 >
                   <Plus size={16} />
                 </button>
@@ -228,7 +261,7 @@ export function ProductDetail() {
               
               <button 
                 onClick={handleAddToCart}
-                disabled={!product.inStock}
+                disabled={!product.inStock || (isEnforced && stockQty === 0)}
                 className={`flex-1 h-14 font-sans uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-2 ${
                   product.inStock 
                     ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:-translate-y-1 hover:shadow-lg' 

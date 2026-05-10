@@ -1,5 +1,5 @@
 import type { QueryKey, UseMutationOptions, UseMutationResult, UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
-import type { AdminStats, CheckFreeProductBody, CreateFreeProductLinkBody, CreateOrderBody, CreateProductBody, DeleteProduct200, Error, FreeProductEligibility, FreeProductLink, GetFeaturedProducts200, GetUpsellProducts200, GetUpsellProductsParams, HealthStatus, ListOrders200, ListOrdersParams, ListProducts200, ListProductsParams, Order, Product, UpdateOrderStatusBody } from "./api.schemas";
+import type { AdminStats, CheckFreeProductBody, CreateFreeProductLinkBody, CreateOrderBody, CreateProductBody, DeleteProduct200, Error, FreeProductEligibility, FreeProductLink, GetFeaturedProducts200, GetUpsellProducts200, GetUpsellProductsParams, HealthStatus, ListCollectionProducts200, ListCollectionProductsParams, ListCollections200, ListFreeProductLinks200, ListOrders200, ListOrdersParams, ListProducts200, ListProductsParams, Order, Product, UpdateFreeProductLinkBody, UpdateOrderStatusBody } from "./api.schemas";
 import { customFetch } from "../custom-fetch";
 import type { ErrorType, BodyType } from "../custom-fetch";
 type AwaitedInput<T> = PromiseLike<T> | T;
@@ -116,6 +116,52 @@ export type GetProductQueryError = ErrorType<Error>;
  */
 export declare function useGetProduct<TData = Awaited<ReturnType<typeof getProduct>>, TError = ErrorType<Error>>(id: number, options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getProduct>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+};
+/**
+ * @summary List all active collections
+ */
+export declare const getListCollectionsUrl: () => string;
+export declare const listCollections: (options?: RequestInit) => Promise<ListCollections200>;
+export declare const getListCollectionsQueryKey: () => readonly ["/api/collections"];
+export declare const getListCollectionsQueryOptions: <TData = Awaited<ReturnType<typeof listCollections>>, TError = ErrorType<unknown>>(options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof listCollections>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+}) => UseQueryOptions<Awaited<ReturnType<typeof listCollections>>, TError, TData> & {
+    queryKey: QueryKey;
+};
+export type ListCollectionsQueryResult = NonNullable<Awaited<ReturnType<typeof listCollections>>>;
+export type ListCollectionsQueryError = ErrorType<unknown>;
+/**
+ * @summary List all active collections
+ */
+export declare function useListCollections<TData = Awaited<ReturnType<typeof listCollections>>, TError = ErrorType<unknown>>(options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof listCollections>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+};
+/**
+ * @summary Get products in a collection
+ */
+export declare const getListCollectionProductsUrl: (slug: string, params?: ListCollectionProductsParams) => string;
+export declare const listCollectionProducts: (slug: string, params?: ListCollectionProductsParams, options?: RequestInit) => Promise<ListCollectionProducts200>;
+export declare const getListCollectionProductsQueryKey: (slug: string, params?: ListCollectionProductsParams) => readonly [`/api/collections/${string}/products`, ...ListCollectionProductsParams[]];
+export declare const getListCollectionProductsQueryOptions: <TData = Awaited<ReturnType<typeof listCollectionProducts>>, TError = ErrorType<unknown>>(slug: string, params?: ListCollectionProductsParams, options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof listCollectionProducts>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+}) => UseQueryOptions<Awaited<ReturnType<typeof listCollectionProducts>>, TError, TData> & {
+    queryKey: QueryKey;
+};
+export type ListCollectionProductsQueryResult = NonNullable<Awaited<ReturnType<typeof listCollectionProducts>>>;
+export type ListCollectionProductsQueryError = ErrorType<unknown>;
+/**
+ * @summary Get products in a collection
+ */
+export declare function useListCollectionProducts<TData = Awaited<ReturnType<typeof listCollectionProducts>>, TError = ErrorType<unknown>>(slug: string, params?: ListCollectionProductsParams, options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof listCollectionProducts>>, TError, TData>;
     request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -252,6 +298,29 @@ export declare const useCheckFreeProduct: <TError = ErrorType<unknown>, TContext
     data: BodyType<CheckFreeProductBody>;
 }, TContext>;
 /**
+ * @summary List all free product links (admin)
+ */
+export declare const getListFreeProductLinksUrl: () => string;
+export declare const listFreeProductLinks: (options?: RequestInit) => Promise<ListFreeProductLinks200>;
+export declare const getListFreeProductLinksQueryKey: () => readonly ["/api/promo/free-product-link"];
+export declare const getListFreeProductLinksQueryOptions: <TData = Awaited<ReturnType<typeof listFreeProductLinks>>, TError = ErrorType<unknown>>(options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof listFreeProductLinks>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+}) => UseQueryOptions<Awaited<ReturnType<typeof listFreeProductLinks>>, TError, TData> & {
+    queryKey: QueryKey;
+};
+export type ListFreeProductLinksQueryResult = NonNullable<Awaited<ReturnType<typeof listFreeProductLinks>>>;
+export type ListFreeProductLinksQueryError = ErrorType<unknown>;
+/**
+ * @summary List all free product links (admin)
+ */
+export declare function useListFreeProductLinks<TData = Awaited<ReturnType<typeof listFreeProductLinks>>, TError = ErrorType<unknown>>(options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof listFreeProductLinks>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+};
+/**
  * @summary Generate a free product link (admin)
  */
 export declare const getCreateFreeProductLinkUrl: () => string;
@@ -279,11 +348,68 @@ export declare const useCreateFreeProductLink: <TError = ErrorType<unknown>, TCo
     data: BodyType<CreateFreeProductLinkBody>;
 }, TContext>;
 /**
+ * @summary Update a free product link (admin)
+ */
+export declare const getUpdateFreeProductLinkUrl: (id: number) => string;
+export declare const updateFreeProductLink: (id: number, updateFreeProductLinkBody: UpdateFreeProductLinkBody, options?: RequestInit) => Promise<FreeProductLink>;
+export declare const getUpdateFreeProductLinkMutationOptions: <TError = ErrorType<unknown>, TContext = unknown>(options?: {
+    mutation?: UseMutationOptions<Awaited<ReturnType<typeof updateFreeProductLink>>, TError, {
+        id: number;
+        data: BodyType<UpdateFreeProductLinkBody>;
+    }, TContext>;
+    request?: SecondParameter<typeof customFetch>;
+}) => UseMutationOptions<Awaited<ReturnType<typeof updateFreeProductLink>>, TError, {
+    id: number;
+    data: BodyType<UpdateFreeProductLinkBody>;
+}, TContext>;
+export type UpdateFreeProductLinkMutationResult = NonNullable<Awaited<ReturnType<typeof updateFreeProductLink>>>;
+export type UpdateFreeProductLinkMutationBody = BodyType<UpdateFreeProductLinkBody>;
+export type UpdateFreeProductLinkMutationError = ErrorType<unknown>;
+/**
+ * @summary Update a free product link (admin)
+ */
+export declare const useUpdateFreeProductLink: <TError = ErrorType<unknown>, TContext = unknown>(options?: {
+    mutation?: UseMutationOptions<Awaited<ReturnType<typeof updateFreeProductLink>>, TError, {
+        id: number;
+        data: BodyType<UpdateFreeProductLinkBody>;
+    }, TContext>;
+    request?: SecondParameter<typeof customFetch>;
+}) => UseMutationResult<Awaited<ReturnType<typeof updateFreeProductLink>>, TError, {
+    id: number;
+    data: BodyType<UpdateFreeProductLinkBody>;
+}, TContext>;
+/**
+ * @summary Delete a free product link (admin)
+ */
+export declare const getDeleteFreeProductLinkUrl: (id: number) => string;
+export declare const deleteFreeProductLink: (id: number, options?: RequestInit) => Promise<void>;
+export declare const getDeleteFreeProductLinkMutationOptions: <TError = ErrorType<unknown>, TContext = unknown>(options?: {
+    mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteFreeProductLink>>, TError, {
+        id: number;
+    }, TContext>;
+    request?: SecondParameter<typeof customFetch>;
+}) => UseMutationOptions<Awaited<ReturnType<typeof deleteFreeProductLink>>, TError, {
+    id: number;
+}, TContext>;
+export type DeleteFreeProductLinkMutationResult = NonNullable<Awaited<ReturnType<typeof deleteFreeProductLink>>>;
+export type DeleteFreeProductLinkMutationError = ErrorType<unknown>;
+/**
+ * @summary Delete a free product link (admin)
+ */
+export declare const useDeleteFreeProductLink: <TError = ErrorType<unknown>, TContext = unknown>(options?: {
+    mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteFreeProductLink>>, TError, {
+        id: number;
+    }, TContext>;
+    request?: SecondParameter<typeof customFetch>;
+}) => UseMutationResult<Awaited<ReturnType<typeof deleteFreeProductLink>>, TError, {
+    id: number;
+}, TContext>;
+/**
  * @summary Validate and get a free product link
  */
 export declare const getGetFreeProductLinkUrl: (token: string) => string;
 export declare const getFreeProductLink: (token: string, options?: RequestInit) => Promise<FreeProductLink>;
-export declare const getGetFreeProductLinkQueryKey: (token: string) => readonly [`/api/promo/free-product-link/${string}`];
+export declare const getGetFreeProductLinkQueryKey: (token: string) => readonly [`/api/promo/free-product-link/token/${string}`];
 export declare const getGetFreeProductLinkQueryOptions: <TData = Awaited<ReturnType<typeof getFreeProductLink>>, TError = ErrorType<Error>>(token: string, options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getFreeProductLink>>, TError, TData>;
     request?: SecondParameter<typeof customFetch>;

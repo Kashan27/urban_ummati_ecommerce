@@ -30,12 +30,17 @@ import type {
   GetUpsellProducts200,
   GetUpsellProductsParams,
   HealthStatus,
+  ListCollectionProducts200,
+  ListCollectionProductsParams,
+  ListCollections200,
+  ListFreeProductLinks200,
   ListOrders200,
   ListOrdersParams,
   ListProducts200,
   ListProductsParams,
   Order,
   Product,
+  UpdateFreeProductLinkBody,
   UpdateOrderStatusBody,
 } from "./api.schemas";
 
@@ -468,6 +473,201 @@ export function useGetProduct<
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetProductQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary List all active collections
+ */
+export const getListCollectionsUrl = () => {
+  return `/api/collections`;
+};
+
+export const listCollections = async (
+  options?: RequestInit,
+): Promise<ListCollections200> => {
+  return customFetch<ListCollections200>(getListCollectionsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListCollectionsQueryKey = () => {
+  return [`/api/collections`] as const;
+};
+
+export const getListCollectionsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listCollections>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listCollections>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListCollectionsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listCollections>>> = ({
+    signal,
+  }) => listCollections({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listCollections>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListCollectionsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listCollections>>
+>;
+export type ListCollectionsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all active collections
+ */
+
+export function useListCollections<
+  TData = Awaited<ReturnType<typeof listCollections>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listCollections>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListCollectionsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get products in a collection
+ */
+export const getListCollectionProductsUrl = (
+  slug: string,
+  params?: ListCollectionProductsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/collections/${slug}/products?${stringifiedParams}`
+    : `/api/collections/${slug}/products`;
+};
+
+export const listCollectionProducts = async (
+  slug: string,
+  params?: ListCollectionProductsParams,
+  options?: RequestInit,
+): Promise<ListCollectionProducts200> => {
+  return customFetch<ListCollectionProducts200>(
+    getListCollectionProductsUrl(slug, params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getListCollectionProductsQueryKey = (
+  slug: string,
+  params?: ListCollectionProductsParams,
+) => {
+  return [
+    `/api/collections/${slug}/products`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getListCollectionProductsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listCollectionProducts>>,
+  TError = ErrorType<unknown>,
+>(
+  slug: string,
+  params?: ListCollectionProductsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listCollectionProducts>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListCollectionProductsQueryKey(slug, params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listCollectionProducts>>
+  > = ({ signal }) =>
+    listCollectionProducts(slug, params, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listCollectionProducts>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListCollectionProductsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listCollectionProducts>>
+>;
+export type ListCollectionProductsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get products in a collection
+ */
+
+export function useListCollectionProducts<
+  TData = Awaited<ReturnType<typeof listCollectionProducts>>,
+  TError = ErrorType<unknown>,
+>(
+  slug: string,
+  params?: ListCollectionProductsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listCollectionProducts>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListCollectionProductsQueryOptions(
+    slug,
+    params,
+    options,
+  );
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -915,6 +1115,81 @@ export const useCheckFreeProduct = <
 };
 
 /**
+ * @summary List all free product links (admin)
+ */
+export const getListFreeProductLinksUrl = () => {
+  return `/api/promo/free-product-link`;
+};
+
+export const listFreeProductLinks = async (
+  options?: RequestInit,
+): Promise<ListFreeProductLinks200> => {
+  return customFetch<ListFreeProductLinks200>(getListFreeProductLinksUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListFreeProductLinksQueryKey = () => {
+  return [`/api/promo/free-product-link`] as const;
+};
+
+export const getListFreeProductLinksQueryOptions = <
+  TData = Awaited<ReturnType<typeof listFreeProductLinks>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listFreeProductLinks>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListFreeProductLinksQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listFreeProductLinks>>
+  > = ({ signal }) => listFreeProductLinks({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listFreeProductLinks>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListFreeProductLinksQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listFreeProductLinks>>
+>;
+export type ListFreeProductLinksQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all free product links (admin)
+ */
+
+export function useListFreeProductLinks<
+  TData = Awaited<ReturnType<typeof listFreeProductLinks>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listFreeProductLinks>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListFreeProductLinksQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
  * @summary Generate a free product link (admin)
  */
 export const getCreateFreeProductLinkUrl = () => {
@@ -1002,10 +1277,182 @@ export const useCreateFreeProductLink = <
 };
 
 /**
+ * @summary Update a free product link (admin)
+ */
+export const getUpdateFreeProductLinkUrl = (id: number) => {
+  return `/api/promo/free-product-link/${id}`;
+};
+
+export const updateFreeProductLink = async (
+  id: number,
+  updateFreeProductLinkBody: UpdateFreeProductLinkBody,
+  options?: RequestInit,
+): Promise<FreeProductLink> => {
+  return customFetch<FreeProductLink>(getUpdateFreeProductLinkUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateFreeProductLinkBody),
+  });
+};
+
+export const getUpdateFreeProductLinkMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateFreeProductLink>>,
+    TError,
+    { id: number; data: BodyType<UpdateFreeProductLinkBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateFreeProductLink>>,
+  TError,
+  { id: number; data: BodyType<UpdateFreeProductLinkBody> },
+  TContext
+> => {
+  const mutationKey = ["updateFreeProductLink"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateFreeProductLink>>,
+    { id: number; data: BodyType<UpdateFreeProductLinkBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateFreeProductLink(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateFreeProductLinkMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateFreeProductLink>>
+>;
+export type UpdateFreeProductLinkMutationBody =
+  BodyType<UpdateFreeProductLinkBody>;
+export type UpdateFreeProductLinkMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update a free product link (admin)
+ */
+export const useUpdateFreeProductLink = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateFreeProductLink>>,
+    TError,
+    { id: number; data: BodyType<UpdateFreeProductLinkBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateFreeProductLink>>,
+  TError,
+  { id: number; data: BodyType<UpdateFreeProductLinkBody> },
+  TContext
+> => {
+  return useMutation(getUpdateFreeProductLinkMutationOptions(options));
+};
+
+/**
+ * @summary Delete a free product link (admin)
+ */
+export const getDeleteFreeProductLinkUrl = (id: number) => {
+  return `/api/promo/free-product-link/${id}`;
+};
+
+export const deleteFreeProductLink = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteFreeProductLinkUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteFreeProductLinkMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteFreeProductLink>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteFreeProductLink>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteFreeProductLink"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteFreeProductLink>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteFreeProductLink(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteFreeProductLinkMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteFreeProductLink>>
+>;
+
+export type DeleteFreeProductLinkMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a free product link (admin)
+ */
+export const useDeleteFreeProductLink = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteFreeProductLink>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteFreeProductLink>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteFreeProductLinkMutationOptions(options));
+};
+
+/**
  * @summary Validate and get a free product link
  */
 export const getGetFreeProductLinkUrl = (token: string) => {
-  return `/api/promo/free-product-link/${token}`;
+  return `/api/promo/free-product-link/token/${token}`;
 };
 
 export const getFreeProductLink = async (
@@ -1019,7 +1466,7 @@ export const getFreeProductLink = async (
 };
 
 export const getGetFreeProductLinkQueryKey = (token: string) => {
-  return [`/api/promo/free-product-link/${token}`] as const;
+  return [`/api/promo/free-product-link/token/${token}`] as const;
 };
 
 export const getGetFreeProductLinkQueryOptions = <

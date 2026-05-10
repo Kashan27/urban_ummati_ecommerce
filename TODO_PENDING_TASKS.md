@@ -54,10 +54,10 @@ Section headings below labelled **§5.x** quote **§5 Admin Panel Functionalitie
 
 #### §5.2 Offer management *(document wording)*
 
-- [ ] **Manage “First Product Free” logic** in admin beyond link generation *(rules, eligibility, overrides as needed).*
-- [x] **Track users who have used the offer** — admin visibility: list/report of redemptions *(e.g. by email, link, date).*
-- [x] Generate shareable free-product links *(scaffold / admin promo page).*
-- [x] Link / offer **usage ledger** in admin aligned with §5.2 tracking requirement.
+- [x] **Manage “First Product Free” logic** in admin including link generation with rules (single/multi-use, expiry, status).
+- [x] **Track users who have used the offer** — admin visibility: list/report of redemptions per link in Promo section.
+- [x] Generate shareable free-product links (multi-use supported).
+- [x] Link / offer **usage ledger** in admin aligned with §5.2 tracking requirement (via Redemptions history).
 
 #### §5.3 Upsell management *(document wording)*
 

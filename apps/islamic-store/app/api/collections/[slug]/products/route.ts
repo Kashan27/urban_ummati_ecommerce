@@ -53,7 +53,13 @@ export async function GET(
     const paginated = rows.slice(offset, offset + limit);
 
     return NextResponse.json({
-      collection: { id: collection.id, name: collection.name, slug: collection.slug },
+      collection: { 
+        id: collection.id, 
+        name: collection.name, 
+        slug: collection.slug,
+        description: collection.description,
+        imageUrl: collection.imageUrl
+      },
       products: paginated.map((r) =>
         formatProduct(r.product, {
           categoryId: r.category?.id ?? null,

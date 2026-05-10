@@ -4,6 +4,7 @@ import {
   collectionsTable,
   db,
   productCollectionsTable,
+  productUpsellsTable,
   productsTable,
 } from "@workspace/db";
 import { and, eq, inArray, notInArray } from "drizzle-orm";
@@ -32,10 +33,12 @@ const AdminProductBody = z.object({
   imageUrl: imageValueSchema,
   images: z.array(imageValueSchema).default([]),
   inStock: z.boolean().default(true),
+  inventoryQuantity: z.coerce.number().int().min(0).nullable().optional(),
   featured: z.boolean().default(false),
   isUpsell: z.boolean().default(false),
   upsellDiscount: z.coerce.number().nullable().optional(),
   colors: z.array(z.string()).default([]),
+  mainProductIds: z.array(z.coerce.number().int().positive()).optional().default([]),
 });
 
 export async function PUT(
@@ -68,6 +71,7 @@ export async function PUT(
     }
 
     const collectionIds = Array.from(new Set((data.collectionIds || []).filter(Boolean)));
+    const mainProductIds = Array.from(new Set((data.mainProductIds || []).filter(Boolean)));
     if (collectionIds.length > 0) {
       const existingCollections = await db
         .select({ id: collectionsTable.id })
@@ -95,6 +99,7 @@ export async function PUT(
           imageUrl: data.imageUrl,
           images: data.images || [],
           inStock: data.inStock ?? true,
+          inventoryQuantity: data.inventoryQuantity ?? null,
           featured: data.featured ?? false,
           isUpsell: data.isUpsell ?? false,
           upsellDiscount: data.upsellDiscount ? String(data.upsellDiscount) : null,
@@ -140,6 +145,24 @@ export async function PUT(
             ],
             set: { isActive: true, updatedAt: now },
           });
+      }
+
+      // Sync upsell relationships (This item IS an upsell FOR these main products)
+      await tx
+        .delete(productUpsellsTable)
+        .where(eq(productUpsellsTable.upsellProductId, updated.id));
+      
+      if (mainProductIds.length > 0) {
+        for (const mainId of mainProductIds) {
+          await tx
+            .insert(productUpsellsTable)
+            .values({
+              mainProductId: mainId,
+              upsellProductId: updated.id,
+              createdAt: now,
+            })
+            .onConflictDoNothing();
+        }
       }
 
       return updated;

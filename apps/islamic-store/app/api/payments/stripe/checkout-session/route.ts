@@ -137,6 +137,8 @@ export async function POST(request: NextRequest) {
     const shippingCost = effectiveSubtotal >= 75 ? 0 : 15;
     const tax = (effectiveSubtotal + shippingCost) * 0.13;
     const total = Math.max(0, effectiveSubtotal + shippingCost + tax);
+    const isPaidNow = total <= 0;
+    const now = new Date();
 
     const [order] = await db.transaction(async (tx) => {
       const [newOrder] = await tx
@@ -159,10 +161,34 @@ export async function POST(request: NextRequest) {
           isFreeOrder,
           discount: String(discount),
           paymentProvider: "stripe",
-          paymentStatus: "pending",
+          paymentStatus: isPaidNow ? "paid" : "pending",
+          paidAt: isPaidNow ? now : null,
           notes: data.notes,
+          updatedAt: now,
         })
         .returning();
+
+      for (const item of data.items) {
+        const updates = await tx
+          .update(productsTable)
+          .set({
+            totalSold: sql`${productsTable.totalSold} + ${item.quantity}`,
+            inventoryQuantity: sql`case when ${productsTable.inventoryQuantity} is null then null else greatest(0, ${productsTable.inventoryQuantity} - ${item.quantity}) end`,
+            inStock: sql`case when ${productsTable.inventoryQuantity} is null then ${productsTable.inStock} else (${productsTable.inventoryQuantity} - ${item.quantity}) > 0 end`,
+            updatedAt: now,
+          })
+          .where(
+            and(
+              eq(productsTable.id, item.productId),
+              sql`(${productsTable.inventoryQuantity} is null or ${productsTable.inventoryQuantity} >= ${item.quantity})`,
+            ),
+          )
+          .returning({ id: productsTable.id });
+
+        if (updates.length === 0) {
+          throw new Error("INSUFFICIENT_STOCK");
+        }
+      }
 
       if (validatedPromoToken && validatedPromoProductId) {
         const consumed = await tx
@@ -190,11 +216,6 @@ export async function POST(request: NextRequest) {
     });
 
     if (total <= 0) {
-      await db
-        .update(ordersTable)
-        .set({ paymentStatus: "paid", paidAt: new Date(), updatedAt: new Date() })
-        .where(eq(ordersTable.id, order.id));
-
       const origin = request.headers.get("origin") ?? "";
       const fallbackOrigin = origin || "http://localhost:3009";
       return NextResponse.json({
@@ -250,6 +271,12 @@ export async function POST(request: NextRequest) {
     if (err instanceof Error && err.message === "FREE_PRODUCT_TOKEN_ALREADY_USED") {
       return NextResponse.json(
         { error: "This free product token has already been used" },
+        { status: 409 },
+      );
+    }
+    if (err instanceof Error && err.message === "INSUFFICIENT_STOCK") {
+      return NextResponse.json(
+        { error: "One or more items are no longer in stock. Please update your cart and try again." },
         { status: 409 },
       );
     }

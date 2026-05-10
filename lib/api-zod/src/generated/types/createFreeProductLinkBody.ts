@@ -5,7 +5,12 @@
  * Islamic Products E-Commerce API
  * OpenAPI spec version: 0.1.0
  */
+import type { CreateFreeProductLinkBodyType } from "./createFreeProductLinkBodyType";
 
 export interface CreateFreeProductLinkBody {
   productId: number;
+  type?: CreateFreeProductLinkBodyType;
+  usageLimit?: number;
+  expiresAt?: string | null;
+  notes?: string | null;
 }

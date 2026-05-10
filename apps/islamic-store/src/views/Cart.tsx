@@ -21,7 +21,11 @@ export function Cart() {
   useEffect(() => {
     if (!promoToken) return;
     if (!promoLink?.product) return;
-    if (promoLink.usedByEmail) return;
+    
+    // Validate promo link using advanced rules
+    if (promoLink.status !== "active") return;
+    if (promoLink.expiresAt && new Date(promoLink.expiresAt) < new Date()) return;
+    if (promoLink.currentUsage >= promoLink.usageLimit) return;
 
     const alreadyApplied = items.some((i) => i.promoToken === promoToken);
     if (alreadyApplied) return;

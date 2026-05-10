@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db, freeProductLinksTable, ordersTable } from "@workspace/db";
+import { db, freeProductLinksTable, ordersTable, freeProductRedemptionsTable } from "@workspace/db";
 import { sql } from "drizzle-orm";
 import { CheckFreeProductBody } from "@workspace/api-zod";
 
@@ -16,20 +16,20 @@ export async function POST(request: Request) {
 
     const email = parsed.data.email.toLowerCase().trim();
 
-    const [existingOrders, usedLink] = await Promise.all([
+    const [existingOrders, redemptions] = await Promise.all([
       db
         .select({ id: ordersTable.id })
         .from(ordersTable)
         .where(sql`lower(${ordersTable.customerEmail}) = ${email}`)
         .limit(1),
       db
-        .select({ id: freeProductLinksTable.id })
-        .from(freeProductLinksTable)
-        .where(sql`lower(${freeProductLinksTable.usedByEmail}) = ${email}`)
+        .select({ id: freeProductRedemptionsTable.id })
+        .from(freeProductRedemptionsTable)
+        .where(sql`lower(${freeProductRedemptionsTable.email}) = ${email}`)
         .limit(1),
     ]);
 
-    if (existingOrders.length > 0 || usedLink.length > 0) {
+    if (existingOrders.length > 0 || redemptions.length > 0) {
       return NextResponse.json({
         eligible: false,
         reason: "This email has already been used for a free product",

@@ -14,6 +14,8 @@ export const productsTable = pgTable("products", {
   imageUrl: text("image_url").notNull(),
   images: jsonb("images").$type<string[]>().notNull().default([]),
   inStock: boolean("in_stock").notNull().default(true),
+  inventoryQuantity: integer("inventory_quantity"),
+  totalSold: integer("total_sold").notNull().default(0),
   featured: boolean("featured").notNull().default(false),
   isUpsell: boolean("is_upsell").notNull().default(false),
   upsellDiscount: numeric("upsell_discount", { precision: 5, scale: 2 }),

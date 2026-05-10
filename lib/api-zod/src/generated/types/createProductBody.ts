@@ -11,7 +11,7 @@ export interface CreateProductBody {
   description: string;
   price: number;
   comparePrice?: number | null;
-  categoryId: number;
+  category: string;
   imageUrl: string;
   images?: string[];
   inStock?: boolean;
@@ -19,4 +19,6 @@ export interface CreateProductBody {
   isUpsell?: boolean;
   upsellDiscount?: number | null;
   colors?: string[];
+  /** List of main products this item should be an upsell for */
+  mainProductIds?: number[];
 }

@@ -206,6 +206,9 @@
 
 @layer utilities {
   @media print {
+    @page {
+      margin: 0;
+    }
     .no-print {
       display: none !important;
     }
@@ -215,14 +218,21 @@
     body {
       background: white !important;
       color: black !important;
+      margin: 0;
+      padding: 0;
     }
     .print-content {
-      position: absolute;
-      top: 0;
-      left: 0;
       width: 100%;
       margin: 0;
-      padding: 20px;
+      padding: 1in; /* Standard 1 inch margin */
+    }
+
+    /* 4x6 Label Printing */
+    .shipping-label-container {
+      width: 4in;
+      height: 6in;
+      page-break-after: always;
+      padding: 0.25in; /* Less padding for labels */
     }
   }
 

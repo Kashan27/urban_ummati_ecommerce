@@ -8,6 +8,8 @@ export const runtime = "nodejs";
 
 const CollectionBody = z.object({
   name: z.string().min(2),
+  description: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
   isActive: z.boolean().optional().default(true),
 });
 
@@ -68,6 +70,8 @@ export async function POST(request: Request) {
       .values({
         name,
         slug,
+        description: parsed.data.description,
+        imageUrl: parsed.data.imageUrl,
         isActive: parsed.data.isActive,
       })
       .returning();

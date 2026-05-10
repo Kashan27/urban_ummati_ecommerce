@@ -48,7 +48,16 @@ export const ListProductsResponse = zod.object({
       reviewCount: zod.number(),
       rating: zod.number(),
       colors: zod.array(zod.string()),
+      mainProductIds: zod
+        .array(zod.number())
+        .optional()
+        .describe("List of products this item is an upsell for"),
+      linkedUpsellIds: zod
+        .array(zod.number())
+        .optional()
+        .describe("List of products that are upsells for this item"),
       createdAt: zod.string(),
+      updatedAt: zod.string().nullish(),
     }),
   ),
   total: zod.number(),
@@ -78,7 +87,16 @@ export const GetFeaturedProductsResponse = zod.object({
       reviewCount: zod.number(),
       rating: zod.number(),
       colors: zod.array(zod.string()),
+      mainProductIds: zod
+        .array(zod.number())
+        .optional()
+        .describe("List of products this item is an upsell for"),
+      linkedUpsellIds: zod
+        .array(zod.number())
+        .optional()
+        .describe("List of products that are upsells for this item"),
       createdAt: zod.string(),
+      updatedAt: zod.string().nullish(),
     }),
   ),
 });
@@ -111,7 +129,16 @@ export const GetUpsellProductsResponse = zod.object({
       reviewCount: zod.number(),
       rating: zod.number(),
       colors: zod.array(zod.string()),
+      mainProductIds: zod
+        .array(zod.number())
+        .optional()
+        .describe("List of products this item is an upsell for"),
+      linkedUpsellIds: zod
+        .array(zod.number())
+        .optional()
+        .describe("List of products that are upsells for this item"),
       createdAt: zod.string(),
+      updatedAt: zod.string().nullish(),
     }),
   ),
 });
@@ -130,6 +157,9 @@ export const GetProductResponse = zod.object({
   price: zod.number(),
   comparePrice: zod.number().nullish(),
   category: zod.string(),
+  categoryId: zod.number().nullish(),
+  categoryName: zod.string().nullish(),
+  categorySlug: zod.string().nullish(),
   imageUrl: zod.string(),
   images: zod.array(zod.string()),
   inStock: zod.boolean(),
@@ -139,7 +169,95 @@ export const GetProductResponse = zod.object({
   reviewCount: zod.number(),
   rating: zod.number(),
   colors: zod.array(zod.string()),
+  mainProductIds: zod
+    .array(zod.number())
+    .optional()
+    .describe("List of products this item is an upsell for"),
+  linkedUpsellIds: zod
+    .array(zod.number())
+    .optional()
+    .describe("List of products that are upsells for this item"),
   createdAt: zod.string(),
+  updatedAt: zod.string().nullish(),
+});
+
+/**
+ * @summary List all active collections
+ */
+export const ListCollectionsResponse = zod.object({
+  collections: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      slug: zod.string(),
+      description: zod.string().nullish(),
+      imageUrl: zod.string().nullish(),
+      isActive: zod.boolean(),
+      createdAt: zod.string(),
+      updatedAt: zod.string().nullish(),
+    }),
+  ),
+});
+
+/**
+ * @summary Get products in a collection
+ */
+export const ListCollectionProductsParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const listCollectionProductsQueryLimitDefault = 60;
+export const listCollectionProductsQueryOffsetDefault = 0;
+
+export const ListCollectionProductsQueryParams = zod.object({
+  limit: zod.coerce.number().default(listCollectionProductsQueryLimitDefault),
+  offset: zod.coerce.number().default(listCollectionProductsQueryOffsetDefault),
+});
+
+export const ListCollectionProductsResponse = zod.object({
+  collection: zod.object({
+    id: zod.number(),
+    name: zod.string(),
+    slug: zod.string(),
+    description: zod.string().nullish(),
+    imageUrl: zod.string().nullish(),
+    isActive: zod.boolean(),
+    createdAt: zod.string(),
+    updatedAt: zod.string().nullish(),
+  }),
+  products: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      description: zod.string(),
+      price: zod.number(),
+      comparePrice: zod.number().nullish(),
+      category: zod.string(),
+      categoryId: zod.number().nullish(),
+      categoryName: zod.string().nullish(),
+      categorySlug: zod.string().nullish(),
+      imageUrl: zod.string(),
+      images: zod.array(zod.string()),
+      inStock: zod.boolean(),
+      featured: zod.boolean(),
+      isUpsell: zod.boolean(),
+      upsellDiscount: zod.number().nullish(),
+      reviewCount: zod.number(),
+      rating: zod.number(),
+      colors: zod.array(zod.string()),
+      mainProductIds: zod
+        .array(zod.number())
+        .optional()
+        .describe("List of products this item is an upsell for"),
+      linkedUpsellIds: zod
+        .array(zod.number())
+        .optional()
+        .describe("List of products that are upsells for this item"),
+      createdAt: zod.string(),
+      updatedAt: zod.string().nullish(),
+    }),
+  ),
+  total: zod.number(),
 });
 
 /**
@@ -185,6 +303,20 @@ export const ListOrdersResponse = zod.object({
       status: zod.enum(["received", "processed", "shipped"]),
       isFreeOrder: zod.boolean(),
       discount: zod.number(),
+      paymentProvider: zod.string().nullish(),
+      paymentStatus: zod.string().nullish(),
+      stripeCheckoutSessionId: zod.string().nullish(),
+      stripePaymentIntentId: zod.string().nullish(),
+      paidAt: zod.string().nullish(),
+      shipstationOrderId: zod.string().nullish(),
+      shipstationOrderKey: zod.string().nullish(),
+      shipstationShipmentId: zod.string().nullish(),
+      shipstationShipmentStatus: zod.string().nullish(),
+      shipstationTrackingNumber: zod.string().nullish(),
+      shipstationCarrierCode: zod.string().nullish(),
+      shipstationServiceCode: zod.string().nullish(),
+      shipstationSyncedAt: zod.string().nullish(),
+      shippedAt: zod.string().nullish(),
       notes: zod.string().nullish(),
       createdAt: zod.string(),
     }),
@@ -253,6 +385,20 @@ export const GetOrderResponse = zod.object({
   status: zod.enum(["received", "processed", "shipped"]),
   isFreeOrder: zod.boolean(),
   discount: zod.number(),
+  paymentProvider: zod.string().nullish(),
+  paymentStatus: zod.string().nullish(),
+  stripeCheckoutSessionId: zod.string().nullish(),
+  stripePaymentIntentId: zod.string().nullish(),
+  paidAt: zod.string().nullish(),
+  shipstationOrderId: zod.string().nullish(),
+  shipstationOrderKey: zod.string().nullish(),
+  shipstationShipmentId: zod.string().nullish(),
+  shipstationShipmentStatus: zod.string().nullish(),
+  shipstationTrackingNumber: zod.string().nullish(),
+  shipstationCarrierCode: zod.string().nullish(),
+  shipstationServiceCode: zod.string().nullish(),
+  shipstationSyncedAt: zod.string().nullish(),
+  shippedAt: zod.string().nullish(),
   notes: zod.string().nullish(),
   createdAt: zod.string(),
 });
@@ -297,6 +443,20 @@ export const UpdateOrderStatusResponse = zod.object({
   status: zod.enum(["received", "processed", "shipped"]),
   isFreeOrder: zod.boolean(),
   discount: zod.number(),
+  paymentProvider: zod.string().nullish(),
+  paymentStatus: zod.string().nullish(),
+  stripeCheckoutSessionId: zod.string().nullish(),
+  stripePaymentIntentId: zod.string().nullish(),
+  paidAt: zod.string().nullish(),
+  shipstationOrderId: zod.string().nullish(),
+  shipstationOrderKey: zod.string().nullish(),
+  shipstationShipmentId: zod.string().nullish(),
+  shipstationShipmentStatus: zod.string().nullish(),
+  shipstationTrackingNumber: zod.string().nullish(),
+  shipstationCarrierCode: zod.string().nullish(),
+  shipstationServiceCode: zod.string().nullish(),
+  shipstationSyncedAt: zod.string().nullish(),
+  shippedAt: zod.string().nullish(),
   notes: zod.string().nullish(),
   createdAt: zod.string(),
 });
@@ -314,10 +474,162 @@ export const CheckFreeProductResponse = zod.object({
 });
 
 /**
+ * @summary List all free product links (admin)
+ */
+export const ListFreeProductLinksResponse = zod.object({
+  links: zod.array(
+    zod.object({
+      id: zod.number(),
+      token: zod.string(),
+      productId: zod.number(),
+      product: zod
+        .object({
+          id: zod.number(),
+          name: zod.string(),
+          description: zod.string(),
+          price: zod.number(),
+          comparePrice: zod.number().nullish(),
+          category: zod.string(),
+          categoryId: zod.number().nullish(),
+          categoryName: zod.string().nullish(),
+          categorySlug: zod.string().nullish(),
+          imageUrl: zod.string(),
+          images: zod.array(zod.string()),
+          inStock: zod.boolean(),
+          featured: zod.boolean(),
+          isUpsell: zod.boolean(),
+          upsellDiscount: zod.number().nullish(),
+          reviewCount: zod.number(),
+          rating: zod.number(),
+          colors: zod.array(zod.string()),
+          mainProductIds: zod
+            .array(zod.number())
+            .optional()
+            .describe("List of products this item is an upsell for"),
+          linkedUpsellIds: zod
+            .array(zod.number())
+            .optional()
+            .describe("List of products that are upsells for this item"),
+          createdAt: zod.string(),
+          updatedAt: zod.string().nullish(),
+        })
+        .optional(),
+      status: zod.enum(["active", "disabled", "archived"]),
+      type: zod.enum(["single-use", "multi-use", "time-limited"]),
+      usageLimit: zod.number(),
+      currentUsage: zod.number(),
+      expiresAt: zod.string().nullish(),
+      notes: zod.string().nullish(),
+      usedByEmail: zod.string().nullish(),
+      usedAt: zod.string().nullish(),
+      redemptions: zod
+        .array(
+          zod.object({
+            id: zod.number(),
+            email: zod.string(),
+            orderId: zod.number().nullish(),
+            usedAt: zod.string(),
+          }),
+        )
+        .optional(),
+      createdAt: zod.string(),
+    }),
+  ),
+  total: zod.number(),
+});
+
+/**
  * @summary Generate a free product link (admin)
  */
+export const createFreeProductLinkBodyTypeDefault = `single-use`;
+export const createFreeProductLinkBodyUsageLimitDefault = 1;
+
 export const CreateFreeProductLinkBody = zod.object({
   productId: zod.number(),
+  type: zod
+    .enum(["single-use", "multi-use", "time-limited"])
+    .default(createFreeProductLinkBodyTypeDefault),
+  usageLimit: zod.number().default(createFreeProductLinkBodyUsageLimitDefault),
+  expiresAt: zod.string().nullish(),
+  notes: zod.string().nullish(),
+});
+
+/**
+ * @summary Update a free product link (admin)
+ */
+export const UpdateFreeProductLinkParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateFreeProductLinkBody = zod.object({
+  status: zod.enum(["active", "disabled", "archived"]).optional(),
+  usageLimit: zod.number().optional(),
+  expiresAt: zod.string().nullish(),
+  notes: zod.string().nullish(),
+});
+
+export const UpdateFreeProductLinkResponse = zod.object({
+  id: zod.number(),
+  token: zod.string(),
+  productId: zod.number(),
+  product: zod
+    .object({
+      id: zod.number(),
+      name: zod.string(),
+      description: zod.string(),
+      price: zod.number(),
+      comparePrice: zod.number().nullish(),
+      category: zod.string(),
+      categoryId: zod.number().nullish(),
+      categoryName: zod.string().nullish(),
+      categorySlug: zod.string().nullish(),
+      imageUrl: zod.string(),
+      images: zod.array(zod.string()),
+      inStock: zod.boolean(),
+      featured: zod.boolean(),
+      isUpsell: zod.boolean(),
+      upsellDiscount: zod.number().nullish(),
+      reviewCount: zod.number(),
+      rating: zod.number(),
+      colors: zod.array(zod.string()),
+      mainProductIds: zod
+        .array(zod.number())
+        .optional()
+        .describe("List of products this item is an upsell for"),
+      linkedUpsellIds: zod
+        .array(zod.number())
+        .optional()
+        .describe("List of products that are upsells for this item"),
+      createdAt: zod.string(),
+      updatedAt: zod.string().nullish(),
+    })
+    .optional(),
+  status: zod.enum(["active", "disabled", "archived"]),
+  type: zod.enum(["single-use", "multi-use", "time-limited"]),
+  usageLimit: zod.number(),
+  currentUsage: zod.number(),
+  expiresAt: zod.string().nullish(),
+  notes: zod.string().nullish(),
+  usedByEmail: zod.string().nullish(),
+  usedAt: zod.string().nullish(),
+  redemptions: zod
+    .array(
+      zod.object({
+        id: zod.number(),
+        email: zod.string(),
+        orderId: zod.number().nullish(),
+        usedAt: zod.string(),
+      }),
+    )
+    .optional(),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Delete a free product link (admin)
+ */
+export const DeleteFreeProductLinkParams = zod.object({
+  id: zod.coerce.number(),
 });
 
 /**
@@ -339,6 +651,9 @@ export const GetFreeProductLinkResponse = zod.object({
       price: zod.number(),
       comparePrice: zod.number().nullish(),
       category: zod.string(),
+      categoryId: zod.number().nullish(),
+      categoryName: zod.string().nullish(),
+      categorySlug: zod.string().nullish(),
       imageUrl: zod.string(),
       images: zod.array(zod.string()),
       inStock: zod.boolean(),
@@ -348,11 +663,36 @@ export const GetFreeProductLinkResponse = zod.object({
       reviewCount: zod.number(),
       rating: zod.number(),
       colors: zod.array(zod.string()),
+      mainProductIds: zod
+        .array(zod.number())
+        .optional()
+        .describe("List of products this item is an upsell for"),
+      linkedUpsellIds: zod
+        .array(zod.number())
+        .optional()
+        .describe("List of products that are upsells for this item"),
       createdAt: zod.string(),
+      updatedAt: zod.string().nullish(),
     })
     .optional(),
+  status: zod.enum(["active", "disabled", "archived"]),
+  type: zod.enum(["single-use", "multi-use", "time-limited"]),
+  usageLimit: zod.number(),
+  currentUsage: zod.number(),
+  expiresAt: zod.string().nullish(),
+  notes: zod.string().nullish(),
   usedByEmail: zod.string().nullish(),
   usedAt: zod.string().nullish(),
+  redemptions: zod
+    .array(
+      zod.object({
+        id: zod.number(),
+        email: zod.string(),
+        orderId: zod.number().nullish(),
+        usedAt: zod.string(),
+      }),
+    )
+    .optional(),
   createdAt: zod.string(),
 });
 
@@ -368,7 +708,7 @@ export const CreateProductBody = zod.object({
   description: zod.string(),
   price: zod.number(),
   comparePrice: zod.number().nullish(),
-  categoryId: zod.number(),
+  category: zod.string(),
   imageUrl: zod.string(),
   images: zod.array(zod.string()).optional(),
   inStock: zod.boolean().default(createProductBodyInStockDefault),
@@ -376,6 +716,10 @@ export const CreateProductBody = zod.object({
   isUpsell: zod.boolean().default(createProductBodyIsUpsellDefault),
   upsellDiscount: zod.number().nullish(),
   colors: zod.array(zod.string()).optional(),
+  mainProductIds: zod
+    .array(zod.number())
+    .optional()
+    .describe("List of main products this item should be an upsell for"),
 });
 
 /**
@@ -394,7 +738,7 @@ export const UpdateProductBody = zod.object({
   description: zod.string(),
   price: zod.number(),
   comparePrice: zod.number().nullish(),
-  categoryId: zod.number().optional(),
+  category: zod.string(),
   imageUrl: zod.string(),
   images: zod.array(zod.string()).optional(),
   inStock: zod.boolean().default(updateProductBodyInStockDefault),
@@ -402,6 +746,10 @@ export const UpdateProductBody = zod.object({
   isUpsell: zod.boolean().default(updateProductBodyIsUpsellDefault),
   upsellDiscount: zod.number().nullish(),
   colors: zod.array(zod.string()).optional(),
+  mainProductIds: zod
+    .array(zod.number())
+    .optional()
+    .describe("List of main products this item should be an upsell for"),
 });
 
 export const UpdateProductResponse = zod.object({
@@ -423,7 +771,16 @@ export const UpdateProductResponse = zod.object({
   reviewCount: zod.number(),
   rating: zod.number(),
   colors: zod.array(zod.string()),
+  mainProductIds: zod
+    .array(zod.number())
+    .optional()
+    .describe("List of products this item is an upsell for"),
+  linkedUpsellIds: zod
+    .array(zod.number())
+    .optional()
+    .describe("List of products that are upsells for this item"),
   createdAt: zod.string(),
+  updatedAt: zod.string().nullish(),
 });
 
 /**
@@ -475,6 +832,20 @@ export const GetAdminStatsResponse = zod.object({
       status: zod.enum(["received", "processed", "shipped"]),
       isFreeOrder: zod.boolean(),
       discount: zod.number(),
+      paymentProvider: zod.string().nullish(),
+      paymentStatus: zod.string().nullish(),
+      stripeCheckoutSessionId: zod.string().nullish(),
+      stripePaymentIntentId: zod.string().nullish(),
+      paidAt: zod.string().nullish(),
+      shipstationOrderId: zod.string().nullish(),
+      shipstationOrderKey: zod.string().nullish(),
+      shipstationShipmentId: zod.string().nullish(),
+      shipstationShipmentStatus: zod.string().nullish(),
+      shipstationTrackingNumber: zod.string().nullish(),
+      shipstationCarrierCode: zod.string().nullish(),
+      shipstationServiceCode: zod.string().nullish(),
+      shipstationSyncedAt: zod.string().nullish(),
+      shippedAt: zod.string().nullish(),
       notes: zod.string().nullish(),
       createdAt: zod.string(),
     }),

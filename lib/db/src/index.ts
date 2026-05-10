@@ -10,7 +10,11 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const globalForPg = globalThis as unknown as { __workspacePgPool?: pg.Pool };
+export const pool =
+  globalForPg.__workspacePgPool ??
+  new Pool({ connectionString: process.env.DATABASE_URL });
+globalForPg.__workspacePgPool = pool;
 export const db = drizzle(pool, { schema });
 
 export * from "./schema";

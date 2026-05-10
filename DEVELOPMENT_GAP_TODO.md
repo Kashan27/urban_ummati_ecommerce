@@ -71,15 +71,18 @@ It complements `TODO_PENDING_TASKS.md`, which remains the main spec-aligned chec
 - [x] Enforce one specific free product at API level.
   - Evidence: `/api/orders` requires cart to contain exactly one matching `productId` with quantity 1 for the token’s product.
 
-- [ ] Persist and enforce advanced free-link rules.
-  - Current: admin promo UI contains concepts like link type, usage limit, expiry, status, and notes, but the current API/schema only persists token, product, and usage email/time.
-  - Required: add schema/API support for link status, usage limit, current usage, expiry, notes, disable/archive, and update/delete actions.
+- [x] Persist and enforce advanced free-link rules.
+  - Evidence: Updated `free_product_links` schema with status, type, usage limits, and expiry. Added `free_product_redemptions` table. Updated API routes and frontend (`Admin.tsx`, `Cart.tsx`, `FreeProduct.tsx`) to enforce these rules. Verified with `pnpm run typecheck` and database push.
 
 - [ ] Add admin controls for "First Product Free" offer rules.
-  - Current: admin can generate links and view usage, but there is no rules/eligibility/override management.
-  - Required: admin should manage eligibility rules and exceptions according to the agreed business scope.
+  - Current: admin can generate links with advanced rules (usage limit, expiry, status, type) and view redemptions history.
+  - Required: add global rules/eligibility/override management if needed beyond per-link rules.
 
 ### 3. Upsell Management
+
+- [x] Storefront upsell modal with discount display.
+  - Evidence: Implemented `UpsellModal.tsx` and integrated with `CartContext`.
+  - Fix: Resolved recursive popup issue by adding `skipUpsell` option to `addItem`, preventing "upsell fatigue" when adding items from the modal.
 
 - [ ] Create a dedicated upsell management module.
   - Current: upsells are controlled by product-level `isUpsell` and `upsellDiscount`.

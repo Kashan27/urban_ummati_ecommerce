@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db, ordersTable, productsTable, orderStatusesTable, freeProductLinksTable } from "@workspace/db";
+import { db, ordersTable, productsTable, orderStatusesTable, freeProductLinksTable, freeProductRedemptionsTable } from "@workspace/db";
 import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { CreateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { formatOrder } from "@/lib/api-formatters";
@@ -84,6 +84,15 @@ export async function POST(request: Request) {
       const product = productMap.get(item.productId);
       if (!product) throw new Error(`Product ${item.productId} not found`);
       if (product.status !== "active") throw new Error(`Product ${item.productId} is not available`);
+      
+      // Stock check
+      if (product.inventoryQuantity !== null && product.inventoryQuantity < item.quantity) {
+        throw new Error(`Insufficient stock for product: ${product.name}`);
+      }
+      if (product.inStock === false) {
+        throw new Error(`Product is out of stock: ${product.name}`);
+      }
+
       if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
         throw new Error(`Invalid quantity for product ${item.productId}`);
       }
@@ -115,27 +124,34 @@ export async function POST(request: Request) {
       }
 
       const link = promoLink[0];
-      if (link.usedByEmail || link.usedAt) {
-        return NextResponse.json(
-          { error: "This free product token has already been used" },
-          { status: 409 },
-        );
+      
+      // Advanced rule validation
+      if (link.status !== "active") {
+        return NextResponse.json({ error: "This free product link is no longer active" }, { status: 404 });
       }
 
-      const [existingOrders, usedLink] = await Promise.all([
+      if (link.expiresAt && link.expiresAt < new Date()) {
+        return NextResponse.json({ error: "This free product link has expired" }, { status: 404 });
+      }
+
+      if (link.currentUsage >= link.usageLimit) {
+        return NextResponse.json({ error: "This free product link has reached its usage limit" }, { status: 409 });
+      }
+
+      const [existingOrders, usedLinkRedemptions] = await Promise.all([
         db
           .select({ id: ordersTable.id })
           .from(ordersTable)
           .where(sql`lower(${ordersTable.customerEmail}) = ${email}`)
           .limit(1),
         db
-          .select({ id: freeProductLinksTable.id })
-          .from(freeProductLinksTable)
-          .where(sql`lower(${freeProductLinksTable.usedByEmail}) = ${email}`)
+          .select({ id: freeProductRedemptionsTable.id })
+          .from(freeProductRedemptionsTable)
+          .where(sql`lower(${freeProductRedemptionsTable.email}) = ${email}`)
           .limit(1),
       ]);
 
-      if (existingOrders.length > 0 || usedLink.length > 0) {
+      if (existingOrders.length > 0 || usedLinkRedemptions.length > 0) {
         return NextResponse.json(
           {
             error: "This email has already been used for a free product",
@@ -202,19 +218,43 @@ export async function POST(request: Request) {
         })
         .returning();
 
+      for (const item of data.items) {
+        const updates = await tx
+          .update(productsTable)
+          .set({
+            totalSold: sql`${productsTable.totalSold} + ${item.quantity}`,
+            inventoryQuantity: sql`case when ${productsTable.inventoryQuantity} is null then null else greatest(0, ${productsTable.inventoryQuantity} - ${item.quantity}) end`,
+            inStock: sql`case when ${productsTable.inventoryQuantity} is null then ${productsTable.inStock} else (${productsTable.inventoryQuantity} - ${item.quantity}) > 0 end`,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(productsTable.id, item.productId),
+              sql`(${productsTable.inventoryQuantity} is null or ${productsTable.inventoryQuantity} >= ${item.quantity})`,
+            ),
+          )
+          .returning({ id: productsTable.id });
+
+        if (updates.length === 0) {
+          throw new Error("INSUFFICIENT_STOCK");
+        }
+      }
+
       if (validatedPromoToken && validatedPromoProductId) {
         const consumed = await tx
           .update(freeProductLinksTable)
           .set({
-            usedByEmail: email,
-            usedAt: new Date(),
+            currentUsage: sql`${freeProductLinksTable.currentUsage} + 1`,
+            usedByEmail: email, // Legacy support
+            usedAt: new Date(),  // Legacy support
+            updatedAt: new Date(),
           })
           .where(
             and(
               eq(freeProductLinksTable.token, validatedPromoToken),
               eq(freeProductLinksTable.productId, validatedPromoProductId),
-              isNull(freeProductLinksTable.usedByEmail),
-              isNull(freeProductLinksTable.usedAt),
+              eq(freeProductLinksTable.status, "active"),
+              sql`${freeProductLinksTable.currentUsage} < ${freeProductLinksTable.usageLimit}`
             ),
           )
           .returning({ id: freeProductLinksTable.id });
@@ -222,6 +262,13 @@ export async function POST(request: Request) {
         if (consumed.length === 0) {
           throw new Error("FREE_PRODUCT_TOKEN_ALREADY_USED");
         }
+
+        // Create redemption record
+        await tx.insert(freeProductRedemptionsTable).values({
+          linkId: consumed[0].id,
+          email: email,
+          orderId: newOrder.id,
+        });
       }
 
       return [newOrder];
@@ -232,6 +279,12 @@ export async function POST(request: Request) {
     if (err instanceof Error && err.message === "FREE_PRODUCT_TOKEN_ALREADY_USED") {
       return NextResponse.json(
         { error: "This free product token has already been used" },
+        { status: 409 },
+      );
+    }
+    if (err instanceof Error && err.message === "INSUFFICIENT_STOCK") {
+      return NextResponse.json(
+        { error: "One or more items are no longer in stock. Please update your cart and try again." },
         { status: 409 },
       );
     }

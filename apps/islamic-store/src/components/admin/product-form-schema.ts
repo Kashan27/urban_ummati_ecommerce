@@ -9,10 +9,12 @@ export const productSchema = z.object({
   categoryId: z.coerce.number().int().positive(),
   collectionIds: z.array(z.number().int().positive()).default([]),
   inStock: z.boolean().default(true),
+  inventoryQuantity: z.coerce.number().int().min(0).optional().nullable(),
   featured: z.boolean().default(false),
   isUpsell: z.boolean().default(false),
   upsellDiscount: z.coerce.number().optional().nullable(),
   colors: z.string().default(""),
+  mainProductIds: z.array(z.number().int().positive()).default([]),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;

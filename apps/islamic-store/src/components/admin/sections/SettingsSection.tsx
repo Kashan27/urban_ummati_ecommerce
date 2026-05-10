@@ -120,9 +120,85 @@ export function SettingsSection({ settings, onUpdateSettings }: Props) {
               />
             </div>
           </div>
+
+          <Separator />
+
+          <div className="space-y-4">
+            <h4 className="text-sm font-bold uppercase tracking-widest text-primary/80">Inventory & Fulfillment</h4>
+            
+            <div className="space-y-3">
+              <div className="flex items-center justify-between rounded-lg border border-border bg-muted/20 p-4">
+                <div className="space-y-0.5">
+                  <label className="text-sm font-bold text-foreground">Enforce Stock Restrictions</label>
+                  <p className="text-xs text-muted-foreground max-w-sm">
+                    Customers cannot buy more than available stock.
+                  </p>
+                </div>
+                <Toggle 
+                  checked={localSettings.enforce_stock_restrictions === "true"}
+                  onChange={(checked) => setLocalSettings(prev => ({ ...prev, enforce_stock_restrictions: String(checked) }))}
+                />
+              </div>
+
+              <div className="flex items-center justify-between rounded-lg border border-border bg-muted/20 p-4">
+                <div className="space-y-0.5">
+                  <label className="text-sm font-bold text-foreground">Display Stock to Customers</label>
+                  <p className="text-xs text-muted-foreground max-w-sm">
+                    Show current stock levels (e.g. "Only 2 left") on product pages.
+                  </p>
+                </div>
+                <Toggle 
+                  checked={localSettings.display_stock_to_customers === "true"}
+                  onChange={(checked) => setLocalSettings(prev => ({ ...prev, display_stock_to_customers: String(checked) }))}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Low Stock Display Threshold
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={localSettings.low_stock_threshold || ""}
+                  onChange={(e) =>
+                    setLocalSettings((prev) => ({ ...prev, low_stock_threshold: e.target.value }))
+                  }
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="e.g. 5"
+                />
+                <p className="mt-1 text-[10px] text-muted-foreground italic">
+                  Threshold for low stock warnings.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={cn(
+        "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+        checked ? "bg-primary" : "bg-muted"
+      )}
+    >
+      <span
+        className={cn(
+          "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+          checked ? "translate-x-5" : "translate-x-0"
+        )}
+      />
+    </button>
   );
 }
 

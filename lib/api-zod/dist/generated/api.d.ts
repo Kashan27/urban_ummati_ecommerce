@@ -57,7 +57,10 @@ export declare const ListProductsResponse: zod.ZodObject<{
         reviewCount: zod.ZodNumber;
         rating: zod.ZodNumber;
         colors: zod.ZodArray<zod.ZodString, "many">;
+        mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
+        linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         createdAt: zod.ZodString;
+        updatedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     }, "strip", zod.ZodTypeAny, {
         category: string;
         featured: boolean;
@@ -78,6 +81,9 @@ export declare const ListProductsResponse: zod.ZodObject<{
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     }, {
         category: string;
         featured: boolean;
@@ -98,6 +104,9 @@ export declare const ListProductsResponse: zod.ZodObject<{
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     }>, "many">;
     total: zod.ZodNumber;
 }, "strip", zod.ZodTypeAny, {
@@ -121,6 +130,9 @@ export declare const ListProductsResponse: zod.ZodObject<{
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     }[];
     total: number;
 }, {
@@ -144,6 +156,9 @@ export declare const ListProductsResponse: zod.ZodObject<{
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     }[];
     total: number;
 }>;
@@ -170,7 +185,10 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         reviewCount: zod.ZodNumber;
         rating: zod.ZodNumber;
         colors: zod.ZodArray<zod.ZodString, "many">;
+        mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
+        linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         createdAt: zod.ZodString;
+        updatedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     }, "strip", zod.ZodTypeAny, {
         category: string;
         featured: boolean;
@@ -191,6 +209,9 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     }, {
         category: string;
         featured: boolean;
@@ -211,6 +232,9 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     }>, "many">;
 }, "strip", zod.ZodTypeAny, {
     products: {
@@ -233,6 +257,9 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     }[];
 }, {
     products: {
@@ -255,6 +282,9 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     }[];
 }>;
 /**
@@ -287,7 +317,10 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         reviewCount: zod.ZodNumber;
         rating: zod.ZodNumber;
         colors: zod.ZodArray<zod.ZodString, "many">;
+        mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
+        linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         createdAt: zod.ZodString;
+        updatedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     }, "strip", zod.ZodTypeAny, {
         category: string;
         featured: boolean;
@@ -308,6 +341,9 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     }, {
         category: string;
         featured: boolean;
@@ -328,6 +364,9 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     }>, "many">;
 }, "strip", zod.ZodTypeAny, {
     products: {
@@ -350,6 +389,9 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     }[];
 }, {
     products: {
@@ -372,6 +414,9 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     }[];
 }>;
 /**
@@ -391,6 +436,9 @@ export declare const GetProductResponse: zod.ZodObject<{
     price: zod.ZodNumber;
     comparePrice: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
     category: zod.ZodString;
+    categoryId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
+    categoryName: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    categorySlug: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     imageUrl: zod.ZodString;
     images: zod.ZodArray<zod.ZodString, "many">;
     inStock: zod.ZodBoolean;
@@ -400,7 +448,10 @@ export declare const GetProductResponse: zod.ZodObject<{
     reviewCount: zod.ZodNumber;
     rating: zod.ZodNumber;
     colors: zod.ZodArray<zod.ZodString, "many">;
+    mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
+    linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
     createdAt: zod.ZodString;
+    updatedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
 }, "strip", zod.ZodTypeAny, {
     category: string;
     featured: boolean;
@@ -417,7 +468,13 @@ export declare const GetProductResponse: zod.ZodObject<{
     colors: string[];
     createdAt: string;
     comparePrice?: number | null | undefined;
+    categoryId?: number | null | undefined;
+    categoryName?: string | null | undefined;
+    categorySlug?: string | null | undefined;
     upsellDiscount?: number | null | undefined;
+    mainProductIds?: number[] | undefined;
+    linkedUpsellIds?: number[] | undefined;
+    updatedAt?: string | null | undefined;
 }, {
     category: string;
     featured: boolean;
@@ -434,7 +491,263 @@ export declare const GetProductResponse: zod.ZodObject<{
     colors: string[];
     createdAt: string;
     comparePrice?: number | null | undefined;
+    categoryId?: number | null | undefined;
+    categoryName?: string | null | undefined;
+    categorySlug?: string | null | undefined;
     upsellDiscount?: number | null | undefined;
+    mainProductIds?: number[] | undefined;
+    linkedUpsellIds?: number[] | undefined;
+    updatedAt?: string | null | undefined;
+}>;
+/**
+ * @summary List all active collections
+ */
+export declare const ListCollectionsResponse: zod.ZodObject<{
+    collections: zod.ZodArray<zod.ZodObject<{
+        id: zod.ZodNumber;
+        name: zod.ZodString;
+        slug: zod.ZodString;
+        description: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        imageUrl: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        isActive: zod.ZodBoolean;
+        createdAt: zod.ZodString;
+        updatedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    }, "strip", zod.ZodTypeAny, {
+        id: number;
+        name: string;
+        createdAt: string;
+        slug: string;
+        isActive: boolean;
+        description?: string | null | undefined;
+        imageUrl?: string | null | undefined;
+        updatedAt?: string | null | undefined;
+    }, {
+        id: number;
+        name: string;
+        createdAt: string;
+        slug: string;
+        isActive: boolean;
+        description?: string | null | undefined;
+        imageUrl?: string | null | undefined;
+        updatedAt?: string | null | undefined;
+    }>, "many">;
+}, "strip", zod.ZodTypeAny, {
+    collections: {
+        id: number;
+        name: string;
+        createdAt: string;
+        slug: string;
+        isActive: boolean;
+        description?: string | null | undefined;
+        imageUrl?: string | null | undefined;
+        updatedAt?: string | null | undefined;
+    }[];
+}, {
+    collections: {
+        id: number;
+        name: string;
+        createdAt: string;
+        slug: string;
+        isActive: boolean;
+        description?: string | null | undefined;
+        imageUrl?: string | null | undefined;
+        updatedAt?: string | null | undefined;
+    }[];
+}>;
+/**
+ * @summary Get products in a collection
+ */
+export declare const ListCollectionProductsParams: zod.ZodObject<{
+    slug: zod.ZodString;
+}, "strip", zod.ZodTypeAny, {
+    slug: string;
+}, {
+    slug: string;
+}>;
+export declare const listCollectionProductsQueryLimitDefault = 60;
+export declare const listCollectionProductsQueryOffsetDefault = 0;
+export declare const ListCollectionProductsQueryParams: zod.ZodObject<{
+    limit: zod.ZodDefault<zod.ZodNumber>;
+    offset: zod.ZodDefault<zod.ZodNumber>;
+}, "strip", zod.ZodTypeAny, {
+    limit: number;
+    offset: number;
+}, {
+    limit?: number | undefined;
+    offset?: number | undefined;
+}>;
+export declare const ListCollectionProductsResponse: zod.ZodObject<{
+    collection: zod.ZodObject<{
+        id: zod.ZodNumber;
+        name: zod.ZodString;
+        slug: zod.ZodString;
+        description: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        imageUrl: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        isActive: zod.ZodBoolean;
+        createdAt: zod.ZodString;
+        updatedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    }, "strip", zod.ZodTypeAny, {
+        id: number;
+        name: string;
+        createdAt: string;
+        slug: string;
+        isActive: boolean;
+        description?: string | null | undefined;
+        imageUrl?: string | null | undefined;
+        updatedAt?: string | null | undefined;
+    }, {
+        id: number;
+        name: string;
+        createdAt: string;
+        slug: string;
+        isActive: boolean;
+        description?: string | null | undefined;
+        imageUrl?: string | null | undefined;
+        updatedAt?: string | null | undefined;
+    }>;
+    products: zod.ZodArray<zod.ZodObject<{
+        id: zod.ZodNumber;
+        name: zod.ZodString;
+        description: zod.ZodString;
+        price: zod.ZodNumber;
+        comparePrice: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
+        category: zod.ZodString;
+        categoryId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
+        categoryName: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        categorySlug: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        imageUrl: zod.ZodString;
+        images: zod.ZodArray<zod.ZodString, "many">;
+        inStock: zod.ZodBoolean;
+        featured: zod.ZodBoolean;
+        isUpsell: zod.ZodBoolean;
+        upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
+        reviewCount: zod.ZodNumber;
+        rating: zod.ZodNumber;
+        colors: zod.ZodArray<zod.ZodString, "many">;
+        mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
+        linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
+        createdAt: zod.ZodString;
+        updatedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    }, "strip", zod.ZodTypeAny, {
+        category: string;
+        featured: boolean;
+        id: number;
+        name: string;
+        description: string;
+        price: number;
+        imageUrl: string;
+        images: string[];
+        inStock: boolean;
+        isUpsell: boolean;
+        reviewCount: number;
+        rating: number;
+        colors: string[];
+        createdAt: string;
+        comparePrice?: number | null | undefined;
+        categoryId?: number | null | undefined;
+        categoryName?: string | null | undefined;
+        categorySlug?: string | null | undefined;
+        upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
+    }, {
+        category: string;
+        featured: boolean;
+        id: number;
+        name: string;
+        description: string;
+        price: number;
+        imageUrl: string;
+        images: string[];
+        inStock: boolean;
+        isUpsell: boolean;
+        reviewCount: number;
+        rating: number;
+        colors: string[];
+        createdAt: string;
+        comparePrice?: number | null | undefined;
+        categoryId?: number | null | undefined;
+        categoryName?: string | null | undefined;
+        categorySlug?: string | null | undefined;
+        upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
+    }>, "many">;
+    total: zod.ZodNumber;
+}, "strip", zod.ZodTypeAny, {
+    products: {
+        category: string;
+        featured: boolean;
+        id: number;
+        name: string;
+        description: string;
+        price: number;
+        imageUrl: string;
+        images: string[];
+        inStock: boolean;
+        isUpsell: boolean;
+        reviewCount: number;
+        rating: number;
+        colors: string[];
+        createdAt: string;
+        comparePrice?: number | null | undefined;
+        categoryId?: number | null | undefined;
+        categoryName?: string | null | undefined;
+        categorySlug?: string | null | undefined;
+        upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
+    }[];
+    total: number;
+    collection: {
+        id: number;
+        name: string;
+        createdAt: string;
+        slug: string;
+        isActive: boolean;
+        description?: string | null | undefined;
+        imageUrl?: string | null | undefined;
+        updatedAt?: string | null | undefined;
+    };
+}, {
+    products: {
+        category: string;
+        featured: boolean;
+        id: number;
+        name: string;
+        description: string;
+        price: number;
+        imageUrl: string;
+        images: string[];
+        inStock: boolean;
+        isUpsell: boolean;
+        reviewCount: number;
+        rating: number;
+        colors: string[];
+        createdAt: string;
+        comparePrice?: number | null | undefined;
+        categoryId?: number | null | undefined;
+        categoryName?: string | null | undefined;
+        categorySlug?: string | null | undefined;
+        upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
+    }[];
+    total: number;
+    collection: {
+        id: number;
+        name: string;
+        createdAt: string;
+        slug: string;
+        isActive: boolean;
+        description?: string | null | undefined;
+        imageUrl?: string | null | undefined;
+        updatedAt?: string | null | undefined;
+    };
 }>;
 /**
  * @summary List all orders (admin)
@@ -500,6 +813,20 @@ export declare const ListOrdersResponse: zod.ZodObject<{
         status: zod.ZodEnum<["received", "processed", "shipped"]>;
         isFreeOrder: zod.ZodBoolean;
         discount: zod.ZodNumber;
+        paymentProvider: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        paymentStatus: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        stripeCheckoutSessionId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        stripePaymentIntentId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        paidAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationOrderId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationOrderKey: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationShipmentId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationShipmentStatus: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationTrackingNumber: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationCarrierCode: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationServiceCode: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationSyncedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shippedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         createdAt: zod.ZodString;
     }, "strip", zod.ZodTypeAny, {
@@ -530,6 +857,20 @@ export declare const ListOrdersResponse: zod.ZodObject<{
         isFreeOrder: boolean;
         discount: number;
         customerPhone?: string | undefined;
+        paymentProvider?: string | null | undefined;
+        paymentStatus?: string | null | undefined;
+        stripeCheckoutSessionId?: string | null | undefined;
+        stripePaymentIntentId?: string | null | undefined;
+        paidAt?: string | null | undefined;
+        shipstationOrderId?: string | null | undefined;
+        shipstationOrderKey?: string | null | undefined;
+        shipstationShipmentId?: string | null | undefined;
+        shipstationShipmentStatus?: string | null | undefined;
+        shipstationTrackingNumber?: string | null | undefined;
+        shipstationCarrierCode?: string | null | undefined;
+        shipstationServiceCode?: string | null | undefined;
+        shipstationSyncedAt?: string | null | undefined;
+        shippedAt?: string | null | undefined;
         notes?: string | null | undefined;
     }, {
         status: "received" | "processed" | "shipped";
@@ -559,6 +900,20 @@ export declare const ListOrdersResponse: zod.ZodObject<{
         isFreeOrder: boolean;
         discount: number;
         customerPhone?: string | undefined;
+        paymentProvider?: string | null | undefined;
+        paymentStatus?: string | null | undefined;
+        stripeCheckoutSessionId?: string | null | undefined;
+        stripePaymentIntentId?: string | null | undefined;
+        paidAt?: string | null | undefined;
+        shipstationOrderId?: string | null | undefined;
+        shipstationOrderKey?: string | null | undefined;
+        shipstationShipmentId?: string | null | undefined;
+        shipstationShipmentStatus?: string | null | undefined;
+        shipstationTrackingNumber?: string | null | undefined;
+        shipstationCarrierCode?: string | null | undefined;
+        shipstationServiceCode?: string | null | undefined;
+        shipstationSyncedAt?: string | null | undefined;
+        shippedAt?: string | null | undefined;
         notes?: string | null | undefined;
     }>, "many">;
     total: zod.ZodNumber;
@@ -592,6 +947,20 @@ export declare const ListOrdersResponse: zod.ZodObject<{
         isFreeOrder: boolean;
         discount: number;
         customerPhone?: string | undefined;
+        paymentProvider?: string | null | undefined;
+        paymentStatus?: string | null | undefined;
+        stripeCheckoutSessionId?: string | null | undefined;
+        stripePaymentIntentId?: string | null | undefined;
+        paidAt?: string | null | undefined;
+        shipstationOrderId?: string | null | undefined;
+        shipstationOrderKey?: string | null | undefined;
+        shipstationShipmentId?: string | null | undefined;
+        shipstationShipmentStatus?: string | null | undefined;
+        shipstationTrackingNumber?: string | null | undefined;
+        shipstationCarrierCode?: string | null | undefined;
+        shipstationServiceCode?: string | null | undefined;
+        shipstationSyncedAt?: string | null | undefined;
+        shippedAt?: string | null | undefined;
         notes?: string | null | undefined;
     }[];
 }, {
@@ -624,6 +993,20 @@ export declare const ListOrdersResponse: zod.ZodObject<{
         isFreeOrder: boolean;
         discount: number;
         customerPhone?: string | undefined;
+        paymentProvider?: string | null | undefined;
+        paymentStatus?: string | null | undefined;
+        stripeCheckoutSessionId?: string | null | undefined;
+        stripePaymentIntentId?: string | null | undefined;
+        paidAt?: string | null | undefined;
+        shipstationOrderId?: string | null | undefined;
+        shipstationOrderKey?: string | null | undefined;
+        shipstationShipmentId?: string | null | undefined;
+        shipstationShipmentStatus?: string | null | undefined;
+        shipstationTrackingNumber?: string | null | undefined;
+        shipstationCarrierCode?: string | null | undefined;
+        shipstationServiceCode?: string | null | undefined;
+        shipstationSyncedAt?: string | null | undefined;
+        shippedAt?: string | null | undefined;
         notes?: string | null | undefined;
     }[];
 }>;
@@ -743,6 +1126,20 @@ export declare const GetOrderResponse: zod.ZodObject<{
     status: zod.ZodEnum<["received", "processed", "shipped"]>;
     isFreeOrder: zod.ZodBoolean;
     discount: zod.ZodNumber;
+    paymentProvider: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    paymentStatus: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    stripeCheckoutSessionId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    stripePaymentIntentId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    paidAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationOrderId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationOrderKey: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationShipmentId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationShipmentStatus: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationTrackingNumber: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationCarrierCode: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationServiceCode: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationSyncedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shippedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     createdAt: zod.ZodString;
 }, "strip", zod.ZodTypeAny, {
@@ -773,6 +1170,20 @@ export declare const GetOrderResponse: zod.ZodObject<{
     isFreeOrder: boolean;
     discount: number;
     customerPhone?: string | undefined;
+    paymentProvider?: string | null | undefined;
+    paymentStatus?: string | null | undefined;
+    stripeCheckoutSessionId?: string | null | undefined;
+    stripePaymentIntentId?: string | null | undefined;
+    paidAt?: string | null | undefined;
+    shipstationOrderId?: string | null | undefined;
+    shipstationOrderKey?: string | null | undefined;
+    shipstationShipmentId?: string | null | undefined;
+    shipstationShipmentStatus?: string | null | undefined;
+    shipstationTrackingNumber?: string | null | undefined;
+    shipstationCarrierCode?: string | null | undefined;
+    shipstationServiceCode?: string | null | undefined;
+    shipstationSyncedAt?: string | null | undefined;
+    shippedAt?: string | null | undefined;
     notes?: string | null | undefined;
 }, {
     status: "received" | "processed" | "shipped";
@@ -802,6 +1213,20 @@ export declare const GetOrderResponse: zod.ZodObject<{
     isFreeOrder: boolean;
     discount: number;
     customerPhone?: string | undefined;
+    paymentProvider?: string | null | undefined;
+    paymentStatus?: string | null | undefined;
+    stripeCheckoutSessionId?: string | null | undefined;
+    stripePaymentIntentId?: string | null | undefined;
+    paidAt?: string | null | undefined;
+    shipstationOrderId?: string | null | undefined;
+    shipstationOrderKey?: string | null | undefined;
+    shipstationShipmentId?: string | null | undefined;
+    shipstationShipmentStatus?: string | null | undefined;
+    shipstationTrackingNumber?: string | null | undefined;
+    shipstationCarrierCode?: string | null | undefined;
+    shipstationServiceCode?: string | null | undefined;
+    shipstationSyncedAt?: string | null | undefined;
+    shippedAt?: string | null | undefined;
     notes?: string | null | undefined;
 }>;
 /**
@@ -866,6 +1291,20 @@ export declare const UpdateOrderStatusResponse: zod.ZodObject<{
     status: zod.ZodEnum<["received", "processed", "shipped"]>;
     isFreeOrder: zod.ZodBoolean;
     discount: zod.ZodNumber;
+    paymentProvider: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    paymentStatus: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    stripeCheckoutSessionId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    stripePaymentIntentId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    paidAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationOrderId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationOrderKey: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationShipmentId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationShipmentStatus: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationTrackingNumber: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationCarrierCode: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationServiceCode: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shipstationSyncedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    shippedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     createdAt: zod.ZodString;
 }, "strip", zod.ZodTypeAny, {
@@ -896,6 +1335,20 @@ export declare const UpdateOrderStatusResponse: zod.ZodObject<{
     isFreeOrder: boolean;
     discount: number;
     customerPhone?: string | undefined;
+    paymentProvider?: string | null | undefined;
+    paymentStatus?: string | null | undefined;
+    stripeCheckoutSessionId?: string | null | undefined;
+    stripePaymentIntentId?: string | null | undefined;
+    paidAt?: string | null | undefined;
+    shipstationOrderId?: string | null | undefined;
+    shipstationOrderKey?: string | null | undefined;
+    shipstationShipmentId?: string | null | undefined;
+    shipstationShipmentStatus?: string | null | undefined;
+    shipstationTrackingNumber?: string | null | undefined;
+    shipstationCarrierCode?: string | null | undefined;
+    shipstationServiceCode?: string | null | undefined;
+    shipstationSyncedAt?: string | null | undefined;
+    shippedAt?: string | null | undefined;
     notes?: string | null | undefined;
 }, {
     status: "received" | "processed" | "shipped";
@@ -925,6 +1378,20 @@ export declare const UpdateOrderStatusResponse: zod.ZodObject<{
     isFreeOrder: boolean;
     discount: number;
     customerPhone?: string | undefined;
+    paymentProvider?: string | null | undefined;
+    paymentStatus?: string | null | undefined;
+    stripeCheckoutSessionId?: string | null | undefined;
+    stripePaymentIntentId?: string | null | undefined;
+    paidAt?: string | null | undefined;
+    shipstationOrderId?: string | null | undefined;
+    shipstationOrderKey?: string | null | undefined;
+    shipstationShipmentId?: string | null | undefined;
+    shipstationShipmentStatus?: string | null | undefined;
+    shipstationTrackingNumber?: string | null | undefined;
+    shipstationCarrierCode?: string | null | undefined;
+    shipstationServiceCode?: string | null | undefined;
+    shipstationSyncedAt?: string | null | undefined;
+    shippedAt?: string | null | undefined;
     notes?: string | null | undefined;
 }>;
 /**
@@ -948,14 +1415,534 @@ export declare const CheckFreeProductResponse: zod.ZodObject<{
     reason?: string | null | undefined;
 }>;
 /**
+ * @summary List all free product links (admin)
+ */
+export declare const ListFreeProductLinksResponse: zod.ZodObject<{
+    links: zod.ZodArray<zod.ZodObject<{
+        id: zod.ZodNumber;
+        token: zod.ZodString;
+        productId: zod.ZodNumber;
+        product: zod.ZodOptional<zod.ZodObject<{
+            id: zod.ZodNumber;
+            name: zod.ZodString;
+            description: zod.ZodString;
+            price: zod.ZodNumber;
+            comparePrice: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
+            category: zod.ZodString;
+            categoryId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
+            categoryName: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+            categorySlug: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+            imageUrl: zod.ZodString;
+            images: zod.ZodArray<zod.ZodString, "many">;
+            inStock: zod.ZodBoolean;
+            featured: zod.ZodBoolean;
+            isUpsell: zod.ZodBoolean;
+            upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
+            reviewCount: zod.ZodNumber;
+            rating: zod.ZodNumber;
+            colors: zod.ZodArray<zod.ZodString, "many">;
+            mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
+            linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
+            createdAt: zod.ZodString;
+            updatedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        }, "strip", zod.ZodTypeAny, {
+            category: string;
+            featured: boolean;
+            id: number;
+            name: string;
+            description: string;
+            price: number;
+            imageUrl: string;
+            images: string[];
+            inStock: boolean;
+            isUpsell: boolean;
+            reviewCount: number;
+            rating: number;
+            colors: string[];
+            createdAt: string;
+            comparePrice?: number | null | undefined;
+            categoryId?: number | null | undefined;
+            categoryName?: string | null | undefined;
+            categorySlug?: string | null | undefined;
+            upsellDiscount?: number | null | undefined;
+            mainProductIds?: number[] | undefined;
+            linkedUpsellIds?: number[] | undefined;
+            updatedAt?: string | null | undefined;
+        }, {
+            category: string;
+            featured: boolean;
+            id: number;
+            name: string;
+            description: string;
+            price: number;
+            imageUrl: string;
+            images: string[];
+            inStock: boolean;
+            isUpsell: boolean;
+            reviewCount: number;
+            rating: number;
+            colors: string[];
+            createdAt: string;
+            comparePrice?: number | null | undefined;
+            categoryId?: number | null | undefined;
+            categoryName?: string | null | undefined;
+            categorySlug?: string | null | undefined;
+            upsellDiscount?: number | null | undefined;
+            mainProductIds?: number[] | undefined;
+            linkedUpsellIds?: number[] | undefined;
+            updatedAt?: string | null | undefined;
+        }>>;
+        status: zod.ZodEnum<["active", "disabled", "archived"]>;
+        type: zod.ZodEnum<["single-use", "multi-use", "time-limited"]>;
+        usageLimit: zod.ZodNumber;
+        currentUsage: zod.ZodNumber;
+        expiresAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        usedByEmail: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        usedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        redemptions: zod.ZodOptional<zod.ZodArray<zod.ZodObject<{
+            id: zod.ZodNumber;
+            email: zod.ZodString;
+            orderId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
+            usedAt: zod.ZodString;
+        }, "strip", zod.ZodTypeAny, {
+            id: number;
+            email: string;
+            usedAt: string;
+            orderId?: number | null | undefined;
+        }, {
+            id: number;
+            email: string;
+            usedAt: string;
+            orderId?: number | null | undefined;
+        }>, "many">>;
+        createdAt: zod.ZodString;
+    }, "strip", zod.ZodTypeAny, {
+        status: "active" | "disabled" | "archived";
+        type: "single-use" | "multi-use" | "time-limited";
+        id: number;
+        createdAt: string;
+        productId: number;
+        token: string;
+        usageLimit: number;
+        currentUsage: number;
+        notes?: string | null | undefined;
+        product?: {
+            category: string;
+            featured: boolean;
+            id: number;
+            name: string;
+            description: string;
+            price: number;
+            imageUrl: string;
+            images: string[];
+            inStock: boolean;
+            isUpsell: boolean;
+            reviewCount: number;
+            rating: number;
+            colors: string[];
+            createdAt: string;
+            comparePrice?: number | null | undefined;
+            categoryId?: number | null | undefined;
+            categoryName?: string | null | undefined;
+            categorySlug?: string | null | undefined;
+            upsellDiscount?: number | null | undefined;
+            mainProductIds?: number[] | undefined;
+            linkedUpsellIds?: number[] | undefined;
+            updatedAt?: string | null | undefined;
+        } | undefined;
+        expiresAt?: string | null | undefined;
+        usedByEmail?: string | null | undefined;
+        usedAt?: string | null | undefined;
+        redemptions?: {
+            id: number;
+            email: string;
+            usedAt: string;
+            orderId?: number | null | undefined;
+        }[] | undefined;
+    }, {
+        status: "active" | "disabled" | "archived";
+        type: "single-use" | "multi-use" | "time-limited";
+        id: number;
+        createdAt: string;
+        productId: number;
+        token: string;
+        usageLimit: number;
+        currentUsage: number;
+        notes?: string | null | undefined;
+        product?: {
+            category: string;
+            featured: boolean;
+            id: number;
+            name: string;
+            description: string;
+            price: number;
+            imageUrl: string;
+            images: string[];
+            inStock: boolean;
+            isUpsell: boolean;
+            reviewCount: number;
+            rating: number;
+            colors: string[];
+            createdAt: string;
+            comparePrice?: number | null | undefined;
+            categoryId?: number | null | undefined;
+            categoryName?: string | null | undefined;
+            categorySlug?: string | null | undefined;
+            upsellDiscount?: number | null | undefined;
+            mainProductIds?: number[] | undefined;
+            linkedUpsellIds?: number[] | undefined;
+            updatedAt?: string | null | undefined;
+        } | undefined;
+        expiresAt?: string | null | undefined;
+        usedByEmail?: string | null | undefined;
+        usedAt?: string | null | undefined;
+        redemptions?: {
+            id: number;
+            email: string;
+            usedAt: string;
+            orderId?: number | null | undefined;
+        }[] | undefined;
+    }>, "many">;
+    total: zod.ZodNumber;
+}, "strip", zod.ZodTypeAny, {
+    total: number;
+    links: {
+        status: "active" | "disabled" | "archived";
+        type: "single-use" | "multi-use" | "time-limited";
+        id: number;
+        createdAt: string;
+        productId: number;
+        token: string;
+        usageLimit: number;
+        currentUsage: number;
+        notes?: string | null | undefined;
+        product?: {
+            category: string;
+            featured: boolean;
+            id: number;
+            name: string;
+            description: string;
+            price: number;
+            imageUrl: string;
+            images: string[];
+            inStock: boolean;
+            isUpsell: boolean;
+            reviewCount: number;
+            rating: number;
+            colors: string[];
+            createdAt: string;
+            comparePrice?: number | null | undefined;
+            categoryId?: number | null | undefined;
+            categoryName?: string | null | undefined;
+            categorySlug?: string | null | undefined;
+            upsellDiscount?: number | null | undefined;
+            mainProductIds?: number[] | undefined;
+            linkedUpsellIds?: number[] | undefined;
+            updatedAt?: string | null | undefined;
+        } | undefined;
+        expiresAt?: string | null | undefined;
+        usedByEmail?: string | null | undefined;
+        usedAt?: string | null | undefined;
+        redemptions?: {
+            id: number;
+            email: string;
+            usedAt: string;
+            orderId?: number | null | undefined;
+        }[] | undefined;
+    }[];
+}, {
+    total: number;
+    links: {
+        status: "active" | "disabled" | "archived";
+        type: "single-use" | "multi-use" | "time-limited";
+        id: number;
+        createdAt: string;
+        productId: number;
+        token: string;
+        usageLimit: number;
+        currentUsage: number;
+        notes?: string | null | undefined;
+        product?: {
+            category: string;
+            featured: boolean;
+            id: number;
+            name: string;
+            description: string;
+            price: number;
+            imageUrl: string;
+            images: string[];
+            inStock: boolean;
+            isUpsell: boolean;
+            reviewCount: number;
+            rating: number;
+            colors: string[];
+            createdAt: string;
+            comparePrice?: number | null | undefined;
+            categoryId?: number | null | undefined;
+            categoryName?: string | null | undefined;
+            categorySlug?: string | null | undefined;
+            upsellDiscount?: number | null | undefined;
+            mainProductIds?: number[] | undefined;
+            linkedUpsellIds?: number[] | undefined;
+            updatedAt?: string | null | undefined;
+        } | undefined;
+        expiresAt?: string | null | undefined;
+        usedByEmail?: string | null | undefined;
+        usedAt?: string | null | undefined;
+        redemptions?: {
+            id: number;
+            email: string;
+            usedAt: string;
+            orderId?: number | null | undefined;
+        }[] | undefined;
+    }[];
+}>;
+/**
  * @summary Generate a free product link (admin)
  */
+export declare const createFreeProductLinkBodyTypeDefault = "single-use";
+export declare const createFreeProductLinkBodyUsageLimitDefault = 1;
 export declare const CreateFreeProductLinkBody: zod.ZodObject<{
     productId: zod.ZodNumber;
+    type: zod.ZodDefault<zod.ZodEnum<["single-use", "multi-use", "time-limited"]>>;
+    usageLimit: zod.ZodDefault<zod.ZodNumber>;
+    expiresAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
 }, "strip", zod.ZodTypeAny, {
+    type: "single-use" | "multi-use" | "time-limited";
     productId: number;
+    usageLimit: number;
+    notes?: string | null | undefined;
+    expiresAt?: string | null | undefined;
 }, {
     productId: number;
+    type?: "single-use" | "multi-use" | "time-limited" | undefined;
+    notes?: string | null | undefined;
+    usageLimit?: number | undefined;
+    expiresAt?: string | null | undefined;
+}>;
+/**
+ * @summary Update a free product link (admin)
+ */
+export declare const UpdateFreeProductLinkParams: zod.ZodObject<{
+    id: zod.ZodNumber;
+}, "strip", zod.ZodTypeAny, {
+    id: number;
+}, {
+    id: number;
+}>;
+export declare const UpdateFreeProductLinkBody: zod.ZodObject<{
+    status: zod.ZodOptional<zod.ZodEnum<["active", "disabled", "archived"]>>;
+    usageLimit: zod.ZodOptional<zod.ZodNumber>;
+    expiresAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+}, "strip", zod.ZodTypeAny, {
+    status?: "active" | "disabled" | "archived" | undefined;
+    notes?: string | null | undefined;
+    usageLimit?: number | undefined;
+    expiresAt?: string | null | undefined;
+}, {
+    status?: "active" | "disabled" | "archived" | undefined;
+    notes?: string | null | undefined;
+    usageLimit?: number | undefined;
+    expiresAt?: string | null | undefined;
+}>;
+export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
+    id: zod.ZodNumber;
+    token: zod.ZodString;
+    productId: zod.ZodNumber;
+    product: zod.ZodOptional<zod.ZodObject<{
+        id: zod.ZodNumber;
+        name: zod.ZodString;
+        description: zod.ZodString;
+        price: zod.ZodNumber;
+        comparePrice: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
+        category: zod.ZodString;
+        categoryId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
+        categoryName: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        categorySlug: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        imageUrl: zod.ZodString;
+        images: zod.ZodArray<zod.ZodString, "many">;
+        inStock: zod.ZodBoolean;
+        featured: zod.ZodBoolean;
+        isUpsell: zod.ZodBoolean;
+        upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
+        reviewCount: zod.ZodNumber;
+        rating: zod.ZodNumber;
+        colors: zod.ZodArray<zod.ZodString, "many">;
+        mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
+        linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
+        createdAt: zod.ZodString;
+        updatedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    }, "strip", zod.ZodTypeAny, {
+        category: string;
+        featured: boolean;
+        id: number;
+        name: string;
+        description: string;
+        price: number;
+        imageUrl: string;
+        images: string[];
+        inStock: boolean;
+        isUpsell: boolean;
+        reviewCount: number;
+        rating: number;
+        colors: string[];
+        createdAt: string;
+        comparePrice?: number | null | undefined;
+        categoryId?: number | null | undefined;
+        categoryName?: string | null | undefined;
+        categorySlug?: string | null | undefined;
+        upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
+    }, {
+        category: string;
+        featured: boolean;
+        id: number;
+        name: string;
+        description: string;
+        price: number;
+        imageUrl: string;
+        images: string[];
+        inStock: boolean;
+        isUpsell: boolean;
+        reviewCount: number;
+        rating: number;
+        colors: string[];
+        createdAt: string;
+        comparePrice?: number | null | undefined;
+        categoryId?: number | null | undefined;
+        categoryName?: string | null | undefined;
+        categorySlug?: string | null | undefined;
+        upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
+    }>>;
+    status: zod.ZodEnum<["active", "disabled", "archived"]>;
+    type: zod.ZodEnum<["single-use", "multi-use", "time-limited"]>;
+    usageLimit: zod.ZodNumber;
+    currentUsage: zod.ZodNumber;
+    expiresAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    usedByEmail: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    usedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    redemptions: zod.ZodOptional<zod.ZodArray<zod.ZodObject<{
+        id: zod.ZodNumber;
+        email: zod.ZodString;
+        orderId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
+        usedAt: zod.ZodString;
+    }, "strip", zod.ZodTypeAny, {
+        id: number;
+        email: string;
+        usedAt: string;
+        orderId?: number | null | undefined;
+    }, {
+        id: number;
+        email: string;
+        usedAt: string;
+        orderId?: number | null | undefined;
+    }>, "many">>;
+    createdAt: zod.ZodString;
+}, "strip", zod.ZodTypeAny, {
+    status: "active" | "disabled" | "archived";
+    type: "single-use" | "multi-use" | "time-limited";
+    id: number;
+    createdAt: string;
+    productId: number;
+    token: string;
+    usageLimit: number;
+    currentUsage: number;
+    notes?: string | null | undefined;
+    product?: {
+        category: string;
+        featured: boolean;
+        id: number;
+        name: string;
+        description: string;
+        price: number;
+        imageUrl: string;
+        images: string[];
+        inStock: boolean;
+        isUpsell: boolean;
+        reviewCount: number;
+        rating: number;
+        colors: string[];
+        createdAt: string;
+        comparePrice?: number | null | undefined;
+        categoryId?: number | null | undefined;
+        categoryName?: string | null | undefined;
+        categorySlug?: string | null | undefined;
+        upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
+    } | undefined;
+    expiresAt?: string | null | undefined;
+    usedByEmail?: string | null | undefined;
+    usedAt?: string | null | undefined;
+    redemptions?: {
+        id: number;
+        email: string;
+        usedAt: string;
+        orderId?: number | null | undefined;
+    }[] | undefined;
+}, {
+    status: "active" | "disabled" | "archived";
+    type: "single-use" | "multi-use" | "time-limited";
+    id: number;
+    createdAt: string;
+    productId: number;
+    token: string;
+    usageLimit: number;
+    currentUsage: number;
+    notes?: string | null | undefined;
+    product?: {
+        category: string;
+        featured: boolean;
+        id: number;
+        name: string;
+        description: string;
+        price: number;
+        imageUrl: string;
+        images: string[];
+        inStock: boolean;
+        isUpsell: boolean;
+        reviewCount: number;
+        rating: number;
+        colors: string[];
+        createdAt: string;
+        comparePrice?: number | null | undefined;
+        categoryId?: number | null | undefined;
+        categoryName?: string | null | undefined;
+        categorySlug?: string | null | undefined;
+        upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
+    } | undefined;
+    expiresAt?: string | null | undefined;
+    usedByEmail?: string | null | undefined;
+    usedAt?: string | null | undefined;
+    redemptions?: {
+        id: number;
+        email: string;
+        usedAt: string;
+        orderId?: number | null | undefined;
+    }[] | undefined;
+}>;
+/**
+ * @summary Delete a free product link (admin)
+ */
+export declare const DeleteFreeProductLinkParams: zod.ZodObject<{
+    id: zod.ZodNumber;
+}, "strip", zod.ZodTypeAny, {
+    id: number;
+}, {
+    id: number;
 }>;
 /**
  * @summary Validate and get a free product link
@@ -978,6 +1965,9 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         price: zod.ZodNumber;
         comparePrice: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
         category: zod.ZodString;
+        categoryId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
+        categoryName: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        categorySlug: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         imageUrl: zod.ZodString;
         images: zod.ZodArray<zod.ZodString, "many">;
         inStock: zod.ZodBoolean;
@@ -987,7 +1977,10 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         reviewCount: zod.ZodNumber;
         rating: zod.ZodNumber;
         colors: zod.ZodArray<zod.ZodString, "many">;
+        mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
+        linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         createdAt: zod.ZodString;
+        updatedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     }, "strip", zod.ZodTypeAny, {
         category: string;
         featured: boolean;
@@ -1004,7 +1997,13 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         colors: string[];
         createdAt: string;
         comparePrice?: number | null | undefined;
+        categoryId?: number | null | undefined;
+        categoryName?: string | null | undefined;
+        categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     }, {
         category: string;
         featured: boolean;
@@ -1021,16 +2020,49 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         colors: string[];
         createdAt: string;
         comparePrice?: number | null | undefined;
+        categoryId?: number | null | undefined;
+        categoryName?: string | null | undefined;
+        categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     }>>;
+    status: zod.ZodEnum<["active", "disabled", "archived"]>;
+    type: zod.ZodEnum<["single-use", "multi-use", "time-limited"]>;
+    usageLimit: zod.ZodNumber;
+    currentUsage: zod.ZodNumber;
+    expiresAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     usedByEmail: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     usedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    redemptions: zod.ZodOptional<zod.ZodArray<zod.ZodObject<{
+        id: zod.ZodNumber;
+        email: zod.ZodString;
+        orderId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
+        usedAt: zod.ZodString;
+    }, "strip", zod.ZodTypeAny, {
+        id: number;
+        email: string;
+        usedAt: string;
+        orderId?: number | null | undefined;
+    }, {
+        id: number;
+        email: string;
+        usedAt: string;
+        orderId?: number | null | undefined;
+    }>, "many">>;
     createdAt: zod.ZodString;
 }, "strip", zod.ZodTypeAny, {
+    status: "active" | "disabled" | "archived";
+    type: "single-use" | "multi-use" | "time-limited";
     id: number;
     createdAt: string;
     productId: number;
     token: string;
+    usageLimit: number;
+    currentUsage: number;
+    notes?: string | null | undefined;
     product?: {
         category: string;
         featured: boolean;
@@ -1047,15 +2079,33 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         colors: string[];
         createdAt: string;
         comparePrice?: number | null | undefined;
+        categoryId?: number | null | undefined;
+        categoryName?: string | null | undefined;
+        categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     } | undefined;
+    expiresAt?: string | null | undefined;
     usedByEmail?: string | null | undefined;
     usedAt?: string | null | undefined;
+    redemptions?: {
+        id: number;
+        email: string;
+        usedAt: string;
+        orderId?: number | null | undefined;
+    }[] | undefined;
 }, {
+    status: "active" | "disabled" | "archived";
+    type: "single-use" | "multi-use" | "time-limited";
     id: number;
     createdAt: string;
     productId: number;
     token: string;
+    usageLimit: number;
+    currentUsage: number;
+    notes?: string | null | undefined;
     product?: {
         category: string;
         featured: boolean;
@@ -1072,10 +2122,23 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         colors: string[];
         createdAt: string;
         comparePrice?: number | null | undefined;
+        categoryId?: number | null | undefined;
+        categoryName?: string | null | undefined;
+        categorySlug?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
+        mainProductIds?: number[] | undefined;
+        linkedUpsellIds?: number[] | undefined;
+        updatedAt?: string | null | undefined;
     } | undefined;
+    expiresAt?: string | null | undefined;
     usedByEmail?: string | null | undefined;
     usedAt?: string | null | undefined;
+    redemptions?: {
+        id: number;
+        email: string;
+        usedAt: string;
+        orderId?: number | null | undefined;
+    }[] | undefined;
 }>;
 /**
  * @summary Create a new product
@@ -1088,7 +2151,7 @@ export declare const CreateProductBody: zod.ZodObject<{
     description: zod.ZodString;
     price: zod.ZodNumber;
     comparePrice: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
-    categoryId: zod.ZodNumber;
+    category: zod.ZodString;
     imageUrl: zod.ZodString;
     images: zod.ZodOptional<zod.ZodArray<zod.ZodString, "many">>;
     inStock: zod.ZodDefault<zod.ZodBoolean>;
@@ -1096,12 +2159,13 @@ export declare const CreateProductBody: zod.ZodObject<{
     isUpsell: zod.ZodDefault<zod.ZodBoolean>;
     upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
     colors: zod.ZodOptional<zod.ZodArray<zod.ZodString, "many">>;
+    mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
 }, "strip", zod.ZodTypeAny, {
+    category: string;
     featured: boolean;
     name: string;
     description: string;
     price: number;
-    categoryId: number;
     imageUrl: string;
     inStock: boolean;
     isUpsell: boolean;
@@ -1109,11 +2173,12 @@ export declare const CreateProductBody: zod.ZodObject<{
     images?: string[] | undefined;
     upsellDiscount?: number | null | undefined;
     colors?: string[] | undefined;
+    mainProductIds?: number[] | undefined;
 }, {
+    category: string;
     name: string;
     description: string;
     price: number;
-    categoryId: number;
     imageUrl: string;
     featured?: boolean | undefined;
     comparePrice?: number | null | undefined;
@@ -1122,6 +2187,7 @@ export declare const CreateProductBody: zod.ZodObject<{
     isUpsell?: boolean | undefined;
     upsellDiscount?: number | null | undefined;
     colors?: string[] | undefined;
+    mainProductIds?: number[] | undefined;
 }>;
 /**
  * @summary Update a product
@@ -1141,7 +2207,7 @@ export declare const UpdateProductBody: zod.ZodObject<{
     description: zod.ZodString;
     price: zod.ZodNumber;
     comparePrice: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
-    categoryId: zod.ZodOptional<zod.ZodNumber>;
+    category: zod.ZodString;
     imageUrl: zod.ZodString;
     images: zod.ZodOptional<zod.ZodArray<zod.ZodString, "many">>;
     inStock: zod.ZodDefault<zod.ZodBoolean>;
@@ -1149,7 +2215,9 @@ export declare const UpdateProductBody: zod.ZodObject<{
     isUpsell: zod.ZodDefault<zod.ZodBoolean>;
     upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
     colors: zod.ZodOptional<zod.ZodArray<zod.ZodString, "many">>;
+    mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
 }, "strip", zod.ZodTypeAny, {
+    category: string;
     featured: boolean;
     name: string;
     description: string;
@@ -1158,23 +2226,24 @@ export declare const UpdateProductBody: zod.ZodObject<{
     inStock: boolean;
     isUpsell: boolean;
     comparePrice?: number | null | undefined;
-    categoryId?: number | undefined;
     images?: string[] | undefined;
     upsellDiscount?: number | null | undefined;
     colors?: string[] | undefined;
+    mainProductIds?: number[] | undefined;
 }, {
+    category: string;
     name: string;
     description: string;
     price: number;
     imageUrl: string;
     featured?: boolean | undefined;
     comparePrice?: number | null | undefined;
-    categoryId?: number | undefined;
     images?: string[] | undefined;
     inStock?: boolean | undefined;
     isUpsell?: boolean | undefined;
     upsellDiscount?: number | null | undefined;
     colors?: string[] | undefined;
+    mainProductIds?: number[] | undefined;
 }>;
 export declare const UpdateProductResponse: zod.ZodObject<{
     id: zod.ZodNumber;
@@ -1195,7 +2264,10 @@ export declare const UpdateProductResponse: zod.ZodObject<{
     reviewCount: zod.ZodNumber;
     rating: zod.ZodNumber;
     colors: zod.ZodArray<zod.ZodString, "many">;
+    mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
+    linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
     createdAt: zod.ZodString;
+    updatedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
 }, "strip", zod.ZodTypeAny, {
     category: string;
     featured: boolean;
@@ -1216,6 +2288,9 @@ export declare const UpdateProductResponse: zod.ZodObject<{
     categoryName?: string | null | undefined;
     categorySlug?: string | null | undefined;
     upsellDiscount?: number | null | undefined;
+    mainProductIds?: number[] | undefined;
+    linkedUpsellIds?: number[] | undefined;
+    updatedAt?: string | null | undefined;
 }, {
     category: string;
     featured: boolean;
@@ -1236,6 +2311,9 @@ export declare const UpdateProductResponse: zod.ZodObject<{
     categoryName?: string | null | undefined;
     categorySlug?: string | null | undefined;
     upsellDiscount?: number | null | undefined;
+    mainProductIds?: number[] | undefined;
+    linkedUpsellIds?: number[] | undefined;
+    updatedAt?: string | null | undefined;
 }>;
 /**
  * @summary Delete a product
@@ -1307,6 +2385,20 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
         status: zod.ZodEnum<["received", "processed", "shipped"]>;
         isFreeOrder: zod.ZodBoolean;
         discount: zod.ZodNumber;
+        paymentProvider: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        paymentStatus: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        stripeCheckoutSessionId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        stripePaymentIntentId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        paidAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationOrderId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationOrderKey: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationShipmentId: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationShipmentStatus: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationTrackingNumber: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationCarrierCode: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationServiceCode: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shipstationSyncedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        shippedAt: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         createdAt: zod.ZodString;
     }, "strip", zod.ZodTypeAny, {
@@ -1337,6 +2429,20 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
         isFreeOrder: boolean;
         discount: number;
         customerPhone?: string | undefined;
+        paymentProvider?: string | null | undefined;
+        paymentStatus?: string | null | undefined;
+        stripeCheckoutSessionId?: string | null | undefined;
+        stripePaymentIntentId?: string | null | undefined;
+        paidAt?: string | null | undefined;
+        shipstationOrderId?: string | null | undefined;
+        shipstationOrderKey?: string | null | undefined;
+        shipstationShipmentId?: string | null | undefined;
+        shipstationShipmentStatus?: string | null | undefined;
+        shipstationTrackingNumber?: string | null | undefined;
+        shipstationCarrierCode?: string | null | undefined;
+        shipstationServiceCode?: string | null | undefined;
+        shipstationSyncedAt?: string | null | undefined;
+        shippedAt?: string | null | undefined;
         notes?: string | null | undefined;
     }, {
         status: "received" | "processed" | "shipped";
@@ -1366,6 +2472,20 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
         isFreeOrder: boolean;
         discount: number;
         customerPhone?: string | undefined;
+        paymentProvider?: string | null | undefined;
+        paymentStatus?: string | null | undefined;
+        stripeCheckoutSessionId?: string | null | undefined;
+        stripePaymentIntentId?: string | null | undefined;
+        paidAt?: string | null | undefined;
+        shipstationOrderId?: string | null | undefined;
+        shipstationOrderKey?: string | null | undefined;
+        shipstationShipmentId?: string | null | undefined;
+        shipstationShipmentStatus?: string | null | undefined;
+        shipstationTrackingNumber?: string | null | undefined;
+        shipstationCarrierCode?: string | null | undefined;
+        shipstationServiceCode?: string | null | undefined;
+        shipstationSyncedAt?: string | null | undefined;
+        shippedAt?: string | null | undefined;
         notes?: string | null | undefined;
     }>, "many">;
     ordersByStatus: zod.ZodObject<{
@@ -1414,6 +2534,20 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
         isFreeOrder: boolean;
         discount: number;
         customerPhone?: string | undefined;
+        paymentProvider?: string | null | undefined;
+        paymentStatus?: string | null | undefined;
+        stripeCheckoutSessionId?: string | null | undefined;
+        stripePaymentIntentId?: string | null | undefined;
+        paidAt?: string | null | undefined;
+        shipstationOrderId?: string | null | undefined;
+        shipstationOrderKey?: string | null | undefined;
+        shipstationShipmentId?: string | null | undefined;
+        shipstationShipmentStatus?: string | null | undefined;
+        shipstationTrackingNumber?: string | null | undefined;
+        shipstationCarrierCode?: string | null | undefined;
+        shipstationServiceCode?: string | null | undefined;
+        shipstationSyncedAt?: string | null | undefined;
+        shippedAt?: string | null | undefined;
         notes?: string | null | undefined;
     }[];
     ordersByStatus: {
@@ -1454,6 +2588,20 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
         isFreeOrder: boolean;
         discount: number;
         customerPhone?: string | undefined;
+        paymentProvider?: string | null | undefined;
+        paymentStatus?: string | null | undefined;
+        stripeCheckoutSessionId?: string | null | undefined;
+        stripePaymentIntentId?: string | null | undefined;
+        paidAt?: string | null | undefined;
+        shipstationOrderId?: string | null | undefined;
+        shipstationOrderKey?: string | null | undefined;
+        shipstationShipmentId?: string | null | undefined;
+        shipstationShipmentStatus?: string | null | undefined;
+        shipstationTrackingNumber?: string | null | undefined;
+        shipstationCarrierCode?: string | null | undefined;
+        shipstationServiceCode?: string | null | undefined;
+        shipstationSyncedAt?: string | null | undefined;
+        shippedAt?: string | null | undefined;
         notes?: string | null | undefined;
     }[];
     ordersByStatus: {

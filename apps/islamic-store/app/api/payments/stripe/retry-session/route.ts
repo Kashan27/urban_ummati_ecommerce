@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { db, ordersTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { db, ordersTable, productsTable } from "@workspace/db";
+import { and, eq, sql } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
@@ -65,6 +65,49 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (order.paymentStatus !== "pending") {
+      const items = (order.items as any[]) || [];
+      const now = new Date();
+      await db.transaction(async (tx) => {
+        const [moved] = await tx
+          .update(ordersTable)
+          .set({ paymentStatus: "pending", updatedAt: now })
+          .where(
+            and(eq(ordersTable.id, order.id), eq(ordersTable.paymentStatus, order.paymentStatus ?? "pending")),
+          )
+          .returning({ id: ordersTable.id });
+
+        if (!moved) return;
+
+        for (const item of items) {
+          const qty = Number(item?.quantity ?? 0);
+          const productId = Number(item?.productId ?? 0);
+          if (!Number.isFinite(qty) || qty <= 0) continue;
+          if (!Number.isFinite(productId) || productId <= 0) continue;
+
+          const updates = await tx
+            .update(productsTable)
+            .set({
+              totalSold: sql`${productsTable.totalSold} + ${qty}`,
+              inventoryQuantity: sql`case when ${productsTable.inventoryQuantity} is null then null else greatest(0, ${productsTable.inventoryQuantity} - ${qty}) end`,
+              inStock: sql`case when ${productsTable.inventoryQuantity} is null then ${productsTable.inStock} else (${productsTable.inventoryQuantity} - ${qty}) > 0 end`,
+              updatedAt: now,
+            })
+            .where(
+              and(
+                eq(productsTable.id, productId),
+                sql`(${productsTable.inventoryQuantity} is null or ${productsTable.inventoryQuantity} >= ${qty})`,
+              ),
+            )
+            .returning({ id: productsTable.id });
+
+          if (updates.length === 0) {
+            throw new Error("INSUFFICIENT_STOCK");
+          }
+        }
+      });
+    }
+
     const total = parseFloat(order.total);
     if (!Number.isFinite(total) || total <= 0) {
       await db
@@ -115,7 +158,6 @@ export async function POST(request: NextRequest) {
       .update(ordersTable)
       .set({
         paymentProvider: "stripe",
-        paymentStatus: "pending",
         stripeCheckoutSessionId: session.id,
         stripePaymentIntentId:
           typeof session.payment_intent === "string" ? session.payment_intent : null,
@@ -125,6 +167,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
+    if (err instanceof Error && err.message === "INSUFFICIENT_STOCK") {
+      return NextResponse.json(
+        { error: "One or more items are no longer in stock. Please update your cart and try again." },
+        { status: 409 },
+      );
+    }
     console.error("Error retrying Stripe checkout session", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

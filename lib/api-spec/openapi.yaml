@@ -146,6 +146,68 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /collections:
+    get:
+      operationId: listCollections
+      tags: [products]
+      summary: List all active collections
+      responses:
+        "200":
+          description: List of collections
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collections:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Collection"
+                required:
+                  - collections
+
+  /collections/{slug}/products:
+    get:
+      operationId: listCollectionProducts
+      tags: [products]
+      summary: Get products in a collection
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 60
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Collection and its products
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection:
+                    $ref: "#/components/schemas/Collection"
+                  products:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
+                  total:
+                    type: integer
+                required:
+                  - collection
+                  - products
+                  - total
+
   /orders:
     get:
       operationId: listOrders
@@ -278,6 +340,27 @@ paths:
                 $ref: "#/components/schemas/FreeProductEligibility"
 
   /promo/free-product-link:
+    get:
+      operationId: listFreeProductLinks
+      tags: [promo]
+      summary: List all free product links (admin)
+      responses:
+        "200":
+          description: List of links
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  links:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FreeProductLink"
+                  total:
+                    type: integer
+                required:
+                  - links
+                  - total
     post:
       operationId: createFreeProductLink
       tags: [promo]
@@ -296,7 +379,39 @@ paths:
               schema:
                 $ref: "#/components/schemas/FreeProductLink"
 
-  /promo/free-product-link/{token}:
+  /promo/free-product-link/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    put:
+      operationId: updateFreeProductLink
+      tags: [promo]
+      summary: Update a free product link (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFreeProductLinkBody"
+      responses:
+        "200":
+          description: Link updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FreeProductLink"
+    delete:
+      operationId: deleteFreeProductLink
+      tags: [promo]
+      summary: Delete a free product link (admin)
+      responses:
+        "204":
+          description: Link deleted
+
+  /promo/free-product-link/token/{token}:
     get:
       operationId: getFreeProductLink
       tags: [promo]
@@ -418,6 +533,35 @@ components:
       required:
         - error
 
+    Collection:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+          nullable: true
+      required:
+        - id
+        - name
+        - slug
+        - isActive
+        - createdAt
+
     Product:
       type: object
       properties:
@@ -466,6 +610,16 @@ components:
           type: array
           items:
             type: string
+        mainProductIds:
+          type: array
+          items:
+            type: integer
+          description: List of products this item is an upsell for
+        linkedUpsellIds:
+          type: array
+          items:
+            type: integer
+          description: List of products that are upsells for this item
         createdAt:
           type: string
         updatedAt:
@@ -711,27 +865,96 @@ components:
           type: integer
         product:
           $ref: "#/components/schemas/Product"
+        status:
+          type: string
+          enum: [active, disabled, archived]
+        type:
+          type: string
+          enum: [single-use, multi-use, time-limited]
+        usageLimit:
+          type: integer
+        currentUsage:
+          type: integer
+        expiresAt:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
         usedByEmail:
           type: string
           nullable: true
         usedAt:
           type: string
           nullable: true
+        redemptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/FreeProductRedemption"
         createdAt:
           type: string
       required:
         - id
         - token
         - productId
+        - status
+        - type
+        - usageLimit
+        - currentUsage
         - createdAt
+
+    FreeProductRedemption:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        orderId:
+          type: integer
+          nullable: true
+        usedAt:
+          type: string
+      required:
+        - id
+        - email
+        - usedAt
 
     CreateFreeProductLinkBody:
       type: object
       properties:
         productId:
           type: integer
+        type:
+          type: string
+          enum: [single-use, multi-use, time-limited]
+          default: single-use
+        usageLimit:
+          type: integer
+          default: 1
+        expiresAt:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
       required:
         - productId
+
+    UpdateFreeProductLinkBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [active, disabled, archived]
+        usageLimit:
+          type: integer
+        expiresAt:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
 
     CreateProductBody:
       type: object
@@ -769,6 +992,11 @@ components:
           type: array
           items:
             type: string
+        mainProductIds:
+          type: array
+          items:
+            type: integer
+          description: List of main products this item should be an upsell for
       required:
         - name
         - description

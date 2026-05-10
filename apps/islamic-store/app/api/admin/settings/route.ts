@@ -40,9 +40,12 @@ export async function PUT(request: NextRequest) {
     await db.transaction(async (tx) => {
       for (const [key, value] of updates) {
         await tx
-          .update(settingsTable)
-          .set({ value: String(value), updatedAt: new Date() })
-          .where(eq(settingsTable.key, key));
+          .insert(settingsTable)
+          .values({ key, value: String(value), updatedAt: new Date() })
+          .onConflictDoUpdate({
+            target: settingsTable.key,
+            set: { value: String(value), updatedAt: new Date() },
+          });
       }
     });
 

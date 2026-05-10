@@ -13,9 +13,20 @@ type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOrderUpdated: (order: Order) => void;
+  onPrintReceipt: (order: Order) => void;
+  onPrintPackingSlip: (order: Order) => void;
+  onPrintShippingLabel: (order: Order) => void;
 };
 
-export function OrderDetailsDialog({ order, open, onOpenChange, onOrderUpdated }: Props) {
+export function OrderDetailsDialog({
+  order,
+  open,
+  onOpenChange,
+  onOrderUpdated,
+  onPrintReceipt,
+  onPrintPackingSlip,
+  onPrintShippingLabel,
+}: Props) {
   if (!order) return null;
   const currentOrder = order;
   const [syncPending, setSyncPending] = useState(false);
@@ -123,6 +134,45 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onOrderUpdated }
                     {new Date(order.paidAt).toLocaleString("en-CA")}
                   </div>
                 ) : null}
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Fulfillment</h4>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {currentOrder.status === "received" && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => onPrintPackingSlip(currentOrder)}
+                      className="uppercase tracking-wider"
+                    >
+                      Pack Order
+                    </Button>
+                  )}
+                  {currentOrder.status === "processed" && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => onPrintShippingLabel(currentOrder)}
+                      className="uppercase tracking-wider"
+                    >
+                      Ship Label
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onPrintReceipt(currentOrder)}
+                    className="uppercase tracking-wider"
+                  >
+                    Receipt
+                  </Button>
+                </div>
               </div>
 
               <div className="space-y-2">

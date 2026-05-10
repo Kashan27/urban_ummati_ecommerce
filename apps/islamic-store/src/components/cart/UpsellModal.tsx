@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { X, Plus, Check } from "lucide-react";
 import { Link } from "@/lib/router";
 import { useCart } from "@/lib/cart-context";
+import { cn } from "@/lib/utils";
 import { useGetUpsellProducts, getGetUpsellProductsQueryKey } from "@workspace/api-client-react";
 
 export function UpsellModal() {
@@ -47,7 +48,7 @@ export function UpsellModal() {
       quantity: 1,
       imageUrl: product.imageUrl,
       color: product.colors?.[0]
-    });
+    }, { skipUpsell: true });
     
     setAddedUpsells(prev => [...prev, product.id]);
   };
@@ -55,17 +56,21 @@ export function UpsellModal() {
   if (!isOpen || !upsellData || upsellData.products.length === 0) return null;
 
   const upsellProducts = upsellData.products.slice(0, 3); // Max 3 items
+  const itemCount = upsellProducts.length;
 
   return (
     <>
       <div 
-        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 transition-opacity"
+        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[60] transition-opacity"
         onClick={handleClose}
       />
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-4xl bg-background shadow-2xl z-50 max-h-[90vh] overflow-y-auto rounded-sm animate-in fade-in zoom-in-95 duration-200">
-        
+      <div className={cn(
+        "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] bg-background shadow-2xl z-[70] max-h-[90vh] rounded-sm animate-in fade-in zoom-in-95 duration-200 flex flex-col",
+        itemCount === 1 ? "max-w-md" : itemCount === 2 ? "max-w-3xl" : "max-w-5xl"
+      )}>
+
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border sticky top-0 bg-background z-10">
+        <div className="flex items-center justify-between p-6 border-b border-border bg-background z-10 shrink-0">
           <div>
             <h2 className="font-serif text-2xl tracking-wider text-primary">COMPLETE YOUR ORDER</h2>
             <p className="text-sm font-sans text-muted-foreground mt-1">Frequently bought together</p>
@@ -78,9 +83,14 @@ export function UpsellModal() {
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Content - Scrollable area */}
+        <div className="p-6 overflow-y-auto flex-1 min-h-0">
+          <div className={cn(
+            "grid gap-6 justify-center",
+            itemCount === 1 ? "grid-cols-1" : 
+            itemCount === 2 ? "grid-cols-1 md:grid-cols-2" : 
+            "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+          )}>
             {upsellProducts.map((product) => {
               const isAdded = addedUpsells.includes(product.id);
               const discountedPrice = product.upsellDiscount 
@@ -88,8 +98,8 @@ export function UpsellModal() {
                 : product.price;
 
               return (
-                <div key={product.id} className="border border-border p-4 flex flex-col bg-white">
-                  <div className="relative aspect-square mb-4 bg-muted overflow-hidden">
+                <div key={product.id} className="border border-border p-4 flex flex-col bg-white h-full">
+                  <div className="relative aspect-square mb-4 bg-muted overflow-hidden shrink-0">
                     <img 
                       src={product.imageUrl || '/product-1.png'} 
                       alt={product.name}
@@ -101,7 +111,7 @@ export function UpsellModal() {
                       </div>
                     )}
                   </div>
-                  
+
                   <Link 
                     href={`/products/${product.id}`}
                     onClick={handleClose}
@@ -109,8 +119,8 @@ export function UpsellModal() {
                   >
                     {product.name}
                   </Link>
-                  
-                  <div className="flex items-center gap-2 mb-4 font-sans">
+
+                  <div className="flex items-center gap-2 mb-4 font-sans shrink-0">
                     <span className="font-bold text-lg">${discountedPrice.toFixed(2)}</span>
                     {product.upsellDiscount && (
                       <span className="text-muted-foreground line-through text-sm">
@@ -118,15 +128,16 @@ export function UpsellModal() {
                       </span>
                     )}
                   </div>
-                  
+
                   <button
                     onClick={() => handleAddUpsell(product)}
                     disabled={isAdded}
-                    className={`w-full py-3 font-sans uppercase tracking-widest text-sm transition-colors flex items-center justify-center gap-2 ${
+                    className={cn(
+                      "w-full py-3 font-sans uppercase tracking-widest text-sm transition-colors flex items-center justify-center gap-2 shrink-0",
                       isAdded 
                         ? 'bg-secondary text-secondary-foreground border border-secondary cursor-default' 
                         : 'bg-white border border-primary text-primary hover:bg-primary hover:text-primary-foreground'
-                    }`}
+                    )}
                   >
                     {isAdded ? (
                       <>
@@ -143,9 +154,9 @@ export function UpsellModal() {
             })}
           </div>
         </div>
-        
+
         {/* Footer */}
-        <div className="p-6 border-t border-border bg-muted/30 flex justify-end gap-4">
+        <div className="p-6 border-t border-border bg-muted/30 flex justify-end gap-4 shrink-0 bg-background">
           <button
             onClick={handleClose}
             className="px-6 py-3 font-sans text-muted-foreground uppercase tracking-widest text-sm hover:text-foreground transition-colors"
@@ -160,7 +171,6 @@ export function UpsellModal() {
             View Cart
           </Link>
         </div>
-
       </div>
     </>
   );

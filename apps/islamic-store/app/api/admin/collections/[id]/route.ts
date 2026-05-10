@@ -9,6 +9,8 @@ export const runtime = "nodejs";
 const ParamsSchema = z.object({ id: z.number().int().positive() });
 const UpdateCollectionBody = z.object({
   name: z.string().min(2).optional(),
+  description: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
 });
 
@@ -58,6 +60,8 @@ export async function PUT(
       .set({
         name: nextName,
         slug: nextSlug,
+        description: bodyParsed.data.description !== undefined ? bodyParsed.data.description : current[0].description,
+        imageUrl: bodyParsed.data.imageUrl !== undefined ? bodyParsed.data.imageUrl : current[0].imageUrl,
         isActive: bodyParsed.data.isActive ?? current[0].isActive,
         updatedAt: new Date(),
       })

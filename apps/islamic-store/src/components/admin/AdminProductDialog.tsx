@@ -6,7 +6,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import type { AdminCategory, AdminCollection } from "@/components/admin/types";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Badge } from "@/components/ui/badge";
+import { AlertCircle, Check, ChevronsUpDown, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { AdminCategory, AdminCollection, AdminProduct } from "@/components/admin/types";
 import type { ProductFormValues } from "@/components/admin/product-form-schema";
 
 type Props = {
@@ -16,6 +21,9 @@ type Props = {
   setImageUrls: React.Dispatch<React.SetStateAction<string[]>>;
   categories: AdminCategory[] | undefined;
   collections: AdminCollection[] | undefined;
+  allProducts: AdminProduct[] | undefined;
+  isLoadingProducts?: boolean;
+  productFetchError?: string;
   productSaveError: string;
   isSavingProduct: boolean;
   onSubmit: (values: ProductFormValues) => void;
@@ -28,6 +36,9 @@ export function AdminProductDialogContent({
   setImageUrls,
   categories,
   collections,
+  allProducts,
+  isLoadingProducts: isLoadingProductsProp,
+  productFetchError,
   productSaveError,
   isSavingProduct,
   onSubmit,
@@ -73,6 +84,8 @@ export function AdminProductDialogContent({
       setUploadPending(false);
     }
   };
+
+  const isLoadingProducts = isLoadingProductsProp || allProducts === undefined;
 
   return (
     <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
@@ -174,6 +187,26 @@ export function AdminProductDialogContent({
               />
               <FormField
                 control={productForm.control}
+                name="inventoryQuantity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs uppercase tracking-wider">Inventory Quantity</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        step={1}
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value === "" ? null : parseInt(e.target.value, 10))}
+                        placeholder="e.g. 25"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={productForm.control}
                 name="collectionIds"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
@@ -214,6 +247,132 @@ export function AdminProductDialogContent({
                         ) : null}
                       </div>
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={productForm.control}
+                name="mainProductIds"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel className="text-xs uppercase tracking-wider">Upsell For (Main Products)</FormLabel>
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap gap-1.5 mb-2">
+                        {(field.value || []).map((id) => {
+                          const p = (allProducts || []).find((x) => x.id === id);
+                          return (
+                            <Badge key={id} variant="secondary" className="gap-1.5 pl-1 pr-1 py-1 h-7 border-primary/20 bg-primary/5 text-primary">
+                              {p?.imageUrl && (
+                                <img src={p.imageUrl} alt="" className="w-5 h-5 rounded object-cover border border-primary/10" />
+                              )}
+                              <span className="max-w-[150px] truncate font-medium">{p?.name || `Product #${id}`}</span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4 ml-0.5 hover:bg-primary/10 hover:text-primary transition-colors"
+                                onClick={() => {
+                                  field.onChange(field.value.filter((x: number) => x !== id));
+                                }}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn(
+                                "w-full justify-between h-10 px-3 font-normal border-input hover:bg-accent/50 transition-colors",
+                                !field.value?.length && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value?.length ? `${field.value.length} Products Selected` : "Select Main Products"}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[450px] p-0 shadow-2xl border-border" align="start">
+                          <Command>
+                            <CommandInput placeholder="Search products by name..." />
+                            <CommandList className="max-h-[300px]">
+                              {isLoadingProducts ? (
+                                <div className="p-8 text-center space-y-2">
+                                  <div className="flex justify-center">
+                                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary border-t-transparent" />
+                                  </div>
+                                  <p className="text-xs text-muted-foreground animate-pulse font-medium">
+                                    Fetching product catalog...
+                                  </p>
+                                </div>
+                              ) : productFetchError ? (
+                                <div className="p-8 text-center space-y-2">
+                                  <AlertCircle className="h-6 w-6 text-destructive mx-auto" />
+                                  <p className="text-xs text-destructive font-bold uppercase tracking-tight">
+                                    Failed to load products
+                                  </p>
+                                  <p className="text-[10px] text-muted-foreground italic leading-tight">
+                                    {productFetchError}
+                                  </p>
+                                </div>
+                              ) : (
+                                <>
+                                  <CommandEmpty>No products found matching your search.</CommandEmpty>
+                                  <CommandGroup heading="Available Products">
+                                    {(allProducts || []).map((product) => (
+                                      <CommandItem
+                                        key={product.id}
+                                        value={`${product.name} ${product.id}`} // Unique value for internal filtering
+                                        onSelect={() => {
+                                          const current = Array.isArray(field.value) ? field.value : [];
+                                          const next = current.includes(product.id)
+                                            ? current.filter((id: number) => id !== product.id)
+                                            : [...current, product.id];
+                                          field.onChange(next);
+                                        }}
+                                        className="aria-selected:bg-primary/5 cursor-pointer"
+                                      >
+                                        <div className="flex items-center gap-3 w-full py-0.5">
+                                          <div className={cn(
+                                            "flex h-4 w-4 items-center justify-center rounded-sm border border-primary transition-colors",
+                                            field.value?.includes(product.id)
+                                              ? "bg-primary text-primary-foreground"
+                                              : "opacity-50"
+                                          )}>
+                                            {field.value?.includes(product.id) && <Check className="h-3 w-3" />}
+                                          </div>
+                                          <img
+                                            src={product.imageUrl || '/product-1.png'}
+                                            alt=""
+                                            className="h-10 w-10 rounded border border-border/50 object-cover shrink-0 bg-muted"
+                                          />
+                                          <div className="flex flex-col min-w-0 flex-1">
+                                            <span className="truncate font-semibold text-sm">{product.name}</span>
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1 rounded">#{product.id}</span>
+                                              <span className="text-[10px] text-primary font-bold">${product.price.toFixed(2)}</span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </>
+                              )}
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground italic">
+                      Select which products should show this item as an upsell/addon.
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -364,21 +523,41 @@ export function AdminProductDialogContent({
                           className="accent-primary"
                         />
                       </FormControl>
-                      <FormLabel className="mb-0 text-xs uppercase tracking-wider">Upsell</FormLabel>
+                      <div className="space-y-0.5">
+                        <FormLabel className="mb-0 text-xs uppercase tracking-wider leading-none">General Upsell</FormLabel>
+                        <p className="text-[9px] text-muted-foreground leading-none italic">Fallback if no specific links exist</p>
+                      </div>
                     </FormItem>
                   )}
                 />
                 <FormField
                   control={productForm.control}
                   name="inStock"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center gap-2">
-                      <FormControl>
-                        <input type="checkbox" checked={field.value} onChange={field.onChange} className="accent-primary" />
-                      </FormControl>
-                      <FormLabel className="mb-0 text-xs uppercase tracking-wider">In Stock</FormLabel>
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const quantity = productForm.watch("inventoryQuantity");
+                    const isAutoManaged = typeof quantity === "number";
+                    const displayValue = isAutoManaged ? quantity > 0 : field.value;
+
+                    return (
+                      <FormItem className="flex items-center gap-2">
+                        <FormControl>
+                          <input 
+                            type="checkbox" 
+                            checked={displayValue} 
+                            onChange={field.onChange} 
+                            disabled={isAutoManaged}
+                            className={cn("accent-primary", isAutoManaged && "opacity-50 cursor-not-allowed")} 
+                          />
+                        </FormControl>
+                        <div className="space-y-0.5">
+                          <FormLabel className="mb-0 text-xs uppercase tracking-wider">In Stock</FormLabel>
+                          {isAutoManaged && (
+                            <p className="text-[9px] text-muted-foreground leading-none italic">Managed by quantity</p>
+                          )}
+                        </div>
+                      </FormItem>
+                    );
+                  }}
                 />
               </div>
             </div>

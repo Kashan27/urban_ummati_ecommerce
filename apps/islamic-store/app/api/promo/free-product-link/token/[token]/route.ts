@@ -30,6 +30,28 @@ export async function GET(
       );
     }
 
+    // Advanced rule validation
+    if (link.status !== "active") {
+      return NextResponse.json(
+        { error: "This link is no longer active" },
+        { status: 404 },
+      );
+    }
+
+    if (link.expiresAt && link.expiresAt < new Date()) {
+      return NextResponse.json(
+        { error: "This link has expired" },
+        { status: 404 },
+      );
+    }
+
+    if (link.currentUsage >= link.usageLimit) {
+      return NextResponse.json(
+        { error: "This link has reached its usage limit" },
+        { status: 404 },
+      );
+    }
+
     const [product] = await db
       .select()
       .from(productsTable)

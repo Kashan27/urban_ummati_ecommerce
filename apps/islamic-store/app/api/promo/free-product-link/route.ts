@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
-import { db, freeProductLinksTable, productsTable } from "@workspace/db";
+import { db, freeProductLinksTable, productsTable, freeProductRedemptionsTable } from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
 import { CreateFreeProductLinkBody } from "@workspace/api-zod";
 import { formatFreeProductLink } from "@/lib/api-formatters";
@@ -20,10 +20,23 @@ export async function GET(request: Request) {
       })
       .from(freeProductLinksTable)
       .leftJoin(productsTable, eq(freeProductLinksTable.productId, productsTable.id))
+      .where(eq(freeProductLinksTable.status, "active")) // Only show active links by default or add filter
       .orderBy(desc(freeProductLinksTable.createdAt));
 
+    const linksWithRedemptions = await Promise.all(
+      links.map(async (r) => {
+        const redemptions = await db
+          .select()
+          .from(freeProductRedemptionsTable)
+          .where(eq(freeProductRedemptionsTable.linkId, r.link.id))
+          .orderBy(desc(freeProductRedemptionsTable.usedAt));
+        
+        return formatFreeProductLink(r.link, r.product ?? undefined, redemptions);
+      })
+    );
+
     return NextResponse.json({
-      links: links.map((r) => formatFreeProductLink(r.link, r.product ?? undefined)),
+      links: linksWithRedemptions,
       total: links.length,
     });
   } catch (err) {
@@ -41,7 +54,7 @@ export async function POST(request: Request) {
     const parsed = CreateFreeProductLinkBody.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid data", details: parsed.error.issues }, { status: 400 });
     }
 
     const token = crypto.randomBytes(32).toString("hex");
@@ -51,6 +64,11 @@ export async function POST(request: Request) {
       .values({
         token,
         productId: parsed.data.productId,
+        type: parsed.data.type || "single-use",
+        usageLimit: parsed.data.usageLimit || 1,
+        expiresAt: parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : null,
+        notes: parsed.data.notes,
+        status: "active",
       })
       .returning();
 

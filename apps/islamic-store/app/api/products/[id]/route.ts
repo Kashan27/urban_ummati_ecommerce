@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { categoriesTable, db, productsTable } from "@workspace/db";
+import { categoriesTable, db, productsTable, settingsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { GetProductParams } from "@workspace/api-zod";
 import { formatProduct } from "@/lib/api-formatters";
@@ -18,23 +18,30 @@ export async function GET(
       return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
     }
 
-    const [row] = await db
-      .select()
-      .from(productsTable)
-      .leftJoin(categoriesTable, eq(productsTable.categoryId, categoriesTable.id))
-      .where(eq(productsTable.id, parsed.data.id));
+    const [row, allSettings] = await Promise.all([
+      db
+        .select()
+        .from(productsTable)
+        .leftJoin(categoriesTable, eq(productsTable.categoryId, categoriesTable.id))
+        .where(eq(productsTable.id, parsed.data.id))
+        .then(rows => rows[0]),
+      db.select().from(settingsTable)
+    ]);
 
     if (!row?.products || row.products.status !== "active") {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    return NextResponse.json(
-      formatProduct(row.products, {
+    const settings = allSettings.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
+
+    return NextResponse.json({
+      product: formatProduct(row.products, {
         categoryId: row.categories?.id ?? null,
         categoryName: row.categories?.name ?? null,
         categorySlug: row.categories?.slug ?? null,
       }),
-    );
+      settings
+    });
   } catch (err) {
     console.error("Error getting product", err);
     return NextResponse.json(
