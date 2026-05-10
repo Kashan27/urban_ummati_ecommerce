@@ -13,6 +13,7 @@ import { AlertCircle, Check, ChevronsUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AdminCategory, AdminCollection, AdminProduct } from "@/components/admin/types";
 import type { ProductFormValues } from "@/components/admin/product-form-schema";
+import { ColorInput } from "@/components/admin/ColorInput";
 
 type Props = {
   mode: "create" | "edit";
@@ -484,9 +485,13 @@ export function AdminProductDialogContent({
                 name="colors"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
-                    <FormLabel className="text-xs uppercase tracking-wider">Colors (comma-separated)</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="gold, silver, black" />
+                      <ColorInput
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        label="Colors"
+                        placeholder="#FF0000, #00FF00, #0000FF"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

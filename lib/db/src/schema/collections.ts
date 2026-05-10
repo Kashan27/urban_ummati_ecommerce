@@ -9,6 +9,7 @@ export const collectionsTable = pgTable("collections", {
   description: text("description"),
   imageUrl: text("image_url"),
   isActive: boolean("is_active").notNull().default(true),
+  showOnHome: boolean("show_on_home").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

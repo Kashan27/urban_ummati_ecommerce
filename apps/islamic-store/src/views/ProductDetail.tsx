@@ -114,7 +114,7 @@ export function ProductDetail() {
     );
   }
 
-  const allImages = [product.imageUrl, ...(product.images || [])].filter(Boolean);
+  const allImages = [...new Set([product.imageUrl, ...(product.images || [])])].filter(Boolean);
   const categoryLabel = product.categoryName || "";
 
   return (
@@ -172,14 +172,14 @@ export function ProductDetail() {
               {product.name}
             </h1>
             
-            <div className="flex items-center gap-4 mb-6">
+            {/* <div className="flex items-center gap-4 mb-6">
               <div className="flex gap-0.5">
                 {renderStars(product.rating || 5)}
               </div>
               <span className="text-sm text-muted-foreground font-sans">
                 {product.reviewCount || 0} Reviews
               </span>
-            </div>
+            </div> */}
 
             <div className="flex items-center gap-4 mb-8">
               <span className="font-sans font-bold text-2xl text-foreground">

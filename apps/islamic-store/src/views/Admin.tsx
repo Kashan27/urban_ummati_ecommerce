@@ -71,11 +71,13 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   const [newCollectionName, setNewCollectionName] = useState("");
   const [newCollectionDescription, setNewCollectionDescription] = useState("");
   const [newCollectionImageUrl, setNewCollectionImageUrl] = useState("");
+  const [newCollectionShowOnHome, setNewCollectionShowOnHome] = useState(false);
   const [isSavingCollection, setIsSavingCollection] = useState(false);
   const [editingCollectionId, setEditingCollectionId] = useState<number | null>(null);
   const [editingCollectionName, setEditingCollectionName] = useState("");
   const [editingCollectionDescription, setEditingCollectionDescription] = useState("");
   const [editingCollectionImageUrl, setEditingCollectionImageUrl] = useState("");
+  const [editingCollectionShowOnHome, setEditingCollectionShowOnHome] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmDescription, setConfirmDescription] = useState("");
@@ -807,7 +809,8 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
           name,
           description: newCollectionDescription.trim() || null,
           imageUrl: newCollectionImageUrl.trim() || null,
-          isActive: true
+          isActive: true,
+          showOnHome: newCollectionShowOnHome
         }),
       });
       if (!response.ok) {
@@ -816,6 +819,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       setNewCollectionName("");
       setNewCollectionDescription("");
       setNewCollectionImageUrl("");
+      setNewCollectionShowOnHome(false);
       await queryClient.invalidateQueries({ queryKey: ["adminCollections"] });
     } finally {
       setIsSavingCollection(false);
@@ -835,6 +839,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
           name,
           description: editingCollectionDescription.trim() || null,
           imageUrl: editingCollectionImageUrl.trim() || null,
+          showOnHome: editingCollectionShowOnHome,
         }),
       });
       if (!response.ok) {
@@ -844,6 +849,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       setEditingCollectionName("");
       setEditingCollectionDescription("");
       setEditingCollectionImageUrl("");
+      setEditingCollectionShowOnHome(false);
       await queryClient.invalidateQueries({ queryKey: ["adminCollections"] });
     } finally {
       setIsSavingCollection(false);
@@ -1038,6 +1044,8 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
                 onNewCollectionDescriptionChange={setNewCollectionDescription}
                 newCollectionImageUrl={newCollectionImageUrl}
                 onNewCollectionImageUrlChange={setNewCollectionImageUrl}
+                newCollectionShowOnHome={newCollectionShowOnHome}
+                onNewCollectionShowOnHomeChange={setNewCollectionShowOnHome}
                 isSavingCollection={isSavingCollection}
                 editingCollectionId={editingCollectionId}
                 editingCollectionName={editingCollectionName}
@@ -1046,17 +1054,21 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
                 onEditingCollectionDescriptionChange={setEditingCollectionDescription}
                 editingCollectionImageUrl={editingCollectionImageUrl}
                 onEditingCollectionImageUrlChange={setEditingCollectionImageUrl}
+                editingCollectionShowOnHome={editingCollectionShowOnHome}
+                onEditingCollectionShowOnHomeChange={setEditingCollectionShowOnHome}
                 onStartEdit={(collection) => {
                   setEditingCollectionId(collection.id);
                   setEditingCollectionName(collection.name);
                   setEditingCollectionDescription(collection.description || "");
                   setEditingCollectionImageUrl(collection.imageUrl || "");
+                  setEditingCollectionShowOnHome(collection.showOnHome);
                 }}
                 onCancelEdit={() => {
                   setEditingCollectionId(null);
                   setEditingCollectionName("");
                   setEditingCollectionDescription("");
                   setEditingCollectionImageUrl("");
+                  setEditingCollectionShowOnHome(false);
                 }}
                 onCreateCollection={handleCreateCollection}
                 onUpdateCollection={handleUpdateCollection}

@@ -48,6 +48,7 @@ export type AdminCollection = {
   description: string | null;
   imageUrl: string | null;
   isActive: boolean;
+  showOnHome: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -57,9 +58,4 @@ export type AdminNavItem = {
   label: string;
   href: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
-  children?: Array<{
-    key: string;
-    label: string;
-    href: string;
-  }>;
 };

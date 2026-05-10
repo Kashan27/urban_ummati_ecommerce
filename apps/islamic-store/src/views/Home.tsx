@@ -2,22 +2,132 @@ import { Link } from "@/lib/router";
 import { ArrowRight, Star, ShieldCheck, Truck, Clock4, Sparkles } from "lucide-react";
 import { useGetFeaturedProducts } from "@workspace/api-client-react";
 import { ProductCard } from "@/components/ui/ProductCard";
+import { BannerCarousel, type BannerItem } from "@/components/ui/banner-carousel";
+import { CollectionProductsSection } from "@/components/home/CollectionProductsSection";
+import { useEffect, useState, useMemo } from "react";
 
-const CATEGORIES = [
-  { title: "Wall Art", subtitle: "Statement calligraphy pieces", img: "/product-7.png", url: "/products?category=wall-art" },
-  { title: "Prayer Rugs", subtitle: "Soft textures for daily salah", img: "/product-2.png", url: "/products?category=prayer-rugs" },
-  { title: "Tasbeeh", subtitle: "Elegant dhikr companions", img: "/product-3.png", url: "/products?category=tasbeeh" },
-  { title: "Jewelry", subtitle: "Meaningful wearable reminders", img: "/product-6.png", url: "/products?category=jewelry" },
-];
+type ApiCategory = {
+  id: number;
+  name: string;
+  slug: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string | null;
+};
+
+type ApiCollection = {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  imageUrl: string | null;
+  isActive: boolean;
+  showOnHome: boolean;
+  createdAt: string;
+  updatedAt: string | null;
+};
 
 export function Home() {
   const { data: featuredData, isLoading } = useGetFeaturedProducts();
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const [collections, setCollections] = useState<ApiCollection[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [isLoadingCollections, setIsLoadingCollections] = useState(true);
+
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setIsLoadingCategories(true);
+        const response = await fetch("/api/categories");
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const data = await response.json();
+        setCategories(data.categories || []);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setCategories([]);
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Fetch collections marked for home screen
+  useEffect(() => {
+    const fetchHomeCollections = async () => {
+      try {
+        setIsLoadingCollections(true);
+        const response = await fetch("/api/collections/home");
+        if (!response.ok) {
+          throw new Error("Failed to fetch home collections");
+        }
+        const data = await response.json();
+        setCollections(data.collections || []);
+      } catch (error) {
+        console.error("Error fetching home collections:", error);
+        setCollections([]);
+      } finally {
+        setIsLoadingCollections(false);
+      }
+    };
+
+    fetchHomeCollections();
+  }, []);
+
+  // Convert API categories to home page format
+  const homeCategories = categories.map(cat => ({
+    title: cat.name,
+    subtitle: `Explore our ${cat.name.toLowerCase()} collection`,
+    img: `/product-${cat.id % 8 + 1}.png`, // Use placeholder images based on category ID
+    url: `/products?category=${cat.slug}`
+  }));
+
+  // Transform collections into banner format for the carousel
+  const bannerData: BannerItem[] = useMemo(() => {
+    if (!collections.length) return [];
+    
+    return collections.map((collection, index) => ({
+      id: collection.id,
+      title: collection.name,
+      subtitle: index === 0 ? "Featured Collection" : "Curated For You",
+      description: collection.description || `Discover our beautiful ${collection.name.toLowerCase()} collection, thoughtfully designed for your sacred spaces.`,
+      imageUrl: collection.imageUrl || `/product-${(collection.id % 8) + 1}.png`,
+      href: `/collections/${collection.slug}`,
+      ctaText: "Explore Collection",
+    }));
+  }, [collections]);
 
   return (
     <main className="flex-1 w-full overflow-hidden">
       <div className="border-b border-border/70 bg-primary py-2 text-center text-[11px] font-medium uppercase tracking-[0.22em] text-primary-foreground">
         Handpicked Urban Ummati | Fast Canada-Wide Shipping
       </div>
+
+      {/* Banner Carousel - Showcasing Collections */}
+      {isLoadingCollections ? (
+        <section className="relative h-[400px] md:h-[500px] lg:h-[600px] bg-muted animate-pulse">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          </div>
+        </section>
+      ) : bannerData.length > 0 ? (
+        <section className="relative">
+          <BannerCarousel
+            banners={bannerData}
+            autoPlay={true}
+            autoPlayInterval={6000}
+            aspectRatio="auto"
+            showIndicators={true}
+            showArrows={true}
+            overlayOpacity={0.5}
+            className="rounded-none"
+          />
+        </section>
+      ) : null}
 
       <section className="section-glow relative overflow-hidden border-b border-border/70 px-4 py-10 md:px-8 md:py-14">
         <div className="relative z-10 mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[1.05fr_0.95fr]">
@@ -104,45 +214,56 @@ export function Home() {
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {CATEGORIES.map((cat) => (
-              <Link key={cat.title} href={cat.url} className="editorial-card group block overflow-hidden p-3">
-                <div className="relative h-64 overflow-hidden rounded-sm">
-                  <img
-                    src={cat.img}
-                    alt={cat.title}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+            {isLoadingCategories ? (
+              // Loading skeletons
+              [1, 2, 3, 4].map(i => (
+                <div key={i} className="editorial-card animate-pulse overflow-hidden p-3">
+                  <div className="h-64 rounded-sm bg-muted"></div>
+                  <div className="px-2 pb-1 pt-4">
+                    <div className="h-6 w-3/4 rounded bg-muted"></div>
+                    <div className="mt-2 h-4 w-1/2 rounded bg-muted"></div>
+                    <div className="mt-4 h-4 w-1/4 rounded bg-muted"></div>
+                  </div>
                 </div>
-                <div className="px-2 pb-1 pt-4">
-                  <h3 className="font-serif text-2xl">{cat.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{cat.subtitle}</p>
-                  <span className="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.17em] text-primary">
-                    Explore <ArrowRight size={13} />
-                  </span>
-                </div>
-              </Link>
-            ))}
+              ))
+            ) : homeCategories.length > 0 ? (
+              homeCategories.map((cat) => (
+                <Link key={cat.title} href={cat.url} className="editorial-card group block overflow-hidden p-3">
+                  <div className="relative h-64 overflow-hidden rounded-sm">
+                    <img
+                      src={cat.img}
+                      alt={cat.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                  </div>
+                  <div className="px-2 pb-1 pt-4">
+                    <h3 className="font-serif text-2xl">{cat.title}</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{cat.subtitle}</p>
+                    <span className="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.17em] text-primary">
+                      Explore <ArrowRight size={13} />
+                    </span>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              // Fallback if no categories
+              <div className="col-span-4 text-center py-12">
+                <p className="text-muted-foreground">No categories available</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
-      <section className="border-y border-border/70 bg-[hsl(35_40%_95%)] px-4 py-20 md:px-8">
-        <div className="mx-auto w-full max-w-7xl">
-          <div className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Editors Picks</p>
-              <h2 className="mt-2 font-serif text-4xl md:text-5xl">Best Seller Designs</h2>
+      {/* Collection Products Sections - One section per collection marked for home */}
+      {isLoadingCollections ? (
+        <section className="border-y border-border/70 bg-[hsl(35_40%_95%)] px-4 py-20 md:px-8">
+          <div className="mx-auto w-full max-w-7xl">
+            <div className="mb-10">
+              <div className="h-4 w-32 bg-muted animate-pulse mb-2" />
+              <div className="h-10 w-64 bg-muted animate-pulse" />
             </div>
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.17em] text-primary transition-colors hover:text-secondary"
-            >
-              View Full Catalog <ArrowRight size={14} />
-            </Link>
-          </div>
-
-          {isLoading ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="animate-pulse">
@@ -152,19 +273,20 @@ export function Home() {
                 </div>
               ))}
             </div>
-          ) : featuredData?.products ? (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {featuredData.products.slice(0, 8).map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center text-muted-foreground">No products available at the moment.</div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      ) : (
+        collections.map((collection) => (
+          <CollectionProductsSection
+            key={collection.id}
+            collectionSlug={collection.slug}
+            collectionName={collection.name}
+            limit={4}
+          />
+        ))
+      )}
 
-      <section className="px-4 py-20 md:px-8">
+      {/* <section className="px-4 py-20 md:px-8">
         <div className="mx-auto w-full max-w-5xl">
           <div className="editorial-card p-8 text-center md:p-12">
             <div className="mb-5 flex justify-center gap-1 text-accent-foreground">
@@ -181,7 +303,7 @@ export function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
     </main>
   );
 }

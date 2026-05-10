@@ -11,6 +11,7 @@ const CollectionBody = z.object({
   description: z.string().optional().nullable(),
   imageUrl: z.string().optional().nullable(),
   isActive: z.boolean().optional().default(true),
+  showOnHome: z.boolean().optional().default(false),
 });
 
 function toSlug(input: string) {
@@ -73,6 +74,7 @@ export async function POST(request: Request) {
         description: parsed.data.description,
         imageUrl: parsed.data.imageUrl,
         isActive: parsed.data.isActive,
+        showOnHome: parsed.data.showOnHome,
       })
       .returning();
 

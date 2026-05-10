@@ -4,13 +4,14 @@ import { useListProducts, getListProductsQueryKey } from "@workspace/api-client-
 import { ProductCard } from "@/components/ui/ProductCard";
 import { Filter, Check, Search, X } from "lucide-react";
 
-const CATEGORIES = [
-  { id: "", label: "All Products" },
-  { id: "wall-art", label: "Wall Art" },
-  { id: "prayer-rugs", label: "Prayer Rugs" },
-  { id: "tasbeeh", label: "Tasbeeh" },
-  { id: "jewelry", label: "Jewelry" }
-];
+type Category = {
+  id: number;
+  name: string;
+  slug: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string | null;
+};
 
 const SORTS = [
   { id: "newest", label: "New Arrivals" },
@@ -33,6 +34,8 @@ export function Products() {
   const [activeSort, setActiveSort] = useState("newest");
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState(queryParam || "");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
   useEffect(() => {
     setSearchTerm(queryParam || "");
@@ -41,6 +44,28 @@ export function Products() {
   useEffect(() => {
     setActiveCategory(categoryParam || "");
   }, [categoryParam]);
+
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setIsLoadingCategories(true);
+        const response = await fetch("/api/categories");
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const data = await response.json();
+        setCategories(data.categories || []);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setCategories([]);
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const pushFiltersToUrl = (nextCategory: string, nextSearchTerm: string) => {
     const newParams = new URLSearchParams();
@@ -131,7 +156,7 @@ export function Products() {
         <div className="text-center mb-12">
           <h1 className="font-serif text-4xl md:text-5xl text-foreground mb-4">
             {featuredParam === "true" ? "New Arrivals" : 
-             activeCategory ? CATEGORIES.find(c => c.id === activeCategory)?.label : 
+             activeCategory ? categories.find(c => c.slug === activeCategory)?.name : 
              "All Products"}
           </h1>
           <div className="w-16 h-0.5 bg-secondary mx-auto mb-6"></div>
@@ -192,18 +217,38 @@ export function Products() {
               <div>
                 <h3 className="font-serif text-xl mb-4 border-b border-border pb-2">Categories</h3>
                 <ul className="space-y-3">
-                  {CATEGORIES.map(category => (
+                  {/* "All Products" option */}
+                  <li key="all">
+                    <button
+                      onClick={() => handleCategoryChange("")}
+                      className={`font-sans text-sm flex items-center justify-between w-full text-left transition-colors ${
+                        activeCategory === "" 
+                          ? "text-primary font-bold" 
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      All Products
+                      {activeCategory === "" && <Check size={14} />}
+                    </button>
+                  </li>
+                  
+                  {/* Categories from API */}
+                  {isLoadingCategories ? (
+                    <li className="animate-pulse">
+                      <div className="h-4 bg-muted w-3/4"></div>
+                    </li>
+                  ) : categories.map(category => (
                     <li key={category.id}>
                       <button
-                        onClick={() => handleCategoryChange(category.id)}
+                        onClick={() => handleCategoryChange(category.slug)}
                         className={`font-sans text-sm flex items-center justify-between w-full text-left transition-colors ${
-                          activeCategory === category.id 
+                          activeCategory === category.slug 
                             ? "text-primary font-bold" 
                             : "text-muted-foreground hover:text-foreground"
                         }`}
                       >
-                        {category.label}
-                        {activeCategory === category.id && <Check size={14} />}
+                        {category.name}
+                        {activeCategory === category.slug && <Check size={14} />}
                       </button>
                     </li>
                   ))}

@@ -3,8 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import type { AdminCollection } from "@/components/admin/types";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +23,8 @@ type Props = {
   onNewCollectionDescriptionChange: (value: string) => void;
   newCollectionImageUrl: string;
   onNewCollectionImageUrlChange: (value: string) => void;
+  newCollectionShowOnHome: boolean;
+  onNewCollectionShowOnHomeChange: (value: boolean) => void;
   isSavingCollection: boolean;
   editingCollectionId: number | null;
   editingCollectionName: string;
@@ -29,6 +33,8 @@ type Props = {
   onEditingCollectionDescriptionChange: (value: string) => void;
   editingCollectionImageUrl: string;
   onEditingCollectionImageUrlChange: (value: string) => void;
+  editingCollectionShowOnHome: boolean;
+  onEditingCollectionShowOnHomeChange: (value: boolean) => void;
   onStartEdit: (collection: AdminCollection) => void;
   onCancelEdit: () => void;
   onCreateCollection: () => void;
@@ -44,6 +50,8 @@ export function CollectionsSection({
   onNewCollectionDescriptionChange,
   newCollectionImageUrl,
   onNewCollectionImageUrlChange,
+  newCollectionShowOnHome,
+  onNewCollectionShowOnHomeChange,
   isSavingCollection,
   editingCollectionId,
   editingCollectionName,
@@ -52,6 +60,8 @@ export function CollectionsSection({
   onEditingCollectionDescriptionChange,
   editingCollectionImageUrl,
   onEditingCollectionImageUrlChange,
+  editingCollectionShowOnHome,
+  onEditingCollectionShowOnHomeChange,
   onStartEdit,
   onCancelEdit,
   onCreateCollection,
@@ -59,6 +69,42 @@ export function CollectionsSection({
   onDeleteCollection,
 }: Props) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const addFileInputRef = useRef<HTMLInputElement | null>(null);
+  const editFileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleImageUpload = async (
+    file: File,
+    onSuccess: (url: string) => void
+  ) => {
+    setUploadingImage(true);
+    setUploadError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/admin/uploads/product-image", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Upload failed");
+      }
+
+      const data = await response.json();
+      onSuccess(data.url);
+    } catch (err) {
+      console.error("Image upload error:", err);
+      setUploadError(err instanceof Error ? err.message : "Failed to upload image");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   return (
     <div className="max-w-6xl">
@@ -80,6 +126,7 @@ export function CollectionsSection({
               <th className="p-4 text-left">Name</th>
               <th className="p-4 text-left">Slug</th>
               <th className="p-4 text-left">Status</th>
+              <th className="p-4 text-left">Show on Home</th>
               <th className="p-4 text-left">Actions</th>
             </tr>
           </thead>
@@ -107,6 +154,15 @@ export function CollectionsSection({
                     }`}
                   >
                     {collection.isActive ? "Active" : "Inactive"}
+                  </span>
+                </td>
+                <td className="p-4">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs ${
+                      collection.showOnHome ? "bg-blue-100 text-blue-800" : "bg-slate-100 text-slate-700"
+                    }`}
+                  >
+                    {collection.showOnHome ? "Yes" : "No"}
                   </span>
                 </td>
                 <td className="p-4">
@@ -149,12 +205,47 @@ export function CollectionsSection({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Header Image URL</label>
-              <Input
-                value={newCollectionImageUrl}
-                onChange={(e) => onNewCollectionImageUrlChange(e.target.value)}
-                placeholder="https://..."
-              />
+              <label className="text-sm font-medium">Collection Image</label>
+              <div className="flex gap-2">
+                <Input
+                  value={newCollectionImageUrl}
+                  onChange={(e) => onNewCollectionImageUrlChange(e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1"
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={addFileInputRef}
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleImageUpload(file, (url) => {
+                        onNewCollectionImageUrlChange(url);
+                      });
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => addFileInputRef.current?.click()}
+                  disabled={uploadingImage}
+                >
+                  {uploadingImage ? "Uploading..." : "Upload"}
+                </Button>
+              </div>
+              {uploadError ? <p className="text-sm text-destructive">{uploadError}</p> : null}
+              {newCollectionImageUrl && (
+                <div className="mt-2">
+                  <img
+                    src={newCollectionImageUrl}
+                    alt="Preview"
+                    className="h-24 w-auto rounded border object-cover"
+                  />
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Description</label>
@@ -163,6 +254,14 @@ export function CollectionsSection({
                 onChange={(e) => onNewCollectionDescriptionChange(e.target.value)}
                 placeholder="Tell something about this collection..."
                 rows={4}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-on-home" className="text-sm font-medium">Show on Home Page</Label>
+              <Switch
+                id="show-on-home"
+                checked={newCollectionShowOnHome}
+                onCheckedChange={onNewCollectionShowOnHomeChange}
               />
             </div>
           </div>
@@ -193,11 +292,46 @@ export function CollectionsSection({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Header Image URL</label>
-              <Input
-                value={editingCollectionImageUrl}
-                onChange={(e) => onEditingCollectionImageUrlChange(e.target.value)}
-              />
+              <label className="text-sm font-medium">Collection Image</label>
+              <div className="flex gap-2">
+                <Input
+                  value={editingCollectionImageUrl}
+                  onChange={(e) => onEditingCollectionImageUrlChange(e.target.value)}
+                  className="flex-1"
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={editFileInputRef}
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleImageUpload(file, (url) => {
+                        onEditingCollectionImageUrlChange(url);
+                      });
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => editFileInputRef.current?.click()}
+                  disabled={uploadingImage}
+                >
+                  {uploadingImage ? "Uploading..." : "Upload"}
+                </Button>
+              </div>
+              {uploadError ? <p className="text-sm text-destructive">{uploadError}</p> : null}
+              {editingCollectionImageUrl && (
+                <div className="mt-2">
+                  <img
+                    src={editingCollectionImageUrl}
+                    alt="Preview"
+                    className="h-24 w-auto rounded border object-cover"
+                  />
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Description</label>
@@ -205,6 +339,14 @@ export function CollectionsSection({
                 value={editingCollectionDescription}
                 onChange={(e) => onEditingCollectionDescriptionChange(e.target.value)}
                 rows={4}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="edit-show-on-home" className="text-sm font-medium">Show on Home Page</Label>
+              <Switch
+                id="edit-show-on-home"
+                checked={editingCollectionShowOnHome}
+                onCheckedChange={onEditingCollectionShowOnHomeChange}
               />
             </div>
           </div>

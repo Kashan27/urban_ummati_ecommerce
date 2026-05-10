@@ -12,6 +12,7 @@ const UpdateCollectionBody = z.object({
   description: z.string().optional().nullable(),
   imageUrl: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
+  showOnHome: z.boolean().optional(),
 });
 
 function toSlug(input: string) {
@@ -63,6 +64,7 @@ export async function PUT(
         description: bodyParsed.data.description !== undefined ? bodyParsed.data.description : current[0].description,
         imageUrl: bodyParsed.data.imageUrl !== undefined ? bodyParsed.data.imageUrl : current[0].imageUrl,
         isActive: bodyParsed.data.isActive ?? current[0].isActive,
+        showOnHome: bodyParsed.data.showOnHome !== undefined ? bodyParsed.data.showOnHome : current[0].showOnHome,
         updatedAt: new Date(),
       })
       .where(eq(collectionsTable.id, idParsed.data.id))
