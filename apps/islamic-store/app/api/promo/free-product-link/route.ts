@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import { db, freeProductLinksTable, productsTable, freeProductRedemptionsTable } from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
 import { CreateFreeProductLinkBody } from "@workspace/api-zod";
-import { formatFreeProductLink } from "@/lib/api-formatters";
+import { formatFreeProductLink, loadProductMediaMaps } from "@/lib/api-formatters";
 import { requireAdmin } from "@/lib/admin-auth";
 
 export const runtime = "nodejs";
@@ -23,6 +23,9 @@ export async function GET(request: Request) {
       .where(eq(freeProductLinksTable.status, "active")) // Only show active links by default or add filter
       .orderBy(desc(freeProductLinksTable.createdAt));
 
+    const productIds = links.map((r) => r.link.productId).filter(Boolean);
+    const { imagesByProductId, colorsByProductId } = await loadProductMediaMaps(productIds);
+
     const linksWithRedemptions = await Promise.all(
       links.map(async (r) => {
         const redemptions = await db
@@ -30,8 +33,14 @@ export async function GET(request: Request) {
           .from(freeProductRedemptionsTable)
           .where(eq(freeProductRedemptionsTable.linkId, r.link.id))
           .orderBy(desc(freeProductRedemptionsTable.usedAt));
-        
-        return formatFreeProductLink(r.link, r.product ?? undefined, redemptions);
+
+        return formatFreeProductLink(
+          r.link,
+          r.product ?? undefined,
+          redemptions,
+          imagesByProductId.get(r.link.productId),
+          colorsByProductId.get(r.link.productId),
+        );
       })
     );
 
@@ -77,7 +86,15 @@ export async function POST(request: Request) {
       .from(productsTable)
       .where(eq(productsTable.id, link.productId));
 
-    return NextResponse.json(formatFreeProductLink(link, product), { status: 201 });
+    const { imagesByProductId, colorsByProductId } = await loadProductMediaMaps([link.productId]);
+
+    return NextResponse.json(formatFreeProductLink(
+      link,
+      product,
+      undefined,
+      imagesByProductId.get(link.productId),
+      colorsByProductId.get(link.productId),
+    ), { status: 201 });
   } catch (err) {
     console.error("Error creating free product link", err);
     return NextResponse.json(

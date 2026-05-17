@@ -1,3 +1,5 @@
+"use client";
+
 import { X, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
 import { Link, useLocation } from "@/lib/router";
 import { useCart } from "@/lib/cart-context";

@@ -29,6 +29,28 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+function normalizeColorValue(color: unknown): string | undefined {
+  if (typeof color === "string") {
+    return color;
+  }
+
+  if (typeof color === "object" && color !== null && "name" in color) {
+    const name = (color as { name?: unknown }).name;
+    if (typeof name === "string") {
+      return name;
+    }
+  }
+
+  return undefined;
+}
+
+function normalizeCartItem(item: CartItem): CartItem {
+  return {
+    ...item,
+    color: normalizeColorValue(item.color),
+  };
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
     if (typeof window === "undefined") {
@@ -37,7 +59,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     try {
       const savedCart = localStorage.getItem("noor_cart");
-      if (savedCart) return JSON.parse(savedCart);
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed)) {
+          return parsed.map((item) => normalizeCartItem(item as CartItem));
+        }
+      }
     } catch (e) {
       console.error("Failed to parse cart from localStorage", e);
     }
@@ -56,36 +83,38 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items]);
 
   const addItem = useCallback((newItem: CartItem, options?: { skipUpsell?: boolean }) => {
+    const normalizedNewItem = normalizeCartItem(newItem);
+
     setItems((prevItems) => {
       const existingItemIndex = prevItems.findIndex(
-        (i) => i.productId === newItem.productId && i.color === newItem.color
+        (i) => i.productId === normalizedNewItem.productId && i.color === normalizedNewItem.color
       );
 
       if (existingItemIndex >= 0) {
         const updatedItems = [...prevItems];
-        updatedItems[existingItemIndex].quantity += newItem.quantity;
-        if (newItem.promoToken && !updatedItems[existingItemIndex].promoToken) {
-          updatedItems[existingItemIndex].promoToken = newItem.promoToken;
-          updatedItems[existingItemIndex].price = newItem.price;
+        updatedItems[existingItemIndex].quantity += normalizedNewItem.quantity;
+        if (normalizedNewItem.promoToken && !updatedItems[existingItemIndex].promoToken) {
+          updatedItems[existingItemIndex].promoToken = normalizedNewItem.promoToken;
+          updatedItems[existingItemIndex].price = normalizedNewItem.price;
         }
         return updatedItems;
       } else {
-        return [...prevItems, newItem];
+        return [...prevItems, normalizedNewItem];
       }
     });
 
     if (!options?.skipUpsell) {
-      setLastAddedProductId(newItem.productId);
+      setLastAddedProductId(normalizedNewItem.productId);
     }
 
     toast.success("Added to cart", {
-      description: `${newItem.quantity}x ${newItem.name} ${newItem.color ? `(${newItem.color})` : ''}`
+      description: `${normalizedNewItem.quantity}x ${normalizedNewItem.name} ${normalizedNewItem.color ? `(${normalizedNewItem.color})` : ''}`
     });
   }, []);
 
   const removeItem = useCallback((productId: number, color?: string) => {
-    setItems((prevItems) => 
-      prevItems.filter((i) => !(i.productId === productId && i.color === color))
+    setItems((prevItems) =>
+      prevItems.filter((i) => !(i.productId === productId && i.color === normalizeColorValue(color)))
     );
   }, []);
 
@@ -94,10 +123,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeItem(productId, color);
       return;
     }
-    
+
+    const normalizedColor = normalizeColorValue(color);
+
     setItems((prevItems) =>
       prevItems.map((i) =>
-        i.productId === productId && i.color === color ? { ...i, quantity } : i
+        i.productId === productId && i.color === normalizedColor ? { ...i, quantity } : i
       )
     );
   }, [removeItem]);

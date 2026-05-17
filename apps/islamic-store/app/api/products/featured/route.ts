@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { categoriesTable, db, productsTable } from "@workspace/db";
 import { and, desc, eq } from "drizzle-orm";
-import { formatProduct } from "@/lib/api-formatters";
+import { formatProduct, loadProductMediaMaps } from "@/lib/api-formatters";
 
 export const runtime = "nodejs";
 
@@ -15,13 +15,21 @@ export async function GET() {
       .orderBy(desc(productsTable.reviewCount))
       .limit(8);
 
+    const productIds = rows.map(({ products }) => products.id);
+    const { imagesByProductId, colorsByProductId } = await loadProductMediaMaps(productIds);
+
     return NextResponse.json({
       products: rows.map(({ products, categories }) =>
-        formatProduct(products, {
-          categoryId: categories?.id ?? null,
-          categoryName: categories?.name ?? null,
-          categorySlug: categories?.slug ?? null,
-        }),
+        formatProduct(
+          products,
+          {
+            categoryId: categories?.id ?? null,
+            categoryName: categories?.name ?? null,
+            categorySlug: categories?.slug ?? null,
+          },
+          imagesByProductId.get(products.id),
+          colorsByProductId.get(products.id),
+        ),
       ),
     });
   } catch (err) {

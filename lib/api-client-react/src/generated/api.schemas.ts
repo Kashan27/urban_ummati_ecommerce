@@ -44,7 +44,7 @@ export interface Product {
   upsellDiscount?: number | null;
   reviewCount: number;
   rating: number;
-  colors: string[];
+  colors: {hex: string; name: string}[];
   /** List of products this item is an upsell for */
   mainProductIds?: number[];
   /** List of products that are upsells for this item */

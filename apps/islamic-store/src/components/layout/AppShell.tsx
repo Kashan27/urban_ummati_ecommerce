@@ -16,6 +16,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith("/admin");
+  const isTrackingRoute = pathname?.startsWith("/tracking");
+  const isPlainLayout = isAdminRoute || isTrackingRoute;
 
   useEffect(() => {
     setBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL ?? null);
@@ -27,11 +29,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         <CartProvider>
           <Suspense fallback={null}>
             <div className="flex min-h-[100dvh] flex-col">
-              {!isAdminRoute && <Navbar />}
+              {!isPlainLayout && <Navbar />}
               {children}
-              {!isAdminRoute && <Footer />}
-              {!isAdminRoute && <CartDrawer />}
-              {!isAdminRoute && <UpsellModal />}
+              {!isPlainLayout && <Footer />}
+              {!isPlainLayout && <CartDrawer />}
+              {!isPlainLayout && <UpsellModal />}
             </div>
           </Suspense>
           <Toaster />

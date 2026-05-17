@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db, freeProductLinksTable, productsTable, freeProductRedemptionsTable } from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
 import { UpdateFreeProductLinkBody } from "@workspace/api-zod";
-import { formatFreeProductLink } from "@/lib/api-formatters";
+import { formatFreeProductLink, loadProductMediaMaps } from "@/lib/api-formatters";
 import { requireAdmin } from "@/lib/admin-auth";
 
 export const runtime = "nodejs";
@@ -56,7 +56,15 @@ export async function PUT(request: NextRequest, { params }: Props) {
       .where(eq(freeProductRedemptionsTable.linkId, link.id))
       .orderBy(desc(freeProductRedemptionsTable.usedAt));
 
-    return NextResponse.json(formatFreeProductLink(link, product, redemptions));
+    const { imagesByProductId, colorsByProductId } = await loadProductMediaMaps([link.productId]);
+
+    return NextResponse.json(formatFreeProductLink(
+      link,
+      product,
+      redemptions,
+      imagesByProductId.get(link.productId),
+      colorsByProductId.get(link.productId),
+    ));
   } catch (err) {
     console.error("Error updating free product link", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

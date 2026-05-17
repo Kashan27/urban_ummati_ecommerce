@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useGetAdminStats,
   useUpdateOrderStatus,
@@ -104,6 +104,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
   const [printMode, setPrintMode] = useState<"receipt" | "packing-slip" | "shipping-label">("receipt");
   const queryClient = useQueryClient();
+  const isProgrammaticClose = useRef(false);
 
   const { data: statsData, isLoading: statsLoading } = useGetAdminStats({
     query: { enabled: authenticated, queryKey: getGetAdminStatsQueryKey() },
@@ -316,7 +317,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       featured: false,
       isUpsell: false,
       upsellDiscount: null,
-      colors: "gold,silver,black",
+      colors: [],
     },
   });
 
@@ -406,7 +407,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       upsellDiscount: values.upsellDiscount ?? null,
       imageUrl: normalizedImages[0] || "",
       images: normalizedImages,
-      colors: values.colors.split(",").map((c) => c.trim()).filter(Boolean),
+      colors: Array.isArray(values.colors) ? values.colors : [],
       mainProductIds: values.mainProductIds,
     };
   }
@@ -415,6 +416,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
     setProductSaveError("");
     setEditingProductId(null);
     setProductDialogMode("create");
+    setIsSavingProduct(false);
     setImageUrls([""]);
     productForm.reset({
       name: "",
@@ -429,17 +431,21 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       featured: false,
       isUpsell: false,
       upsellDiscount: null,
-      colors: "gold,silver,black",
+      colors: [],
       mainProductIds: [],
     });
   }
 
   function openCreateProductDialog() {
+    isProgrammaticClose.current = false;
     resetProductDialogForm();
     setIsProductDialogOpen(true);
   }
 
   async function openEditProductDialog(product: AdminProduct) {
+    isProgrammaticClose.current = false;
+    setIsSavingProduct(false);
+    setProductSaveError("");
     setProductDialogMode("edit");
     setEditingProductId(product.id);
     productForm.reset({
@@ -455,8 +461,12 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       featured: product.featured,
       isUpsell: product.isUpsell,
       upsellDiscount: product.upsellDiscount ?? null,
-      colors: Array.isArray(product.colors) ? product.colors.join(",") : "",
+      colors: Array.isArray(product.colors) ? product.colors : [],
       mainProductIds: product.mainProductIds || [],
+      weight: product.weight ?? null,
+      length: product.length ?? null,
+      width: product.width ?? null,
+      height: product.height ?? null,
     });
     setImageUrls(Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.imageUrl]);
     setIsProductDialogOpen(true);
@@ -508,8 +518,8 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
         queryClient.invalidateQueries({ queryKey: getGetAdminStatsQueryKey() }),
       ]);
 
+      isProgrammaticClose.current = true;
       setIsProductDialogOpen(false);
-      resetProductDialogForm();
     } catch (error) {
       setProductSaveError(error instanceof Error ? error.message : "Failed to save product");
     } finally {
@@ -549,6 +559,10 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
             isUpsell: product.isUpsell,
             upsellDiscount: product.upsellDiscount,
             colors: product.colors || [],
+            weight: product.weight,
+            length: product.length,
+            width: product.width,
+            height: product.height,
           }),
         });
 
@@ -972,6 +986,12 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
                 setImageUrls={setImageUrls}
                 isProductDialogOpen={isProductDialogOpen}
                 onProductDialogOpenChange={(open) => {
+                  if (!open && isProgrammaticClose.current) {
+                    // Skip reset — already handled by the caller (handleSaveProduct)
+                    isProgrammaticClose.current = false;
+                    setIsProductDialogOpen(false);
+                    return;
+                  }
                   setIsProductDialogOpen(open);
                   if (!open) resetProductDialogForm();
                 }}

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { db, freeProductLinksTable, ordersTable, productsTable } from "@workspace/db";
+import { db, freeProductLinksTable, ordersTable, productsTable, orderItemsTable } from "@workspace/db";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { CreateOrderBody } from "@workspace/api-zod";
+import { randomUUID } from "crypto";
 
 export const runtime = "nodejs";
 
@@ -62,6 +63,10 @@ export async function POST(request: NextRequest) {
         quantity: item.quantity,
         color: item.color || null,
         total: itemTotal,
+        weight: product.weight ? parseFloat(product.weight) : null,
+        length: product.length ? parseFloat(product.length) : null,
+        width: product.width ? parseFloat(product.width) : null,
+        height: product.height ? parseFloat(product.height) : null,
       };
     });
 
@@ -152,7 +157,6 @@ export async function POST(request: NextRequest) {
           province: data.province,
           postalCode: data.postalCode,
           country: data.country,
-          items: orderItems,
           subtotal: String(subtotal),
           shippingCost: String(shippingCost),
           tax: String(tax),
@@ -164,9 +168,28 @@ export async function POST(request: NextRequest) {
           paymentStatus: isPaidNow ? "paid" : "pending",
           paidAt: isPaidNow ? now : null,
           notes: data.notes,
+          trackingToken: randomUUID(),
           updatedAt: now,
         })
         .returning();
+
+      await tx.insert(orderItemsTable).values(
+        orderItems.map((item) => ({
+          orderId: newOrder.id,
+          productId: item.productId,
+          productName: item.productName,
+          productImage: item.productImage,
+          color: item.color,
+          unitPrice: String(item.price),
+          quantity: item.quantity,
+          lineTotal: String(item.total),
+          weight: item.weight == null ? null : String(item.weight),
+          length: item.length == null ? null : String(item.length),
+          width: item.width == null ? null : String(item.width),
+          height: item.height == null ? null : String(item.height),
+          updatedAt: now,
+        })),
+      );
 
       for (const item of data.items) {
         const updates = await tx

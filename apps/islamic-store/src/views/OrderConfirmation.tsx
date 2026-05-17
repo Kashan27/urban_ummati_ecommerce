@@ -204,11 +204,21 @@ export function OrderConfirmation() {
 
       <div className="p-4 bg-primary/5 border border-primary/20 rounded-sm flex items-start gap-3 mb-12">
         <Truck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-        <div>
+        <div className="flex-1">
           <p className="text-sm font-bold">Your order is being processed</p>
           <p className="text-xs text-muted-foreground mt-1">
             You'll receive shipping updates via email. Most orders ship within 2-3 business days.
           </p>
+          {(order as any).trackingToken && (
+            <div className="mt-4">
+              <Link
+                href={`/tracking/${(order as any).trackingToken}`}
+                className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-xs font-semibold uppercase tracking-wider text-primary-foreground transition-all hover:bg-primary/90"
+              >
+                Track Your Order <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 

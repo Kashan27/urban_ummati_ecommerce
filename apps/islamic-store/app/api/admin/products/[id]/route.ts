@@ -4,6 +4,8 @@ import {
   collectionsTable,
   db,
   productCollectionsTable,
+  productColorsTable,
+  productImagesTable,
   productUpsellsTable,
   productsTable,
 } from "@workspace/db";
@@ -37,7 +39,11 @@ const AdminProductBody = z.object({
   featured: z.boolean().default(false),
   isUpsell: z.boolean().default(false),
   upsellDiscount: z.coerce.number().nullable().optional(),
-  colors: z.array(z.string()).default([]),
+  colors: z.array(z.object({ hex: z.string(), name: z.string() })).default([]),
+  weight: z.coerce.number().nullable().optional(), // in kg
+  length: z.coerce.number().nullable().optional(), // in cm
+  width: z.coerce.number().nullable().optional(),  // in cm
+  height: z.coerce.number().nullable().optional(), // in cm
   mainProductIds: z.array(z.coerce.number().int().positive()).optional().default([]),
 });
 
@@ -97,19 +103,48 @@ export async function PUT(
           comparePrice: data.comparePrice ? String(data.comparePrice) : null,
           categoryId: category.id,
           imageUrl: data.imageUrl,
-          images: data.images || [],
           inStock: data.inStock ?? true,
           inventoryQuantity: data.inventoryQuantity ?? null,
           featured: data.featured ?? false,
           isUpsell: data.isUpsell ?? false,
           upsellDiscount: data.upsellDiscount ? String(data.upsellDiscount) : null,
-          colors: data.colors || [],
+          weight: data.weight ? String(data.weight) : null,
+          length: data.length ? String(data.length) : null,
+          width: data.width ? String(data.width) : null,
+          height: data.height ? String(data.height) : null,
           updatedAt: now,
         })
         .where(eq(productsTable.id, idParsed.data.id))
         .returning();
 
       if (!updated) return null;
+
+      // Sync normalized images
+      await tx.delete(productImagesTable).where(eq(productImagesTable.productId, updated.id));
+      if (data.images && data.images.length > 0) {
+        await tx.insert(productImagesTable).values(
+          data.images.map((url, idx) => ({
+            productId: updated.id,
+            url,
+            sortOrder: idx,
+            updatedAt: now,
+          })),
+        );
+      }
+
+      // Sync normalized colors
+      await tx.delete(productColorsTable).where(eq(productColorsTable.productId, updated.id));
+      if (data.colors && data.colors.length > 0) {
+        await tx.insert(productColorsTable).values(
+          data.colors.map((color, idx) => ({
+            productId: updated.id,
+            hex: color.hex,
+            name: color.name,
+            sortOrder: idx,
+            updatedAt: now,
+          })),
+        );
+      }
 
       if (collectionIds.length > 0) {
         await tx
@@ -173,11 +208,16 @@ export async function PUT(
     }
 
     return NextResponse.json(
-      formatProduct(product, {
-        categoryId: category.id,
-        categoryName: category.name,
-        categorySlug: category.slug,
-      }),
+      formatProduct(
+        product,
+        {
+          categoryId: category.id,
+          categoryName: category.name,
+          categorySlug: category.slug,
+        },
+        data.images || [],
+        data.colors || [],
+      ),
     );
   } catch (err) {
     console.error("Error updating product", err);

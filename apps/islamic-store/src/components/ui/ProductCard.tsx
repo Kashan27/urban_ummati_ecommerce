@@ -63,14 +63,14 @@ export function ProductCard({ product }: { product: Product }) {
           </h3>
         </div>
         
-        <div className="flex items-center gap-2 mt-1">
+        {/* <div className="flex items-center gap-2 mt-1">
           <div className="flex gap-0.5">
             {renderStars(product.rating || 5)}
           </div>
           <span className="text-xs text-muted-foreground font-sans">
             ({product.reviewCount || 0})
           </span>
-        </div>
+        </div> */}
 
         <div className="flex items-center gap-3 mt-2">
           <span className="font-sans font-bold text-base text-foreground">
@@ -90,8 +90,8 @@ export function ProductCard({ product }: { product: Product }) {
               <div 
                 key={idx}
                 className="w-4 h-4 rounded-full border border-border"
-                style={{ backgroundColor: color.toLowerCase().replace(' ', '') }}
-                title={color}
+                style={{ backgroundColor: color.hex }}
+                title={color.name}
               />
             ))}
             {product.colors.length > 4 && (

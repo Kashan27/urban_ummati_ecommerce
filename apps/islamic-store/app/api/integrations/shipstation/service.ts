@@ -1,5 +1,5 @@
-import { db, ordersTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { db, ordersTable, productsTable, orderItemsTable } from "@workspace/db";
+import { eq, inArray } from "drizzle-orm";
 
 type ShipStationCreateOrderResponse = {
   orderId: number;
@@ -61,10 +61,26 @@ async function shipStationRequest<T>(
 }
 
 export async function shipStationCreateOrUpdateOrder(orderId: number) {
+  console.info("[ShipStation] START shipStationCreateOrUpdateOrder", { orderId, timestamp: new Date().toISOString() });
+  
   const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, orderId)).limit(1);
-  if (!order) throw new Error("ORDER_NOT_FOUND");
+  if (!order) {
+    console.error("[ShipStation] ORDER_NOT_FOUND", { orderId });
+    throw new Error("ORDER_NOT_FOUND");
+  }
+
+  console.info("[ShipStation] order fetched", {
+    orderId: order.id,
+    shipstationOrderId: order.shipstationOrderId,
+    paymentStatus: order.paymentStatus,
+  });
 
   if (order.shipstationOrderId) {
+    console.info("[ShipStation] skip createorder (already synced)", {
+      orderId: order.id,
+      shipstationOrderId: order.shipstationOrderId,
+      shipstationOrderKey: order.shipstationOrderKey,
+    });
     return { alreadySynced: true as const, shipstationOrderId: order.shipstationOrderId };
   }
 
@@ -81,6 +97,84 @@ export async function shipStationCreateOrUpdateOrder(orderId: number) {
 
   const shipToCountry = getCountryCode(order.country ?? "Canada");
 
+  const orderItemRows = await db
+    .select()
+    .from(orderItemsTable)
+    .where(eq(orderItemsTable.orderId, order.id));
+
+  const orderItems = orderItemRows.map((item) => ({
+    productId: item.productId,
+    productName: item.productName,
+    productImage: item.productImage,
+    price: parseFloat(item.unitPrice),
+    quantity: item.quantity,
+    color: item.color,
+    total: parseFloat(item.lineTotal),
+    weight: item.weight ? parseFloat(item.weight) : null,
+    length: item.length ? parseFloat(item.length) : null,
+    width: item.width ? parseFloat(item.width) : null,
+    height: item.height ? parseFloat(item.height) : null,
+  }));
+  let totalWeightGrams = 0;
+  let maxLengthInches = 0;
+  let maxWidthInches = 0;
+  let maxHeightInches = 0;
+
+  // Conversion factors
+  const KG_TO_GRAMS = 1000;
+  const CM_TO_INCHES = 0.393701;
+
+  // Fetch product dimensions from database for items that don't have them
+   const productIds = [...new Set(orderItems.map(item => item.productId).filter(Boolean))];
+   const productsData = productIds.length > 0 
+     ? await db.select().from(productsTable).where(inArray(productsTable.id, productIds))
+     : [];
+   
+   // Create a map for quick lookup
+   const productMap = new Map(productsData.map(p => [p.id, p]));
+
+  for (const item of orderItems) {
+    const quantity = Number(item.quantity || 1);
+    
+    // Try to get dimensions from order item first, fallback to product table
+    let itemWeightKg = Number(item.weight || 0);
+    let itemLengthCm = Number(item.length || 0);
+    let itemWidthCm = Number(item.width || 0);
+    let itemHeightCm = Number(item.height || 0);
+    
+    // If dimensions are missing from order item, fetch from product table
+    if ((!itemWeightKg || !itemLengthCm || !itemWidthCm || !itemHeightCm) && item.productId) {
+      const product = productMap.get(item.productId);
+      if (product) {
+        if (!itemWeightKg && product.weight) {
+          itemWeightKg = parseFloat(product.weight);
+        }
+        if (!itemLengthCm && product.length) {
+          itemLengthCm = parseFloat(product.length);
+        }
+        if (!itemWidthCm && product.width) {
+          itemWidthCm = parseFloat(product.width);
+        }
+        if (!itemHeightCm && product.height) {
+          itemHeightCm = parseFloat(product.height);
+        }
+      }
+    }
+
+    if (Number.isFinite(itemWeightKg) && itemWeightKg > 0) {
+      totalWeightGrams += itemWeightKg * KG_TO_GRAMS * quantity;
+    }
+    if (Number.isFinite(itemLengthCm) && itemLengthCm > 0) {
+      maxLengthInches = Math.max(maxLengthInches, itemLengthCm * CM_TO_INCHES);
+    }
+    if (Number.isFinite(itemWidthCm) && itemWidthCm > 0) {
+      maxWidthInches = Math.max(maxWidthInches, itemWidthCm * CM_TO_INCHES);
+    }
+    if (Number.isFinite(itemHeightCm) && itemHeightCm > 0) {
+      maxHeightInches = Math.max(maxHeightInches, itemHeightCm * CM_TO_INCHES);
+    }
+  }
+
   const payload = {
     orderNumber,
     orderKey,
@@ -88,6 +182,19 @@ export async function shipStationCreateOrUpdateOrder(orderId: number) {
     paymentDate: (order.paidAt ?? new Date()).toISOString(),
     orderStatus: "awaiting_shipment",
     customerEmail: order.customerEmail,
+    weight:
+      totalWeightGrams > 0
+        ? { value: totalWeightGrams, units: "grams" }
+        : undefined,
+    dimensions:
+      maxLengthInches > 0 && maxWidthInches > 0 && maxHeightInches > 0
+        ? {
+            length: maxLengthInches,
+            width: maxWidthInches,
+            height: maxHeightInches,
+            units: "inches",
+          }
+        : undefined,
     billTo: {
       name: order.customerName,
       street1: order.shippingAddress,
@@ -108,14 +215,21 @@ export async function shipStationCreateOrUpdateOrder(orderId: number) {
       phone: order.customerPhone,
       residential: true,
     },
-    items: (order.items as any[]).map((item, idx) => ({
-      lineItemKey: `${order.id}-${idx + 1}`,
-      sku: String(item.productId),
-      name: item.productName,
-      quantity: item.quantity,
-      unitPrice: Number(item.price) || 0,
-      imageUrl: item.productImage ?? null,
-    })),
+    items: orderItems.map((item, idx) => {
+      // Convert kg to grams for ShipStation
+      const itemWeightKg = Number(item.weight || 0);
+      const itemWeightGrams = itemWeightKg > 0 ? itemWeightKg * KG_TO_GRAMS : undefined;
+      
+      return {
+        lineItemKey: `${order.id}-${idx + 1}`,
+        sku: String(item.productId),
+        name: item.productName,
+        quantity: item.quantity,
+        unitPrice: Number(item.price) || 0,
+        imageUrl: item.productImage ?? null,
+        weight: itemWeightGrams ? { value: itemWeightGrams, units: "grams" } : undefined,
+      };
+    }),
     amountPaid: total,
     taxAmount: Number(order.tax),
     shippingAmount: Number(order.shippingCost),
@@ -127,6 +241,41 @@ export async function shipStationCreateOrUpdateOrder(orderId: number) {
     },
   };
 
+  console.info(payload)
+
+  console.info("[ShipStation] raw order items from DB", {
+    orderId: order.id,
+    items: orderItems.map((item) => ({
+      productId: item.productId,
+      name: item.productName,
+      quantity: item.quantity,
+      raw_weight: item.weight,
+      raw_length: item.length, 
+      raw_width: item.width,
+      raw_height: item.height,
+    })),
+  });
+
+  console.info("[ShipStation] converted values", {
+    orderId: order.id,
+    totalWeightGrams,
+    maxLengthInches,
+    maxWidthInches,
+    maxHeightInches,
+  });
+
+  console.info("[ShipStation] createorder payload", {
+    orderId: order.id,
+    orderNumber,
+    weight: payload.weight,
+    dimensions: payload.dimensions,
+    items: payload.items.map((item) => ({
+      sku: item.sku,
+      quantity: item.quantity,
+      weight: item.weight,
+    })),
+  });
+
   const created = await shipStationRequest<ShipStationCreateOrderResponse>(
     "/orders/createorder",
     {
@@ -134,6 +283,13 @@ export async function shipStationCreateOrUpdateOrder(orderId: number) {
       body: JSON.stringify(payload),
     },
   );
+
+  console.info("[ShipStation] createorder response", {
+    orderId: order.id,
+    shipstationOrderId: created.orderId,
+    shipstationOrderKey: created.orderKey,
+    shipstationOrderNumber: created.orderNumber,
+  });
 
   await db
     .update(ordersTable)
@@ -150,7 +306,7 @@ export async function shipStationCreateOrUpdateOrder(orderId: number) {
 
 export async function shipStationListShipmentsByOrderId(shipstationOrderId: string) {
   return shipStationRequest<ShipStationShipmentsResponse>(
-    `/shipments?orderId=${encodeURIComponent(shipstationOrderId)}&includeShipmentItems=false&page=1&pageSize=50`,
+    `/fulfillments?orderId=${encodeURIComponent(shipstationOrderId)}&includeShipmentItems=false&page=1&pageSize=50`,
     { method: "GET" },
   );
 }

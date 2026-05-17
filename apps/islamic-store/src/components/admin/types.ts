@@ -28,7 +28,11 @@ export type AdminProduct = {
   featured: boolean;
   isUpsell: boolean;
   upsellDiscount: number | null;
-  colors: string[];
+  colors: {hex: string; name: string}[];
+  weight: number | null;
+  length: number | null;
+  width: number | null;
+  height: number | null;
   mainProductIds?: number[];
 };
 

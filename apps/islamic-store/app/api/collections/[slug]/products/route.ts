@@ -7,7 +7,7 @@ import {
   productsTable,
 } from "@workspace/db";
 import { and, desc, eq } from "drizzle-orm";
-import { formatProduct } from "@/lib/api-formatters";
+import { formatProduct, loadProductMediaMaps } from "@/lib/api-formatters";
 
 export const runtime = "nodejs";
 
@@ -52,20 +52,28 @@ export async function GET(
 
     const paginated = rows.slice(offset, offset + limit);
 
+    const productIds = paginated.map((r) => r.product.id);
+    const { imagesByProductId, colorsByProductId } = await loadProductMediaMaps(productIds);
+
     return NextResponse.json({
-      collection: { 
-        id: collection.id, 
-        name: collection.name, 
+      collection: {
+        id: collection.id,
+        name: collection.name,
         slug: collection.slug,
         description: collection.description,
         imageUrl: collection.imageUrl
       },
       products: paginated.map((r) =>
-        formatProduct(r.product, {
-          categoryId: r.category?.id ?? null,
-          categoryName: r.category?.name ?? null,
-          categorySlug: r.category?.slug ?? null,
-        }),
+        formatProduct(
+          r.product,
+          {
+            categoryId: r.category?.id ?? null,
+            categoryName: r.category?.name ?? null,
+            categorySlug: r.category?.slug ?? null,
+          },
+          imagesByProductId.get(r.product.id),
+          colorsByProductId.get(r.product.id),
+        ),
       ),
       total: rows.length,
       limit,

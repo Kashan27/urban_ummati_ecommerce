@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { categoriesTable, db, productsTable, settingsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { GetProductParams } from "@workspace/api-zod";
-import { formatProduct } from "@/lib/api-formatters";
+import { formatProduct, loadProductMediaMaps } from "@/lib/api-formatters";
 
 export const runtime = "nodejs";
 
@@ -34,12 +34,19 @@ export async function GET(
 
     const settings = allSettings.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
 
+    const { imagesByProductId, colorsByProductId } = await loadProductMediaMaps([row.products.id]);
+
     return NextResponse.json({
-      product: formatProduct(row.products, {
-        categoryId: row.categories?.id ?? null,
-        categoryName: row.categories?.name ?? null,
-        categorySlug: row.categories?.slug ?? null,
-      }),
+      product: formatProduct(
+        row.products,
+        {
+          categoryId: row.categories?.id ?? null,
+          categoryName: row.categories?.name ?? null,
+          categorySlug: row.categories?.slug ?? null,
+        },
+        imagesByProductId.get(row.products.id),
+        colorsByProductId.get(row.products.id),
+      ),
       settings
     });
   } catch (err) {

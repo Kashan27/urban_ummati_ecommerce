@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { categoriesTable, db, productsTable, productUpsellsTable } from "@workspace/db";
 import { and, eq, inArray } from "drizzle-orm";
-import { formatProduct } from "@/lib/api-formatters";
+import { formatProduct, loadProductMediaMaps } from "@/lib/api-formatters";
 
 export const runtime = "nodejs";
 
@@ -42,13 +42,21 @@ export async function GET(request: Request) {
         .limit(4);
     }
 
+    const productIds = productsRows.map(({ products }) => products.id);
+    const { imagesByProductId, colorsByProductId } = await loadProductMediaMaps(productIds);
+
     return NextResponse.json({
       products: productsRows.map(({ products, categories }) =>
-        formatProduct(products, {
-          categoryId: categories?.id ?? null,
-          categoryName: categories?.name ?? null,
-          categorySlug: categories?.slug ?? null,
-        }),
+        formatProduct(
+          products,
+          {
+            categoryId: categories?.id ?? null,
+            categoryName: categories?.name ?? null,
+            categorySlug: categories?.slug ?? null,
+          },
+          imagesByProductId.get(products.id),
+          colorsByProductId.get(products.id),
+        ),
       ),
     });
   } catch (err) {

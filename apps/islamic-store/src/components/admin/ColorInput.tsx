@@ -1,66 +1,54 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { X, Plus, AlertCircle, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { colornames } from "color-name-list";
 
-export interface ColorEntry {
-  id: string;
+// Color type matching the database schema
+export interface Color {
   hex: string;
   name: string;
+}
+
+export interface ColorEntry extends Color {
+  id: string;
   isValid: boolean;
 }
 
 interface ColorInputProps {
-  value: string;
-  onChange: (value: string) => void;
+  value: Color[] | string[] | any[];  // Supports both old format (strings) and new format (objects)
+  onChange: (value: Color[]) => void;
   label?: string;
   placeholder?: string;
   className?: string;
 }
 
-// Generate a friendly name from hex color
-function generateColorName(hex: string): string {
-  // Common color mappings
-  const colorMap: Record<string, string> = {
-    "#000000": "Black",
-    "#FFFFFF": "White",
-    "#FF0000": "Red",
-    "#00FF00": "Green",
-    "#0000FF": "Blue",
-    "#FFFF00": "Yellow",
-    "#FF00FF": "Magenta",
-    "#00FFFF": "Cyan",
-    "#FFA500": "Orange",
-    "#800080": "Purple",
-    "#FFC0CB": "Pink",
-    "#A52A2A": "Brown",
-    "#808080": "Gray",
-    "#C0C0C0": "Silver",
-    "#FFD700": "Gold",
-  };
-
-  const normalizedHex = hex.toUpperCase();
-  if (colorMap[normalizedHex]) {
-    return colorMap[normalizedHex];
-  }
-
-  // Extract RGB values for custom colors
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-
-  // Determine color family
-  if (r > 200 && g > 200 && b > 200) return "Light";
-  if (r < 50 && g < 50 && b < 50) return "Dark";
-  if (r > g && r > b) return "Reddish";
-  if (g > r && g > b) return "Greenish";
-  if (b > r && b > g) return "Blueish";
+// Helper to normalize value to Color[] format
+function normalizeValue(value: any[]): Color[] {
+  if (!Array.isArray(value)) return [];
   
-  return "Custom";
+  return value.map(item => {
+    // If already in new format
+    if (typeof item === 'object' && item !== null && 'hex' in item) {
+      return { hex: item.hex, name: item.name || item.hex };
+    }
+    // If in old format (string)
+    if (typeof item === 'string') {
+      return { hex: item, name: item };
+    }
+    // Fallback
+    return { hex: '#000000', name: 'Black' };
+  });
+}
+
+// Get color name from the color-name-list library (30,000+ names)
+function getLibraryColorName(hex: string): string | null {
+  const normalizedHex = hex.toLowerCase();
+  const color = colornames.find(c => c.hex.toLowerCase() === normalizedHex);
+  return color ? color.name : null;
 }
 
 // Validate hex color
@@ -78,31 +66,6 @@ function normalizeHex(hex: string): string {
   return hex;
 }
 
-// Parse comma-separated colors into entries
-function parseColors(value: string): ColorEntry[] {
-  if (!value.trim()) return [];
-  
-  const colors = value.split(",").map(c => c.trim()).filter(Boolean);
-  
-  return colors.map((color, index) => {
-    const hex = color.startsWith("#") ? color : `#${color}`;
-    const normalizedHex = normalizeHex(hex);
-    const valid = isValidHexColor(normalizedHex);
-    
-    return {
-      id: `color-${index}-${Date.now()}`,
-      hex: normalizedHex,
-      name: generateColorName(normalizedHex),
-      isValid: valid,
-    };
-  });
-}
-
-// Serialize entries back to comma-separated string
-function serializeColors(entries: ColorEntry[]): string {
-  return entries.map(e => e.hex).join(", ");
-}
-
 export function ColorInput({
   value,
   onChange,
@@ -110,64 +73,125 @@ export function ColorInput({
   placeholder = "#FF0000, #00FF00, #0000FF",
   className,
 }: ColorInputProps) {
-  const [entries, setEntries] = useState<ColorEntry[]>(() => parseColors(value));
-  const [inputValue, setInputValue] = useState(value);
-  const [showAddButton, setShowAddButton] = useState(false);
+  // Ensure value is always an array
+  const safeValue = Array.isArray(value) ? value : [];
+  
+  // Normalize value to Color[] format
+  const normalizedValue = normalizeValue(safeValue);
+  
+  // State for entries - initialize from normalized value
+  const [entries, setEntries] = useState<ColorEntry[]>(() => {
+    return normalizedValue.map((color, index) => ({
+      ...color,
+      id: `color-${index}-${Date.now()}`,
+      isValid: isValidHexColor(color.hex),
+    }));
+  });
+
+  const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Sync entries when external value changes
+  // Sync internal state when external value changes
   useEffect(() => {
-    const newEntries = parseColors(value);
+    // Only update if value is a valid array and different from current entries
+    if (!Array.isArray(value)) return;
+    
+    // Ensure we don't have an infinite loop by checking if values are actually different
+    const currentValueStr = JSON.stringify(value);
+    const entriesValue = entries.map(e => ({ hex: e.hex, name: e.name }));
+    const entriesValueStr = JSON.stringify(entriesValue);
+    if (currentValueStr === entriesValueStr) return;
+    
+    const normalizedValue = normalizeValue(value);
+    
+    const newEntries = normalizedValue.map((color: Color, index: number) => ({
+      ...color,
+      id: entries[index]?.id || `color-${index}-${Date.now()}`,
+      isValid: isValidHexColor(color.hex),
+    }));
     setEntries(newEntries);
-    setInputValue(value);
   }, [value]);
 
-  // Update parent when entries change
-  useEffect(() => {
-    const serialized = serializeColors(entries);
-    if (serialized !== value) {
-      onChange(serialized);
-    }
-  }, [entries, onChange, value]);
+  // Helper to update parent - using ref to prevent infinite loops
+  const isUpdatingRef = useRef(false);
+  
+  const updateParent = (newEntries: ColorEntry[]) => {
+    if (isUpdatingRef.current) return;
+    isUpdatingRef.current = true;
+    
+    const colors: Color[] = newEntries.map(e => ({ hex: e.hex, name: e.name }));
+    onChange(colors);
+    
+    setTimeout(() => {
+      isUpdatingRef.current = false;
+    }, 0);
+  };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setInputValue(newValue);
+  const handleAddFromInput = () => {
+    if (!inputValue.trim()) return;
+
+    const hexCodes = inputValue.split(",").map(c => c.trim()).filter(Boolean);
+    const newEntries: ColorEntry[] = [];
+
+    hexCodes.forEach((code) => {
+      const hex = code.startsWith("#") ? code : `#${code}`;
+      const normalizedHex = normalizeHex(hex);
+      
+      if (!isValidHexColor(normalizedHex)) return;
+      
+      // Check if already exists
+      if (entries.some(e => e.hex.toLowerCase() === normalizedHex.toLowerCase())) return;
+      
+      // Get name from library or use hex as fallback
+      const libraryName = getLibraryColorName(normalizedHex);
+      const displayName = libraryName || normalizedHex;
+      
+      newEntries.push({
+        id: `color-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        hex: normalizedHex,
+        name: displayName,
+        isValid: true,
+      });
+    });
+
+    if (newEntries.length > 0) {
+      setEntries(prev => [...prev, ...newEntries]);
+    }
     
-    // Parse and validate in real-time
-    const newEntries = parseColors(newValue);
-    setEntries(newEntries);
-    
-    // Show add button if there's valid input
-    const hasValidColors = newEntries.some(e => e.isValid);
-    setShowAddButton(hasValidColors && newValue.includes(','));
+    setInputValue("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      inputRef.current?.blur();
+      handleAddFromInput();
     }
   };
 
   const updateEntryName = (id: string, newName: string) => {
-    setEntries(prev => prev.map(entry => 
+    const newEntries = entries.map(entry => 
       entry.id === id ? { ...entry, name: newName } : entry
-    ));
+    );
+    setEntries(newEntries);
+    updateParent(newEntries);
   };
 
   const removeEntry = (id: string) => {
-    setEntries(prev => prev.filter(entry => entry.id !== id));
+    const newEntries = entries.filter(entry => entry.id !== id);
+    setEntries(newEntries);
+    updateParent(newEntries);
   };
 
   const addColor = () => {
-    const newId = `color-${Date.now()}`;
-    setEntries(prev => [...prev, {
+    const newId = `color-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const newEntries = [...entries, {
       id: newId,
       hex: "#000000",
       name: "Black",
       isValid: true,
-    }]);
+    }];
+    setEntries(newEntries);
+    updateParent(newEntries);
     // Focus the new color's name input after render
     setTimeout(() => {
       document.getElementById(`color-name-${newId}`)?.focus();
@@ -179,51 +203,43 @@ export function ColorInput({
       {/* Label */}
       <Label className="text-xs uppercase tracking-wider">{label}</Label>
 
-      {/* Main Input */}
+      {/* Input for adding new colors */}
       <div className="relative">
         <Input
           ref={inputRef}
           value={inputValue}
-          onChange={handleInputChange}
+          onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="pr-10"
+          className="pr-20"
         />
-        {entries.some(e => e.isValid) && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex -space-x-1">
-            {entries.slice(0, 3).map((entry, i) => (
-              <div
-                key={entry.id}
-                className="w-4 h-4 rounded-full border-2 border-background shadow-sm"
-                style={{ backgroundColor: entry.hex }}
-                title={`${entry.name} (${entry.hex})`}
-              />
-            ))}
-            {entries.length > 3 && (
-              <div className="w-4 h-4 rounded-full bg-muted border-2 border-background flex items-center justify-center text-[8px] font-medium">
-                +{entries.length - 3}
-              </div>
-            )}
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={handleAddFromInput}
+          disabled={!inputValue.trim()}
+          className="absolute right-1 top-1 h-8 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          Add
+        </button>
       </div>
 
-      {/* Visual Color List */}
+      {/* Color List */}
       {entries.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground uppercase tracking-wider">
-              Color Preview ({entries.length})
+              Colors ({entries.length})
             </span>
             <button
+              type="button"
               onClick={addColor}
               className="text-xs text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
             >
-              <Plus className="w-3 h-3" /> Add Color
+              <Plus className="w-3 h-3" /> Add Custom
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2">
             {entries.map((entry, index) => (
               <div
                 key={entry.id}
@@ -257,7 +273,7 @@ export function ColorInput({
 
                 {/* Color Info */}
                 <div className="flex-1 min-w-0">
-                  {/* Hex Code Display */}
+                  {/* Hex Code */}
                   <div className="flex items-center gap-1.5 mb-1">
                     <span
                       className={cn(
@@ -274,26 +290,19 @@ export function ColorInput({
                     )}
                   </div>
 
-                  {/* Friendly Name Input */}
-                  <div className="relative">
-                    <input
-                      id={`color-name-${entry.id}`}
-                      type="text"
-                      value={entry.name}
-                      onChange={(e) => updateEntryName(entry.id, e.target.value)}
-                      placeholder="Color name..."
-                      className={cn(
-                        "w-full text-sm bg-transparent border-b border-transparent focus:border-primary outline-none py-0.5 transition-colors",
-                        "placeholder:text-muted-foreground/50",
-                        entry.isValid ? "text-foreground" : "text-destructive/70"
-                      )}
-                    />
-                    {entry.name && (
-                      <span className="absolute right-0 top-0.5 text-[10px] text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity">
-                        ✎
-                      </span>
+                  {/* Name Input - User can customize */}
+                  <input
+                    id={`color-name-${entry.id}`}
+                    type="text"
+                    value={entry.name}
+                    onChange={(e) => updateEntryName(entry.id, e.target.value)}
+                    placeholder="Enter color name..."
+                    className={cn(
+                      "w-full text-sm bg-transparent border-b border-transparent focus:border-primary outline-none py-0.5 transition-colors",
+                      "placeholder:text-muted-foreground/50",
+                      entry.isValid ? "text-foreground" : "text-destructive/70"
                     )}
-                  </div>
+                  />
                 </div>
 
                 {/* Remove Button */}
@@ -313,35 +322,6 @@ export function ColorInput({
               </div>
             ))}
           </div>
-
-          {/* Add Color Button (bottom) */}
-          {entries.length > 0 && (
-            <button
-              type="button"
-              onClick={addColor}
-              className="w-full py-3 border-2 border-dashed border-border rounded-lg text-sm text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add Another Color
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Empty State */}
-      {entries.length === 0 && (
-        <div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-8 text-center">
-          <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
-            <Plus className="w-6 h-6 text-muted-foreground" />
-          </div>
-          <p className="text-sm text-muted-foreground mb-3">No colors added yet</p>
-          <button
-            type="button"
-            onClick={addColor}
-            className="text-sm text-primary hover:text-primary/80 font-medium"
-          >
-            Add your first color
-          </button>
         </div>
       )}
     </div>

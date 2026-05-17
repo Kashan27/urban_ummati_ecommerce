@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { categoriesTable, db, productsTable } from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
 import { ListProductsQueryParams } from "@workspace/api-zod";
-import { formatProduct } from "@/lib/api-formatters";
+import { formatProduct, loadProductMediaMaps } from "@/lib/api-formatters";
 
 export const runtime = "nodejs";
 
@@ -39,13 +39,21 @@ export async function GET(request: NextRequest) {
     const offset = params.offset ?? 0;
     const paginated = filtered.slice(offset, offset + limit);
 
+    const productIds = paginated.map(({ products }) => products.id);
+    const { imagesByProductId, colorsByProductId } = await loadProductMediaMaps(productIds);
+
     return NextResponse.json({
       products: paginated.map(({ products, categories }) =>
-        formatProduct(products, {
-          categoryId: categories?.id ?? null,
-          categoryName: categories?.name ?? null,
-          categorySlug: categories?.slug ?? null,
-        }),
+        formatProduct(
+          products,
+          {
+            categoryId: categories?.id ?? null,
+            categoryName: categories?.name ?? null,
+            categorySlug: categories?.slug ?? null,
+          },
+          imagesByProductId.get(products.id),
+          colorsByProductId.get(products.id),
+        ),
       ),
       total: filtered.length,
     });

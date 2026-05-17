@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db, freeProductLinksTable, productsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { GetFreeProductLinkParams } from "@workspace/api-zod";
-import { formatFreeProductLink } from "@/lib/api-formatters";
+import { formatFreeProductLink, loadProductMediaMaps } from "@/lib/api-formatters";
 
 export const runtime = "nodejs";
 
@@ -57,7 +57,15 @@ export async function GET(
       .from(productsTable)
       .where(eq(productsTable.id, link.productId));
 
-    return NextResponse.json(formatFreeProductLink(link, product));
+    const { imagesByProductId, colorsByProductId } = await loadProductMediaMaps([link.productId]);
+
+    return NextResponse.json(formatFreeProductLink(
+      link,
+      product,
+      undefined,
+      imagesByProductId.get(link.productId),
+      colorsByProductId.get(link.productId),
+    ));
   } catch (err) {
     console.error("Error getting free product link", err);
     return NextResponse.json(

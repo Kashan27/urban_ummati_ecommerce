@@ -399,6 +399,7 @@ export function ProductsSection({
               <th className="p-3 text-left font-semibold">Price</th>
               <th className="p-3 text-left font-semibold">Inventory</th>
               <th className="p-3 text-left font-semibold">Sold</th>
+              <th className="p-3 text-left font-semibold">Dimensions</th>
               <th className="p-3 text-left font-semibold">Status</th>
               <th className="p-3 text-right font-semibold">Actions</th>
             </tr>
@@ -412,6 +413,7 @@ export function ProductsSection({
                   <td className="p-3"><div className="h-3 w-12 rounded bg-muted" /></td>
                   <td className="p-3"><div className="h-3 w-12 rounded bg-muted" /></td> {/* Placeholder for Inventory */}
                   <td className="p-3"><div className="h-3 w-12 rounded bg-muted" /></td> {/* Placeholder for Sold */}
+                  <td className="p-3"><div className="h-3 w-20 rounded bg-muted" /></td> {/* Placeholder for Dimensions */}
                   <td className="p-3"><div className="h-6 w-24 rounded-full bg-muted" /></td>
                   <td className="p-3 text-right"><div className="h-6 w-20 ml-auto rounded bg-muted" /></td>
                 </tr>
@@ -453,6 +455,20 @@ export function ProductsSection({
                 </td>
                 <td className="p-3">
                   <span className="font-bold text-foreground tabular-nums">{product.totalSold ?? 0}</span>
+                </td>
+                <td className="p-3">
+                  {(product.weight || product.length || product.width || product.height) ? (
+                    <div className="space-y-0.5">
+                      {product.weight && <div className="text-[10px] text-muted-foreground"><span className="font-semibold text-foreground/80">{product.weight}</span> g</div>}
+                      {(product.length || product.width || product.height) && (
+                        <div className="text-[10px] text-muted-foreground">
+                          <span className="font-semibold text-foreground/80">{product.length || '—'}</span> × <span className="font-semibold text-foreground/80">{product.width || '—'}</span> × <span className="font-semibold text-foreground/80">{product.height || '—'}</span> in
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
                 </td>
                 <td className="p-3">
                   <div className="flex items-center gap-2">

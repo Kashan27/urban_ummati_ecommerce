@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db, ordersTable } from "@workspace/db";
+import { db, ordersTable, orderItemsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { UpdateOrderStatusBody, UpdateOrderStatusParams } from "@workspace/api-zod";
 import { formatOrder } from "@/lib/api-formatters";
@@ -46,7 +46,27 @@ export async function PATCH(
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    return NextResponse.json(formatOrder(order, bodyParsed.data.status));
+    const itemRows = await db
+      .select()
+      .from(orderItemsTable)
+      .where(eq(orderItemsTable.orderId, order.id));
+
+    const items = itemRows.map((item) => ({
+      id: item.id,
+      productId: item.productId,
+      productName: item.productName,
+      productImage: item.productImage,
+      price: parseFloat(item.unitPrice),
+      quantity: item.quantity,
+      color: item.color,
+      total: parseFloat(item.lineTotal),
+      weight: item.weight ? parseFloat(item.weight) : null,
+      length: item.length ? parseFloat(item.length) : null,
+      width: item.width ? parseFloat(item.width) : null,
+      height: item.height ? parseFloat(item.height) : null,
+    }));
+
+    return NextResponse.json(formatOrder(order, bodyParsed.data.status, items));
   } catch (err) {
     console.error("Error updating order status", err);
     return NextResponse.json(

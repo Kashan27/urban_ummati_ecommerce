@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db, ordersTable, productsTable, orderStatusesTable, freeProductLinksTable, freeProductRedemptionsTable } from "@workspace/db";
-import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { db, ordersTable, productsTable, orderStatusesTable, freeProductLinksTable, freeProductRedemptionsTable, orderItemsTable } from "@workspace/db";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { CreateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { formatOrder } from "@/lib/api-formatters";
 import { requireAdmin } from "@/lib/admin-auth";
+import { randomUUID } from "crypto";
 
 export const runtime = "nodejs";
 
@@ -22,7 +23,6 @@ export async function GET(request: NextRequest) {
     const parsed = ListOrdersQueryParams.safeParse(rawQuery);
     const params = parsed.success ? parsed.data : { status: undefined, limit: 50, offset: 0 };
 
-    // Get date filters from query params
     const dateFrom = search.get("dateFrom");
     const dateTo = search.get("dateTo");
 
@@ -42,12 +42,11 @@ export async function GET(request: NextRequest) {
       filtered = results.filter((r) => r.statusName === params.status);
     }
 
-    // Apply date filtering
     if (dateFrom || dateTo) {
       filtered = filtered.filter((r) => {
         const orderDate = new Date(r.order.createdAt);
-        const orderDateStr = orderDate.toISOString().split('T')[0]; // YYYY-MM-DD
-        
+        const orderDateStr = orderDate.toISOString().split("T")[0];
+
         if (dateFrom && orderDateStr < dateFrom) return false;
         if (dateTo && orderDateStr > dateTo) return false;
         return true;
@@ -58,8 +57,42 @@ export async function GET(request: NextRequest) {
     const offset = params.offset ?? 0;
     const paginated = filtered.slice(offset, offset + limit);
 
+    const orderIds = paginated.map((r) => r.order.id);
+    const itemRows = orderIds.length
+      ? await db
+          .select()
+          .from(orderItemsTable)
+          .where(inArray(orderItemsTable.orderId, orderIds))
+      : [];
+
+    const itemsByOrderId = new Map<number, any[]>();
+    for (const item of itemRows) {
+      const list = itemsByOrderId.get(item.orderId) ?? [];
+      list.push({
+        id: item.id,
+        productId: item.productId,
+        productName: item.productName,
+        productImage: item.productImage,
+        price: parseFloat(item.unitPrice),
+        quantity: item.quantity,
+        color: item.color,
+        total: parseFloat(item.lineTotal),
+        weight: item.weight ? parseFloat(item.weight) : null,
+        length: item.length ? parseFloat(item.length) : null,
+        width: item.width ? parseFloat(item.width) : null,
+        height: item.height ? parseFloat(item.height) : null,
+      });
+      itemsByOrderId.set(item.orderId, list);
+    }
+
     return NextResponse.json({
-      orders: paginated.map((r) => formatOrder(r.order, r.statusName ?? undefined)),
+      orders: paginated.map((r) =>
+        formatOrder(
+          r.order,
+          r.statusName ?? undefined,
+          itemsByOrderId.has(r.order.id) ? itemsByOrderId.get(r.order.id) : undefined,
+        ),
+      ),
       total: filtered.length,
     });
   } catch (err) {
@@ -100,8 +133,7 @@ export async function POST(request: Request) {
       const product = productMap.get(item.productId);
       if (!product) throw new Error(`Product ${item.productId} not found`);
       if (product.status !== "active") throw new Error(`Product ${item.productId} is not available`);
-      
-      // Stock check
+
       if (product.inventoryQuantity !== null && product.inventoryQuantity < item.quantity) {
         throw new Error(`Insufficient stock for product: ${product.name}`);
       }
@@ -125,6 +157,10 @@ export async function POST(request: Request) {
         quantity: item.quantity,
         color: item.color || null,
         total: itemTotal,
+        weight: product.weight ? parseFloat(product.weight) : null,
+        length: product.length ? parseFloat(product.length) : null,
+        width: product.width ? parseFloat(product.width) : null,
+        height: product.height ? parseFloat(product.height) : null,
       };
     });
 
@@ -140,8 +176,7 @@ export async function POST(request: Request) {
       }
 
       const link = promoLink[0];
-      
-      // Advanced rule validation
+
       if (link.status !== "active") {
         return NextResponse.json({ error: "This free product link is no longer active" }, { status: 404 });
       }
@@ -210,6 +245,19 @@ export async function POST(request: Request) {
     const tax = (effectiveSubtotal + shippingCost) * 0.13;
     const total = effectiveSubtotal + shippingCost + tax;
 
+    console.info("[OrderCreate] computed order items", {
+      customerEmail: email,
+      items: orderItems.map((item) => ({
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        weight: item.weight,
+        length: item.length,
+        width: item.width,
+        height: item.height,
+      })),
+    });
+
     const [order] = await db.transaction(async (tx) => {
       const [newOrder] = await tx
         .insert(ordersTable)
@@ -222,17 +270,35 @@ export async function POST(request: Request) {
           province: data.province,
           postalCode: data.postalCode,
           country: data.country,
-          items: orderItems,
           subtotal: String(subtotal),
           shippingCost: String(shippingCost),
           tax: String(tax),
           total: String(Math.max(0, total)),
-          statusId: 1, // 'received'
+          statusId: 1,
           isFreeOrder,
           discount: String(discount),
           notes: data.notes,
+          trackingToken: randomUUID(),
         })
         .returning();
+
+      await tx.insert(orderItemsTable).values(
+        orderItems.map((item) => ({
+          orderId: newOrder.id,
+          productId: item.productId,
+          productName: item.productName,
+          productImage: item.productImage,
+          color: item.color,
+          unitPrice: String(item.price),
+          quantity: item.quantity,
+          lineTotal: String(item.total),
+          weight: item.weight == null ? null : String(item.weight),
+          length: item.length == null ? null : String(item.length),
+          width: item.width == null ? null : String(item.width),
+          height: item.height == null ? null : String(item.height),
+          updatedAt: new Date(),
+        })),
+      );
 
       for (const item of data.items) {
         const updates = await tx
@@ -261,8 +327,8 @@ export async function POST(request: Request) {
           .update(freeProductLinksTable)
           .set({
             currentUsage: sql`${freeProductLinksTable.currentUsage} + 1`,
-            usedByEmail: email, // Legacy support
-            usedAt: new Date(),  // Legacy support
+            usedByEmail: email,
+            usedAt: new Date(),
             updatedAt: new Date(),
           })
           .where(
@@ -270,7 +336,7 @@ export async function POST(request: Request) {
               eq(freeProductLinksTable.token, validatedPromoToken),
               eq(freeProductLinksTable.productId, validatedPromoProductId),
               eq(freeProductLinksTable.status, "active"),
-              sql`${freeProductLinksTable.currentUsage} < ${freeProductLinksTable.usageLimit}`
+              sql`${freeProductLinksTable.currentUsage} < ${freeProductLinksTable.usageLimit}`,
             ),
           )
           .returning({ id: freeProductLinksTable.id });
@@ -279,7 +345,6 @@ export async function POST(request: Request) {
           throw new Error("FREE_PRODUCT_TOKEN_ALREADY_USED");
         }
 
-        // Create redemption record
         await tx.insert(freeProductRedemptionsTable).values({
           linkId: consumed[0].id,
           email: email,
@@ -290,7 +355,14 @@ export async function POST(request: Request) {
       return [newOrder];
     });
 
-    return NextResponse.json(formatOrder(order), { status: 201 });
+    console.info("[OrderCreate] order persisted", {
+      orderId: order.id,
+      customerEmail: order.customerEmail,
+      itemCount: orderItems.length,
+      shipstationOrderId: order.shipstationOrderId,
+    });
+
+    return NextResponse.json(formatOrder(order, undefined, orderItems), { status: 201 });
   } catch (err) {
     if (err instanceof Error && err.message === "FREE_PRODUCT_TOKEN_ALREADY_USED") {
       return NextResponse.json(

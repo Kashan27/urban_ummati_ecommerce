@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { db, ordersTable, productsTable } from "@workspace/db";
+import { db, ordersTable, productsTable, orderItemsTable } from "@workspace/db";
 import { and, eq, sql } from "drizzle-orm";
 
 export const runtime = "nodejs";
@@ -66,7 +66,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (order.paymentStatus !== "pending") {
-      const items = (order.items as any[]) || [];
+      const orderItemRows = await db
+        .select({ productId: orderItemsTable.productId, quantity: orderItemsTable.quantity })
+        .from(orderItemsTable)
+        .where(eq(orderItemsTable.orderId, order.id));
+
       const now = new Date();
       await db.transaction(async (tx) => {
         const [moved] = await tx
@@ -79,9 +83,9 @@ export async function POST(request: NextRequest) {
 
         if (!moved) return;
 
-        for (const item of items) {
-          const qty = Number(item?.quantity ?? 0);
-          const productId = Number(item?.productId ?? 0);
+        for (const item of orderItemRows) {
+          const qty = Number(item.quantity ?? 0);
+          const productId = Number(item.productId ?? 0);
           if (!Number.isFinite(qty) || qty <= 0) continue;
           if (!Number.isFinite(productId) || productId <= 0) continue;
 

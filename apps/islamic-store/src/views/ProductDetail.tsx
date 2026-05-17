@@ -5,6 +5,7 @@ import { useCart } from "@/lib/cart-context";
 import { Star, StarHalf, Minus, Plus, Truck, ShieldCheck, RefreshCw, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getColorName } from "@/lib/color-utils";
 
 export function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -12,7 +13,7 @@ export function ProductDetail() {
   const { addItem, setIsCartOpen } = useCart();
   
   const [quantity, setQuantity] = useState(1);
-  const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
+  const [selectedColor, setSelectedColor] = useState<{hex: string; name: string} | undefined>(undefined);
   const [activeImage, setActiveImage] = useState<string>('');
 
   const { data, isLoading, error } = useGetProduct(productId, {
@@ -199,24 +200,41 @@ export function ProductDetail() {
               <div className="mb-8">
                 <div className="flex justify-between items-center mb-3">
                   <span className="font-sans uppercase tracking-widest text-sm font-bold">Color</span>
-                  <span className="font-sans text-sm text-muted-foreground capitalize">{selectedColor}</span>
+                  <span className="font-sans text-sm text-muted-foreground capitalize">
+                    {selectedColor ? getColorName(selectedColor.hex) : 'Select a color'}
+                  </span>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  {product.colors.map((color: string) => (
+                  {product.colors.map((color: {hex: string; name: string}) => (
                     <button
-                      key={color}
+                      key={color.hex}
                       onClick={() => setSelectedColor(color)}
                       className={`w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center ${
-                        selectedColor === color ? 'border-primary scale-110' : 'border-border hover:border-muted-foreground'
+                        selectedColor?.hex === color.hex ? 'border-primary scale-110' : 'border-border hover:border-muted-foreground'
                       }`}
-                      style={{ backgroundColor: color.toLowerCase().replace(' ', '') }}
-                      title={color}
-                      aria-label={`Select color ${color}`}
+                      style={{ backgroundColor: color.hex }}
+                      title={color.name}
+                      aria-label={`Select color ${color.name}`}
                     >
-                      {/* For very dark colors, show a white checkmark, else black/transparent */}
+                      {/* Show checkmark for selected color */}
+                      {selectedColor === color && (
+                        <svg 
+                          className="w-5 h-5 text-white drop-shadow-md" 
+                          fill="none" 
+                          viewBox="0 0 24 24" 
+                          stroke="currentColor"
+                          strokeWidth={3}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
                     </button>
                   ))}
                 </div>
+                {/* Color name hint */}
+                <p className="text-xs text-muted-foreground mt-2">
+                  Hover over a color to see its name
+                </p>
               </div>
             )}
 
@@ -295,6 +313,41 @@ export function ProductDetail() {
                 <span className="font-sans text-xs text-muted-foreground">Within 30 days</span>
               </div>
             </div>
+
+            {/* Dimensions */}
+            {(product.weight || product.length || product.width || product.height) && (
+              <div className="py-6 border-b border-border">
+                <h3 className="font-sans text-xs uppercase tracking-wider font-bold mb-4 text-foreground/70">
+                  Product Dimensions
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {product.weight && (
+                    <div className="flex flex-col p-3 bg-muted/50 rounded-lg">
+                      <span className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Weight</span>
+                      <span className="font-sans font-semibold text-foreground">{Number(product.weight).toFixed(2)} g</span>
+                    </div>
+                  )}
+                  {product.length && (
+                    <div className="flex flex-col p-3 bg-muted/50 rounded-lg">
+                      <span className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Length</span>
+                      <span className="font-sans font-semibold text-foreground">{Number(product.length).toFixed(1)} in</span>
+                    </div>
+                  )}
+                  {product.width && (
+                    <div className="flex flex-col p-3 bg-muted/50 rounded-lg">
+                      <span className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Width</span>
+                      <span className="font-sans font-semibold text-foreground">{Number(product.width).toFixed(1)} in</span>
+                    </div>
+                  )}
+                  {product.height && (
+                    <div className="flex flex-col p-3 bg-muted/50 rounded-lg">
+                      <span className="font-sans text-xs text-muted-foreground uppercase tracking-wider">Height</span>
+                      <span className="font-sans font-semibold text-foreground">{Number(product.height).toFixed(1)} in</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
           </div>
         </div>

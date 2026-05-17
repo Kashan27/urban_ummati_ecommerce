@@ -4,11 +4,14 @@ import {
   collectionsTable,
   db,
   ordersTable,
+  orderItemsTable,
   productCollectionsTable,
+  productColorsTable,
+  productImagesTable,
   productUpsellsTable,
   productsTable,
 } from "@workspace/db";
-import { formatProduct } from "@/lib/api-formatters";
+import { formatProduct, loadProductMediaMaps } from "@/lib/api-formatters";
 import { requireAdmin } from "@/lib/admin-auth";
 import { and, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -38,7 +41,11 @@ const AdminProductBody = z.object({
   featured: z.boolean().default(false),
   isUpsell: z.boolean().default(false),
   upsellDiscount: z.coerce.number().nullable().optional(),
-  colors: z.array(z.string()).default([]),
+  colors: z.array(z.object({ hex: z.string(), name: z.string() })).default([]),
+  weight: z.coerce.number().nullable().optional(), // in kg
+  length: z.coerce.number().nullable().optional(), // in cm
+  width: z.coerce.number().nullable().optional(),  // in cm
+  height: z.coerce.number().nullable().optional(), // in cm
   mainProductIds: z.array(z.coerce.number().int().positive()).optional().default([]),
 });
 
@@ -236,15 +243,15 @@ export async function GET(request: Request) {
         .select({ upsellProductId: productUpsellsTable.upsellProductId, mainProductId: productUpsellsTable.mainProductId })
         .from(productUpsellsTable),
       // Calculate sold quantities dynamically from paid orders
-      db.execute<{ product_id: number; total_sold: string }>(sql`
-        SELECT 
-          (item->>'productId')::int as product_id,
-          COALESCE(SUM((item->>'quantity')::int), 0)::text as total_sold
-        FROM orders
-        CROSS JOIN LATERAL jsonb_array_elements(items) AS item
-        WHERE payment_status = 'paid'
-        GROUP BY (item->>'productId')::int
-      `),
+      db
+        .select({
+          productId: orderItemsTable.productId,
+          totalSold: sql<string>`coalesce(sum(${orderItemsTable.quantity}), 0)::text`,
+        })
+        .from(orderItemsTable)
+        .innerJoin(ordersTable, eq(orderItemsTable.orderId, ordersTable.id))
+        .where(eq(ordersTable.paymentStatus, "paid"))
+        .groupBy(orderItemsTable.productId),
     ]);
 
     const total = countRow?.[0]?.count ?? 0;
@@ -259,7 +266,7 @@ export async function GET(request: Request) {
     // soldResult is an ExecuteResult with rows property
     const soldMap = new Map<number, number>();
     // Handle different possible result structures from drizzle execute
-    let soldRows: Array<{ product_id?: number; total_sold?: number }> = [];
+    let soldRows: Array<{ productId?: number; totalSold?: number | string }> = [];
     if (soldResult && typeof soldResult === 'object') {
       if (Array.isArray((soldResult as any).rows)) {
         soldRows = (soldResult as any).rows;
@@ -268,20 +275,28 @@ export async function GET(request: Request) {
       }
     }
     for (const row of soldRows) {
-      const productId = row?.product_id;
-      const countStr = row?.total_sold;
-      const count = typeof countStr === 'string' ? parseInt(countStr, 10) : typeof countStr === 'number' ? countStr : NaN;
+      const productId = row?.productId;
+      const countRaw = row?.totalSold;
+      const count = typeof countRaw === 'string' ? parseInt(countRaw, 10) : typeof countRaw === 'number' ? countRaw : NaN;
       if (typeof productId === 'number' && !isNaN(count)) {
         soldMap.set(productId, count);
       }
     }
 
+    const productIds = rows.map(({ products }) => products.id);
+    const { imagesByProductId, colorsByProductId } = await loadProductMediaMaps(productIds);
+
     const products = rows.map(({ products, categories }) => {
-      const formatted = formatProduct(products, {
-        categoryId: categories?.id ?? null,
-        categoryName: categories?.name ?? null,
-        categorySlug: categories?.slug ?? null,
-      });
+      const formatted = formatProduct(
+        products,
+        {
+          categoryId: categories?.id ?? null,
+          categoryName: categories?.name ?? null,
+          categorySlug: categories?.slug ?? null,
+        },
+        imagesByProductId.get(products.id),
+        colorsByProductId.get(products.id),
+      );
       // Override totalSold with dynamically calculated value
       const dynamicSold = soldMap.get(products.id) ?? 0;
       return {
@@ -381,15 +396,40 @@ export async function POST(request: Request) {
           comparePrice: data.comparePrice ? String(data.comparePrice) : null,
           categoryId: category.id,
           imageUrl: data.imageUrl,
-          images: data.images || [],
           inStock: data.inStock ?? true,
           inventoryQuantity: data.inventoryQuantity ?? null,
           featured: data.featured ?? false,
           isUpsell: data.isUpsell ?? false,
           upsellDiscount: data.upsellDiscount ? String(data.upsellDiscount) : null,
-          colors: data.colors || [],
+          weight: data.weight ? String(data.weight) : null,
+          length: data.length ? String(data.length) : null,
+          width: data.width ? String(data.width) : null,
+          height: data.height ? String(data.height) : null,
         })
         .returning();
+
+      if (data.images && data.images.length > 0) {
+        await tx.insert(productImagesTable).values(
+          data.images.map((url, idx) => ({
+            productId: inserted.id,
+            url,
+            sortOrder: idx,
+            updatedAt: now,
+          })),
+        );
+      }
+
+      if (data.colors && data.colors.length > 0) {
+        await tx.insert(productColorsTable).values(
+          data.colors.map((color, idx) => ({
+            productId: inserted.id,
+            hex: color.hex,
+            name: color.name,
+            sortOrder: idx,
+            updatedAt: now,
+          })),
+        );
+      }
 
       if (collectionIds.length > 0) {
         for (const collectionId of collectionIds) {
@@ -429,11 +469,16 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(
-      formatProduct(product, {
-        categoryId: category.id,
-        categoryName: category.name,
-        categorySlug: category.slug,
-      }),
+      formatProduct(
+        product,
+        {
+          categoryId: category.id,
+          categoryName: category.name,
+          categorySlug: category.slug,
+        },
+        data.images || [],
+        data.colors || [],
+      ),
       { status: 201 },
     );
   } catch (err) {
