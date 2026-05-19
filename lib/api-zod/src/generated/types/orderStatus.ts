@@ -12,4 +12,5 @@ export const OrderStatus = {
   received: "received",
   processed: "processed",
   shipped: "shipped",
+  delivered: "delivered",
 } as const;

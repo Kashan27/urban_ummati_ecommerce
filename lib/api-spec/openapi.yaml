@@ -218,7 +218,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [received, processed, shipped]
+            enum: [received, processed, shipped, delivered]
         - name: limit
           in: query
           schema:
@@ -838,7 +838,7 @@ components:
       properties:
         status:
           type: string
-          enum: [received, processed, shipped]
+          enum: [received, processed, shipped, delivered]
       required:
         - status
 

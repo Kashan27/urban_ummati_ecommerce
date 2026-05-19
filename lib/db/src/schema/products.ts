@@ -20,10 +20,10 @@ export const productsTable = pgTable("products", {
   upsellDiscount: numeric("upsell_discount", { precision: 5, scale: 2 }),
   reviewCount: integer("review_count").notNull().default(0),
   rating: numeric("rating", { precision: 3, scale: 1 }).notNull().default("4.8"),
-  weight: numeric("weight", { precision: 10, scale: 2 }), // in kg
-  length: numeric("length", { precision: 10, scale: 2 }), // in cm
-  width: numeric("width", { precision: 10, scale: 2 }),   // in cm
-  height: numeric("height", { precision: 10, scale: 2 }),  // in cm
+  weight: numeric("weight", { precision: 10, scale: 2 }), // in g
+  length: numeric("length", { precision: 10, scale: 2 }), // in in
+  width: numeric("width", { precision: 10, scale: 2 }),   // in in
+  height: numeric("height", { precision: 10, scale: 2 }),  // in in
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

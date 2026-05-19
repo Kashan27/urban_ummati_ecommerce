@@ -59,7 +59,7 @@ export function ProductDetail() {
       name: product.name,
       price: product.price,
       quantity,
-      color: selectedColor,
+      color: selectedColor?.name,
       imageUrl: product.imageUrl
     });
     

@@ -24,7 +24,7 @@ export function FreeProduct() {
       name: product.name,
       price: 0,
       quantity: 1,
-      color: (product.colors as string[])[0] || undefined,
+      color: product.colors?.[0]?.name || undefined,
       imageUrl: product.imageUrl,
       promoToken: token,
     });

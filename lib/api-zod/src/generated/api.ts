@@ -277,7 +277,7 @@ export const listOrdersQueryLimitDefault = 50;
 export const listOrdersQueryOffsetDefault = 0;
 
 export const ListOrdersQueryParams = zod.object({
-  status: zod.enum(["received", "processed", "shipped"]).optional(),
+  status: zod.enum(["received", "processed", "shipped", "delivered"]).optional(),
   limit: zod.coerce.number().default(listOrdersQueryLimitDefault),
   offset: zod.coerce.number().default(listOrdersQueryOffsetDefault),
 });
@@ -392,7 +392,7 @@ export const GetOrderResponse = zod.object({
   shippingCost: zod.number(),
   tax: zod.number(),
   total: zod.number(),
-  status: zod.enum(["received", "processed", "shipped"]),
+  status: zod.enum(["received", "processed", "shipped", "delivered"]),
   isFreeOrder: zod.boolean(),
   discount: zod.number(),
   paymentProvider: zod.string().nullish(),
@@ -421,7 +421,7 @@ export const UpdateOrderStatusParams = zod.object({
 });
 
 export const UpdateOrderStatusBody = zod.object({
-  status: zod.enum(["received", "processed", "shipped"]),
+  status: zod.enum(["received", "processed", "shipped", "delivered"]),
 });
 
 export const UpdateOrderStatusResponse = zod.object({
@@ -450,7 +450,7 @@ export const UpdateOrderStatusResponse = zod.object({
   shippingCost: zod.number(),
   tax: zod.number(),
   total: zod.number(),
-  status: zod.enum(["received", "processed", "shipped"]),
+  status: zod.enum(["received", "processed", "shipped", "delivered"]),
   isFreeOrder: zod.boolean(),
   discount: zod.number(),
   paymentProvider: zod.string().nullish(),

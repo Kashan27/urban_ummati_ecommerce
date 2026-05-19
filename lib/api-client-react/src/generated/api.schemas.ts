@@ -59,6 +59,7 @@ export const OrderStatus = {
   received: "received",
   processed: "processed",
   shipped: "shipped",
+  delivered: "delivered",
 } as const;
 
 export interface OrderItem {
@@ -135,6 +136,7 @@ export const UpdateOrderStatusBodyStatus = {
   received: "received",
   processed: "processed",
   shipped: "shipped",
+  delivered: "delivered",
 } as const;
 
 export interface UpdateOrderStatusBody {
@@ -309,6 +311,7 @@ export const ListOrdersStatus = {
   received: "received",
   processed: "processed",
   shipped: "shipped",
+  delivered: "delivered",
 } as const;
 
 export type ListOrders200 = {

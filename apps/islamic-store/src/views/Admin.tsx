@@ -638,7 +638,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
     }
   }
 
-  function handleUpdateOrderStatus(orderId: number, status: "received" | "processed" | "shipped") {
+  function handleUpdateOrderStatus(orderId: number, status: "received" | "processed" | "shipped" | "delivered") {
     updateStatus.mutate(
       { id: orderId, data: { status } },
       {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db, ordersTable, orderItemsTable } from "@workspace/db";
+import { db, ordersTable, orderItemsTable, orderStatusesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import { shipStationListShipmentsByOrderId } from "../../integrations/shipstation/service";
+import { shipStationListShipmentsByOrderId, shipStationRefreshOrderShipment } from "../../integrations/shipstation/service";
 import { formatOrder, formatShipment } from "@/lib/api-formatters";
 
 export const runtime = "nodejs";
@@ -17,14 +17,44 @@ export async function GET(
       return NextResponse.json({ error: "Tracking token is required" }, { status: 400 });
     }
 
-    const [order] = await db
+    // 1. Find the order first
+    const [orderRow] = await db
       .select()
       .from(ordersTable)
-      .where(eq(ordersTable.trackingToken, trackingToken));
+      .where(eq(ordersTable.trackingToken, trackingToken))
+      .limit(1);
 
-    if (!order) {
+    if (!orderRow) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
+
+    // 2. Trigger JIT Refresh if not already delivered
+    // This keeps the local DB in sync with ShipStation carrier updates
+    if (orderRow.shipstationOrderId && (!orderRow.statusId || orderRow.statusId < 4)) {
+      try {
+        console.log(`[Tracking] Triggering JIT refresh for Order #${orderRow.id}`);
+        await shipStationRefreshOrderShipment(orderRow.id);
+      } catch (refreshErr) {
+        console.error(`[Tracking] Failed to refresh shipment for order ${orderRow.id}:`, refreshErr);
+      }
+    }
+
+    // 3. Fetch latest data with status name join
+    const [latestOrderWithStatus] = await db
+      .select({
+        order: ordersTable,
+        statusName: orderStatusesTable.name,
+      })
+      .from(ordersTable)
+      .leftJoin(orderStatusesTable, eq(ordersTable.statusId, orderStatusesTable.id))
+      .where(eq(ordersTable.id, orderRow.id))
+      .limit(1);
+
+    if (!latestOrderWithStatus) {
+      return NextResponse.json({ error: "Order lost" }, { status: 404 });
+    }
+
+    const { order, statusName } = latestOrderWithStatus;
 
     const itemRows = await db
       .select()
@@ -49,27 +79,17 @@ export async function GET(
     let shipmentData = null;
     if (order.shipstationOrderId) {
       try {
-        console.log(`[Tracking] Fetching shipments for ShipStation Order ID: ${order.shipstationOrderId}`);
         const shipments = await shipStationListShipmentsByOrderId(order.shipstationOrderId);
-        console.log(`[Tracking] ShipStation response:`, JSON.stringify(shipments));
-
         if (shipments.shipments && shipments.shipments.length > 0) {
           shipmentData = formatShipment(shipments.shipments[0] as any);
-        } else {
-          console.log(`[Tracking] No shipments found in ShipStation for order ${order.id}`);
         }
       } catch (shipstationError) {
-        console.error(
-          `Could not fetch ShipStation shipment for order ${order.id}:`,
-          shipstationError,
-        );
+        console.error(`[Tracking] Could not fetch ShipStation shipment for order ${order.id}:`, shipstationError);
       }
-    } else {
-      console.log(`[Tracking] No ShipStation Order ID found in DB for order ${order.id}`);
     }
 
     return NextResponse.json({
-      order: formatOrder(order, undefined, items),
+      order: formatOrder(order, statusName ?? undefined, items),
       shipment: shipmentData,
     });
   } catch (err) {

@@ -267,61 +267,18 @@ export default function TrackingPage() {
               </div>
             </div>
 
-            {/* Shipment and Shipping Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Shipment Info Card */}
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-                <div className="bg-gray-50/50 px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Shipping Details</h3>
-                  <Truck size={14} className="text-gray-400" />
-                </div>
-                <div className="p-5">
-                  {shipment ? (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-[9px] uppercase tracking-wider text-muted-foreground block mb-1">Tracking ID</label>
-                        <a 
-                          href={shipment.trackingUrl} 
-                          target="_blank" 
-                          className="text-sm font-bold text-primary flex items-center gap-1.5 hover:underline"
-                        >
-                          {shipment.trackingNumber} <ExternalLink size={12} />
-                        </a>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-[9px] uppercase tracking-wider text-muted-foreground block mb-1">Carrier</label>
-                          <p className="text-xs font-bold uppercase tracking-tight">{shipment.carrier}</p>
-                        </div>
-                        <div>
-                          <label className="text-[9px] uppercase tracking-wider text-muted-foreground block mb-1">Service</label>
-                          <p className="text-xs font-bold truncate">{shipment.service}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="py-2 text-center">
-                      <p className="text-xs text-muted-foreground leading-relaxed italic">
-                        Assigning carrier tracking...
-                      </p>
-                    </div>
-                  )}
-                </div>
+            {/* Delivery Information */}
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+              <div className="bg-gray-50/50 px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Delivery To</h3>
+                <MapPin size={14} className="text-gray-400" />
               </div>
-
-              {/* Destination Card */}
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-                <div className="bg-gray-50/50 px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Delivery To</h3>
-                  <MapPin size={14} className="text-gray-400" />
-                </div>
-                <div className="p-5">
-                  <p className="text-xs font-bold mb-1 uppercase tracking-tight">{order.customerName}</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {order.shippingAddress}, {order.city}<br />
-                    {order.province} {order.postalCode}, {order.country}
-                  </p>
-                </div>
+              <div className="p-5">
+                <p className="text-xs font-bold mb-1 uppercase tracking-tight">{order.customerName}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {order.shippingAddress}, {order.city}<br />
+                  {order.province} {order.postalCode}, {order.country}
+                </p>
               </div>
             </div>
 

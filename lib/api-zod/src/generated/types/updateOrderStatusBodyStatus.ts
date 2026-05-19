@@ -13,4 +13,5 @@ export const UpdateOrderStatusBodyStatus = {
   received: "received",
   processed: "processed",
   shipped: "shipped",
+  delivered: "delivered",
 } as const;

@@ -41,7 +41,10 @@ export interface Product {
     upsellDiscount?: number | null;
     reviewCount: number;
     rating: number;
-    colors: string[];
+    colors: {
+        hex: string;
+        name: string;
+    }[];
     /** List of products this item is an upsell for */
     mainProductIds?: number[];
     /** List of products that are upsells for this item */
@@ -54,6 +57,7 @@ export declare const OrderStatus: {
     readonly received: "received";
     readonly processed: "processed";
     readonly shipped: "shipped";
+    readonly delivered: "delivered";
 };
 export interface OrderItem {
     id: number;
@@ -123,6 +127,7 @@ export declare const UpdateOrderStatusBodyStatus: {
     readonly received: "received";
     readonly processed: "processed";
     readonly shipped: "shipped";
+    readonly delivered: "delivered";
 };
 export interface UpdateOrderStatusBody {
     status: UpdateOrderStatusBodyStatus;
@@ -263,6 +268,7 @@ export declare const ListOrdersStatus: {
     readonly received: "received";
     readonly processed: "processed";
     readonly shipped: "shipped";
+    readonly delivered: "delivered";
 };
 export type ListOrders200 = {
     orders: Order[];

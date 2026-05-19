@@ -801,15 +801,15 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
 export declare const listOrdersQueryLimitDefault = 50;
 export declare const listOrdersQueryOffsetDefault = 0;
 export declare const ListOrdersQueryParams: zod.ZodObject<{
-    status: zod.ZodOptional<zod.ZodEnum<["received", "processed", "shipped"]>>;
+    status: zod.ZodOptional<zod.ZodEnum<["received", "processed", "shipped", "delivered"]>>;
     limit: zod.ZodDefault<zod.ZodNumber>;
     offset: zod.ZodDefault<zod.ZodNumber>;
 }, "strip", zod.ZodTypeAny, {
     limit: number;
     offset: number;
-    status?: "received" | "processed" | "shipped" | undefined;
+    status?: "received" | "processed" | "shipped" | "delivered" | undefined;
 }, {
-    status?: "received" | "processed" | "shipped" | undefined;
+    status?: "received" | "processed" | "shipped" | "delivered" | undefined;
     limit?: number | undefined;
     offset?: number | undefined;
 }>;
@@ -1169,7 +1169,7 @@ export declare const GetOrderResponse: zod.ZodObject<{
     shippingCost: zod.ZodNumber;
     tax: zod.ZodNumber;
     total: zod.ZodNumber;
-    status: zod.ZodEnum<["received", "processed", "shipped"]>;
+    status: zod.ZodEnum<["received", "processed", "shipped", "delivered"]>;
     isFreeOrder: zod.ZodBoolean;
     discount: zod.ZodNumber;
     paymentProvider: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
@@ -1189,7 +1189,7 @@ export declare const GetOrderResponse: zod.ZodObject<{
     notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     createdAt: zod.ZodString;
 }, "strip", zod.ZodTypeAny, {
-    status: "received" | "processed" | "shipped";
+    status: "received" | "processed" | "shipped" | "delivered";
     id: number;
     createdAt: string;
     total: number;
@@ -1232,7 +1232,7 @@ export declare const GetOrderResponse: zod.ZodObject<{
     shippedAt?: string | null | undefined;
     notes?: string | null | undefined;
 }, {
-    status: "received" | "processed" | "shipped";
+    status: "received" | "processed" | "shipped" | "delivered";
     id: number;
     createdAt: string;
     total: number;
@@ -1286,11 +1286,11 @@ export declare const UpdateOrderStatusParams: zod.ZodObject<{
     id: number;
 }>;
 export declare const UpdateOrderStatusBody: zod.ZodObject<{
-    status: zod.ZodEnum<["received", "processed", "shipped"]>;
+    status: zod.ZodEnum<["received", "processed", "shipped", "delivered"]>;
 }, "strip", zod.ZodTypeAny, {
-    status: "received" | "processed" | "shipped";
+    status: "received" | "processed" | "shipped" | "delivered";
 }, {
-    status: "received" | "processed" | "shipped";
+    status: "received" | "processed" | "shipped" | "delivered";
 }>;
 export declare const UpdateOrderStatusResponse: zod.ZodObject<{
     id: zod.ZodNumber;
@@ -1334,7 +1334,7 @@ export declare const UpdateOrderStatusResponse: zod.ZodObject<{
     shippingCost: zod.ZodNumber;
     tax: zod.ZodNumber;
     total: zod.ZodNumber;
-    status: zod.ZodEnum<["received", "processed", "shipped"]>;
+    status: zod.ZodEnum<["received", "processed", "shipped", "delivered"]>;
     isFreeOrder: zod.ZodBoolean;
     discount: zod.ZodNumber;
     paymentProvider: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
@@ -1354,7 +1354,7 @@ export declare const UpdateOrderStatusResponse: zod.ZodObject<{
     notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     createdAt: zod.ZodString;
 }, "strip", zod.ZodTypeAny, {
-    status: "received" | "processed" | "shipped";
+    status: "received" | "processed" | "shipped" | "delivered";
     id: number;
     createdAt: string;
     total: number;
@@ -1397,7 +1397,7 @@ export declare const UpdateOrderStatusResponse: zod.ZodObject<{
     shippedAt?: string | null | undefined;
     notes?: string | null | undefined;
 }, {
-    status: "received" | "processed" | "shipped";
+    status: "received" | "processed" | "shipped" | "delivered";
     id: number;
     createdAt: string;
     total: number;

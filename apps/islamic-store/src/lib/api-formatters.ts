@@ -88,6 +88,15 @@ export function formatOrder(
   statusName?: string,
   normalizedItems: any[] = [],
 ) {
+  const statusId = (o as any).statusId;
+  const statusMap: Record<number, string> = {
+    1: "received",
+    2: "processed",
+    3: "shipped",
+    4: "delivered",
+  };
+  const derivedStatus = statusName || statusMap[Number(statusId)] || "received";
+
   return {
     id: o.id,
     customerName: o.customerName,
@@ -103,8 +112,8 @@ export function formatOrder(
     shippingCost: parseFloat(o.shippingCost),
     tax: parseFloat(o.tax),
     total: parseFloat(o.total),
-    status: statusName ?? (o as any).status ?? "received",
-    statusId: (o as any).statusId,
+    status: derivedStatus,
+    statusId: statusId,
     isFreeOrder: o.isFreeOrder,
     discount: parseFloat(o.discount),
     paymentProvider: (o as any).paymentProvider ?? null,

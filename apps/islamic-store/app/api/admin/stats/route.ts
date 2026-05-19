@@ -31,6 +31,7 @@ export async function GET(request: Request) {
       received: ordersWithStatus.filter((r) => r.statusName === "received").length,
       processed: ordersWithStatus.filter((r) => r.statusName === "processed").length,
       shipped: ordersWithStatus.filter((r) => r.statusName === "shipped").length,
+      delivered: ordersWithStatus.filter((r) => r.statusName === "delivered").length,
     };
 
     return NextResponse.json({

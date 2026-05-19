@@ -36,7 +36,7 @@ interface OrdersSectionProps {
   page?: number;
   onPageChange?: (page: number) => void;
   totalOrders?: number;
-  onOrderStatusChange: (orderId: number, status: "received" | "processed" | "shipped") => void;
+  onOrderStatusChange: (orderId: number, status: "received" | "processed" | "shipped" | "delivered") => void;
   onViewOrderDetails: (order: Order) => void;
   onPrintReceipt: (order: Order) => void;
   onPrintPackingSlip: (order: Order) => void;
@@ -47,6 +47,7 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   received: { label: "Received", color: "bg-blue-500" },
   processed: { label: "Processed", color: "bg-amber-500" },
   shipped: { label: "Shipped", color: "bg-emerald-500" },
+  delivered: { label: "Delivered", color: "bg-purple-500" },
 };
 
 const paymentStatusLabels: Record<PaymentStatus, string> = {
@@ -146,6 +147,7 @@ export function OrdersSection({
                   { key: "received", label: "Received" },
                   { key: "processed", label: "Processed" },
                   { key: "shipped", label: "Shipped" },
+                  { key: "delivered", label: "Delivered" },
                 ] as const
               ).map((opt) => (
                 <Button
@@ -316,19 +318,21 @@ export function OrdersSection({
                           "h-2 w-2 rounded-full shadow-sm",
                           order.status === "received" && "bg-blue-500 shadow-blue-200",
                           order.status === "processed" && "bg-amber-500 shadow-amber-200",
-                          order.status === "shipped" && "bg-emerald-500 shadow-emerald-200"
+                          order.status === "shipped" && "bg-emerald-500 shadow-emerald-200",
+                          order.status === "delivered" && "bg-purple-500 shadow-purple-200"
                         )}
                       />
                       <select
                         value={order.status}
                         onChange={(e) =>
-                          onOrderStatusChange(order.id, e.target.value as "received" | "processed" | "shipped")
+                          onOrderStatusChange(order.id, e.target.value as "received" | "processed" | "shipped" | "delivered")
                         }
                         className="h-7 rounded-md border border-input bg-background px-2 text-[11px] font-medium uppercase tracking-wider"
                       >
                         <option value="received">Received</option>
                         <option value="processed">Processed</option>
                         <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
                       </select>
                     </div>
                   </td>

@@ -35,7 +35,7 @@ export function Cart() {
       name: promoLink.product.name,
       price: 0,
       quantity: 1,
-      color: promoLink.product.colors?.[0] || undefined,
+      color: promoLink.product.colors?.[0]?.name || undefined,
       imageUrl: promoLink.product.imageUrl,
       promoToken,
     });

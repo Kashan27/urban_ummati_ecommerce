@@ -15,6 +15,17 @@ type ShipStationShipmentsResponse = {
     carrierCode?: string;
     serviceCode?: string;
     shipDate?: string;
+    deliveryDate?: string;
+  }>;
+  fulfillments?: Array<{
+    fulfillmentId?: number;
+    shipmentStatus?: string;
+    trackingNumber?: string;
+    trackingUrl?: string;
+    carrierCode?: string;
+    serviceCode?: string;
+    shipDate?: string;
+    deliveryDate?: string;
   }>;
 };
 
@@ -120,10 +131,6 @@ export async function shipStationCreateOrUpdateOrder(orderId: number) {
   let maxWidthInches = 0;
   let maxHeightInches = 0;
 
-  // Conversion factors
-  const KG_TO_GRAMS = 1000;
-  const CM_TO_INCHES = 0.393701;
-
   // Fetch product dimensions from database for items that don't have them
    const productIds = [...new Set(orderItems.map(item => item.productId).filter(Boolean))];
    const productsData = productIds.length > 0 
@@ -137,41 +144,41 @@ export async function shipStationCreateOrUpdateOrder(orderId: number) {
     const quantity = Number(item.quantity || 1);
     
     // Try to get dimensions from order item first, fallback to product table
-    let itemWeightKg = Number(item.weight || 0);
-    let itemLengthCm = Number(item.length || 0);
-    let itemWidthCm = Number(item.width || 0);
-    let itemHeightCm = Number(item.height || 0);
+    let itemWeightGrams = Number(item.weight || 0);
+    let itemLengthInches = Number(item.length || 0);
+    let itemWidthInches = Number(item.width || 0);
+    let itemHeightInches = Number(item.height || 0);
     
     // If dimensions are missing from order item, fetch from product table
-    if ((!itemWeightKg || !itemLengthCm || !itemWidthCm || !itemHeightCm) && item.productId) {
+    if ((!itemWeightGrams || !itemLengthInches || !itemWidthInches || !itemHeightInches) && item.productId) {
       const product = productMap.get(item.productId);
       if (product) {
-        if (!itemWeightKg && product.weight) {
-          itemWeightKg = parseFloat(product.weight);
+        if (!itemWeightGrams && product.weight) {
+          itemWeightGrams = parseFloat(product.weight);
         }
-        if (!itemLengthCm && product.length) {
-          itemLengthCm = parseFloat(product.length);
+        if (!itemLengthInches && product.length) {
+          itemLengthInches = parseFloat(product.length);
         }
-        if (!itemWidthCm && product.width) {
-          itemWidthCm = parseFloat(product.width);
+        if (!itemWidthInches && product.width) {
+          itemWidthInches = parseFloat(product.width);
         }
-        if (!itemHeightCm && product.height) {
-          itemHeightCm = parseFloat(product.height);
+        if (!itemHeightInches && product.height) {
+          itemHeightInches = parseFloat(product.height);
         }
       }
     }
 
-    if (Number.isFinite(itemWeightKg) && itemWeightKg > 0) {
-      totalWeightGrams += itemWeightKg * KG_TO_GRAMS * quantity;
+    if (Number.isFinite(itemWeightGrams) && itemWeightGrams > 0) {
+      totalWeightGrams += itemWeightGrams * quantity;
     }
-    if (Number.isFinite(itemLengthCm) && itemLengthCm > 0) {
-      maxLengthInches = Math.max(maxLengthInches, itemLengthCm * CM_TO_INCHES);
+    if (Number.isFinite(itemLengthInches) && itemLengthInches > 0) {
+      maxLengthInches = Math.max(maxLengthInches, itemLengthInches);
     }
-    if (Number.isFinite(itemWidthCm) && itemWidthCm > 0) {
-      maxWidthInches = Math.max(maxWidthInches, itemWidthCm * CM_TO_INCHES);
+    if (Number.isFinite(itemWidthInches) && itemWidthInches > 0) {
+      maxWidthInches = Math.max(maxWidthInches, itemWidthInches);
     }
-    if (Number.isFinite(itemHeightCm) && itemHeightCm > 0) {
-      maxHeightInches = Math.max(maxHeightInches, itemHeightCm * CM_TO_INCHES);
+    if (Number.isFinite(itemHeightInches) && itemHeightInches > 0) {
+      maxHeightInches = Math.max(maxHeightInches, itemHeightInches);
     }
   }
 
@@ -216,9 +223,7 @@ export async function shipStationCreateOrUpdateOrder(orderId: number) {
       residential: true,
     },
     items: orderItems.map((item, idx) => {
-      // Convert kg to grams for ShipStation
-      const itemWeightKg = Number(item.weight || 0);
-      const itemWeightGrams = itemWeightKg > 0 ? itemWeightKg * KG_TO_GRAMS : undefined;
+      const itemWeightGrams = Number(item.weight || 0);
       
       return {
         lineItemKey: `${order.id}-${idx + 1}`,
@@ -227,7 +232,7 @@ export async function shipStationCreateOrUpdateOrder(orderId: number) {
         quantity: item.quantity,
         unitPrice: Number(item.price) || 0,
         imageUrl: item.productImage ?? null,
-        weight: itemWeightGrams ? { value: itemWeightGrams, units: "grams" } : undefined,
+        weight: itemWeightGrams > 0 ? { value: itemWeightGrams, units: "grams" } : undefined,
       };
     }),
     amountPaid: total,
@@ -316,28 +321,40 @@ export async function shipStationRefreshOrderShipment(orderId: number) {
   if (!order) throw new Error("ORDER_NOT_FOUND");
   if (!order.shipstationOrderId) throw new Error("ORDER_NOT_SYNCED");
 
-  const shipments = await shipStationListShipmentsByOrderId(order.shipstationOrderId);
-  const shipment = shipments.shipments?.[0];
+  const response = await shipStationListShipmentsByOrderId(order.shipstationOrderId);
+  
+  // Extract data from either shipments or fulfillments array
+  const shipment = response.shipments?.[0] || response.fulfillments?.[0];
+  
   if (!shipment) {
     return { updated: false as const };
   }
 
   const shipDate = shipment.shipDate ? new Date(shipment.shipDate) : null;
+  const deliveryDate = shipment.deliveryDate ? new Date(shipment.deliveryDate) : null;
   const isShipped = Boolean(shipment.trackingNumber) || Boolean(shipDate);
+  const isDelivered = Boolean(deliveryDate);
+
+  let statusId = order.statusId;
+  if (isDelivered) {
+    statusId = 4;
+  } else if (isShipped) {
+    statusId = 3;
+  }
 
   await db
     .update(ordersTable)
     .set({
-      shipstationShipmentId: shipment.shipmentId ? String(shipment.shipmentId) : null,
+      shipstationShipmentId: (shipment as any).shipmentId ? String((shipment as any).shipmentId) : ((shipment as any).fulfillmentId ? String((shipment as any).fulfillmentId) : null),
       shipstationShipmentStatus: shipment.shipmentStatus ?? null,
       shipstationTrackingNumber: shipment.trackingNumber ?? null,
       shipstationCarrierCode: shipment.carrierCode ?? null,
       shipstationServiceCode: shipment.serviceCode ?? null,
       shippedAt: isShipped ? (shipDate ?? new Date()) : null,
-      statusId: isShipped ? 3 : order.statusId,
+      statusId,
       updatedAt: new Date(),
     })
     .where(eq(ordersTable.id, order.id));
 
-  return { updated: true as const, isShipped };
+  return { updated: true as const, isShipped, isDelivered };
 }
