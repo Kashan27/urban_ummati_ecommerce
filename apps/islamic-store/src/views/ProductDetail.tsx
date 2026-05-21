@@ -119,7 +119,7 @@ export function ProductDetail() {
   const categoryLabel = product.categoryName || "";
 
   return (
-    <main className="flex-1 w-full bg-background pt-8 pb-24">
+    <main className="flex-1 w-full pt-8 pb-24">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         
         {/* Breadcrumbs */}

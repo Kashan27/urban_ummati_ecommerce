@@ -57,7 +57,7 @@ export function CollectionDetail() {
 
   if (notFound) {
     return (
-      <main className="flex-1 w-full bg-background pt-10 pb-24">
+      <main className="flex-1 w-full pt-10 pb-24">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="text-center py-20 bg-white border border-border">
             <h3 className="font-serif text-2xl mb-2">Collection not found</h3>
@@ -77,7 +77,7 @@ export function CollectionDetail() {
   }
 
   return (
-    <main className="flex-1 w-full bg-background pb-24">
+    <main className="flex-1 w-full pb-24">
       {/* Header Banner */}
       {collection?.imageUrl ? (
         <div className="relative w-full h-[300px] md:h-[400px] mb-12">

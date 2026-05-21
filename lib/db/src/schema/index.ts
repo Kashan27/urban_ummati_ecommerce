@@ -9,3 +9,4 @@ export * from "./product_collections";
 export * from "./product_upsells";
 export * from "./order_statuses";
 export * from "./settings";
+export * from "./socialPlatforms";

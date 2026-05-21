@@ -30,7 +30,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Suspense fallback={null}>
             <div className="flex min-h-[100dvh] flex-col">
               {!isPlainLayout && <Navbar />}
-              {children}
+              <main className="flex-1 bg-[#fbfbf9]">
+                {children}
+              </main>
               {!isPlainLayout && <Footer />}
               {!isPlainLayout && <CartDrawer />}
               {!isPlainLayout && <UpsellModal />}

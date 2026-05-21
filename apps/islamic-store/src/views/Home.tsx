@@ -102,7 +102,7 @@ export function Home() {
   }, [collections]);
 
   return (
-    <main className="flex-1 w-full overflow-hidden">
+    <main className="flex-1 w-full">
       <div className="border-b border-border/70 bg-primary py-2 text-center text-[11px] font-medium uppercase tracking-[0.22em] text-primary-foreground">
         Handpicked Urban Ummati | Fast Canada-Wide Shipping
       </div>

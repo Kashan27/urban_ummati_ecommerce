@@ -232,8 +232,8 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/80 bg-background/95 backdrop-blur-md">
-      <div className="hidden lg:flex items-center justify-between border-b border-border/70 px-6 py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+    <header className="sticky top-0 z-50 w-full border-b border-border/80 bg-[#fbfbf9]/95 backdrop-blur-md">
+      <div className="hidden lg:flex items-center justify-between border-b border-border/70 bg-[#f9f4ec] px-6 py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
         <div className="flex items-center gap-4">
           <span>Canadian Dispatch</span>
           <span className="text-border">|</span>
@@ -241,7 +241,7 @@ export function Navbar() {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 md:px-6">
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 bg-[#fbfbf9] px-4 py-4 md:px-6">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <button
             className="rounded-md border border-border/80 p-2 text-foreground md:hidden"
@@ -306,7 +306,7 @@ export function Navbar() {
         </div>
       </div>
 
-      <div className="hidden border-t border-border/70 md:block">
+      <div className="hidden border-t border-border/70 bg-[#f9f4ec] md:block">
         <nav className="mx-auto flex max-w-7xl items-center justify-center gap-1 px-4 py-3 lg:gap-2">
           {isLoadingCategories ? (
             <div className="flex items-center gap-1">
@@ -381,7 +381,7 @@ export function Navbar() {
       {isSearchOpen && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={closeSearch} />
-          <div className="absolute left-1/2 top-16 w-[min(860px,calc(100%-2rem))] -translate-x-1/2 overflow-hidden rounded-2xl border border-border bg-background shadow-xl">
+          <div className="absolute left-1/2 top-16 w-[min(860px,calc(100%-2rem))] -translate-x-1/2 overflow-hidden rounded-2xl border border-border bg-background shadow-xl max-h-[80vh] flex flex-col">
             <form onSubmit={submitSearch} className="flex items-center gap-3 border-b border-border/70 bg-background px-4 py-4">
               <div className="flex flex-1 items-center gap-3 rounded-xl border border-border bg-white px-4 py-3">
                 <Search className="h-5 w-5 text-muted-foreground" />
@@ -398,6 +398,100 @@ export function Navbar() {
                 Search
               </button>
             </form>
+
+            {/* Search Results Dropdown */}
+            <div className="flex-1 overflow-y-auto bg-background">
+              {!searchTerm.trim() && recentSearches.length > 0 && (
+                <div className="border-b border-border/50 px-4 py-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recent Searches</span>
+                    <button 
+                      onClick={() => { localStorage.removeItem("noor_recent_searches"); setRecentSearches([]); }}
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {recentSearches.map((term, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => { setSearchTerm(term); submitSearch({ preventDefault: () => {} } as any); }}
+                        className="rounded-full bg-muted px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors"
+                      >
+                        {term}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {searchLoading && (
+                <div className="flex items-center justify-center py-8">
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                </div>
+              )}
+
+              {!searchLoading && searchTerm.trim() && suggestions.length > 0 && (
+                <div className="py-2">
+                  {suggestions.map((suggestion, idx) => (
+                    <button
+                      key={suggestion.id}
+                      onClick={() => { setSearchTerm(suggestion.label); submitSearch({ preventDefault: () => {} } as any); }}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/50"
+                    >
+                      {suggestion.type === 'product' && suggestion.product && (
+                        <>
+                          {suggestion.product.imageUrl ? (
+                            <img src={suggestion.product.imageUrl} alt="" className="h-10 w-10 rounded object-cover" />
+                          ) : (
+                            <div className="flex h-10 w-10 items-center justify-center rounded bg-muted">
+                              <Search className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="truncate text-sm font-medium text-foreground">{suggestion.product.name}</p>
+                            <p className="text-xs text-muted-foreground">{suggestion.product.categoryName || 'Product'}</p>
+                          </div>
+                          <span className="text-sm font-semibold text-primary">${suggestion.product.price}</span>
+                        </>
+                      )}
+                      {suggestion.type === 'category' && (
+                        <>
+                          <div className="flex h-10 w-10 items-center justify-center rounded bg-muted">
+                            <span className="text-xs font-bold text-muted-foreground">CAT</span>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-foreground">{suggestion.label}</p>
+                            <p className="text-xs text-muted-foreground">Category</p>
+                          </div>
+                        </>
+                      )}
+                      {suggestion.type === 'query' && (
+                        <>
+                          <div className="flex h-10 w-10 items-center justify-center rounded bg-muted">
+                            <Search className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-foreground">Search for "{suggestion.label}"</p>
+                          </div>
+                        </>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {!searchLoading && searchTerm.trim() && suggestions.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="mb-4 rounded-full bg-muted p-4">
+                    <Search className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm font-medium text-foreground">No results found</p>
+                  <p className="text-xs text-muted-foreground mt-1">Try a different search term</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

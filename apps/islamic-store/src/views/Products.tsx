@@ -17,7 +17,7 @@ const SORTS = [
   { id: "newest", label: "New Arrivals" },
   { id: "price-asc", label: "Price: Low to High" },
   { id: "price-desc", label: "Price: High to Low" },
-  { id: "rating", label: "Top Rated" }
+  // { id: "rating", label: "Top Rated" }
 ];
 
 export function Products() {
@@ -149,7 +149,7 @@ export function Products() {
   };
 
   return (
-    <main className="flex-1 w-full bg-background pt-10 pb-24">
+    <main className="flex-1 w-full pt-10 pb-24">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         
         {/* Header */}

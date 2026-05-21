@@ -26,7 +26,7 @@ export function Contact() {
   };
 
   return (
-    <main className="flex-1 w-full bg-background pt-10 pb-24">
+    <main className="flex-1 w-full pt-10 pb-24">
       <div className="max-w-5xl mx-auto px-4 md:px-8">
         <div className="text-center mb-12">
           <h1 className="font-serif text-4xl md:text-5xl text-foreground mb-4">Contact</h1>
