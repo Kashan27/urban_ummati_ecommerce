@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -28,6 +27,7 @@ interface OptimizedBannerProps {
   aspectRatio?: "video" | "wide" | "ultrawide" | "auto";
   overlayOpacity?: number;
   showIndicators?: boolean;
+  showArrows?: boolean;
   autoPlay?: boolean;
   autoPlayInterval?: number;
   priority?: boolean;
@@ -124,6 +124,7 @@ export function OptimizedBanner({
   aspectRatio = "wide",
   overlayOpacity = 0.4,
   showIndicators = true,
+  showArrows = true,
   autoPlay = true,
   autoPlayInterval = 5000,
   priority = true,
@@ -131,7 +132,7 @@ export function OptimizedBanner({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
+  const [imagesLoaded, setImagesLoaded] = useState<Record<string, boolean>>({});
 
   // Preload images
   useEffect(() => {
@@ -142,7 +143,7 @@ export function OptimizedBanner({
         const img = new window.Image();
         img.src = banner.imageUrl;
         img.onload = () => {
-          setImagesLoaded(prev => ({ ...prev, [banner.id]: true }));
+          setImagesLoaded(prev => ({ ...prev, [String(banner.id)]: true }));
         };
       }
     });
@@ -184,7 +185,7 @@ export function OptimizedBanner({
   };
 
   const currentBanner = banners[currentIndex];
-  const isImageReady = imagesLoaded[currentBanner.id] || priority;
+  const isImageReady = imagesLoaded[String(currentBanner.id)] || priority;
 
   return (
     <div
@@ -238,7 +239,7 @@ export function OptimizedBanner({
               </p>
             )}
             <Link
-              href={currentBanner.href}
+              href={currentBanner.href ?? "/products"}
               className="inline-flex items-center gap-2 bg-primary px-6 py-3 text-sm font-bold uppercase tracking-wider text-primary-foreground transition-all duration-300 hover:bg-primary/90 hover:gap-3 hover:shadow-lg"
             >
               {currentBanner.ctaText || "Explore"}
@@ -249,7 +250,7 @@ export function OptimizedBanner({
       </div>
 
       {/* Navigation Arrows */}
-      {banners.length > 1 && (
+      {showArrows && banners.length > 1 && (
         <>
           <button
             onClick={goToPrevious}
