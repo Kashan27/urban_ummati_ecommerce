@@ -92,7 +92,7 @@ Section headings below labelled **§5.x** quote **§5 Admin Panel Functionalitie
 - [ ] Privacy Policy — working route/page.
 - [ ] Terms & Conditions — working route/page.
 - [x] Contact — working route/page + usable contact behavior. *(verified: `/contact` route added and builds; includes mailto-based contact form)*
-- [ ] Footer: social platforms links (placeholders or real URLs).
+- [x] Footer: social platforms links (placeholders or real URLs). *(verified: `curl -sSf http://localhost:3009/api/social-platforms`; rendered by `src/components/layout/Footer.tsx`)*
 
 ### 7. Reliability & QA
 

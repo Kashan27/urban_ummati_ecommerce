@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     if (existingOrders.length > 0 || redemptions.length > 0) {
       return NextResponse.json({
         eligible: false,
-        reason: "This email has already been used for a free product",
+        reason: "You have already claimed this free product.",
       });
     }
 

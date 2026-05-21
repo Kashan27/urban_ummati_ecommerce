@@ -205,7 +205,7 @@ export async function POST(request: Request) {
       if (existingOrders.length > 0 || usedLinkRedemptions.length > 0) {
         return NextResponse.json(
           {
-            error: "This email has already been used for a free product",
+            error: "You have already claimed this free product.",
           },
           { status: 409 },
         );

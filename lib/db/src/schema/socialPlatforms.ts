@@ -1,4 +1,4 @@
-import { pgTable, text, serial, boolean, timestamp, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, boolean, timestamp, varchar, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -25,7 +25,7 @@ export const socialPlatformsTable = pgTable("social_platforms", {
   iconKey: varchar("icon_key", { length: 50 }),
   
   // Display order for sorting (lower values = higher priority)
-  displayOrder: serial("display_order").notNull().default(0),
+  displayOrder: integer("display_order").notNull().default(0),
   
   // Platform handle/username (e.g., "@urbanummati")
   handle: varchar("handle", { length: 100 }),

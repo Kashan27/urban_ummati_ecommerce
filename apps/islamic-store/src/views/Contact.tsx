@@ -2,7 +2,7 @@
 
 import { type FormEvent, useMemo, useState } from "react";
 
-const SUPPORT_EMAIL = "support@urbanummati.com";
+const SUPPORT_EMAIL = "social@urbanummati.store";
 const SUPPORT_PHONE = "+18001234567";
 
 export function Contact() {

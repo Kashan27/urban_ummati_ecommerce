@@ -2,7 +2,7 @@ import { Link } from "@/lib/router";
 import { ArrowRight, Star, ShieldCheck, Truck, Clock4, Sparkles } from "lucide-react";
 import { useGetFeaturedProducts } from "@workspace/api-client-react";
 import { ProductCard } from "@/components/ui/ProductCard";
-import { BannerCarousel, type BannerItem } from "@/components/ui/banner-carousel";
+import { OptimizedBanner, type OptimizedBannerItem } from "@/components/ui/OptimizedBanner";
 import { CollectionProductsSection } from "@/components/home/CollectionProductsSection";
 import { useEffect, useState, useMemo } from "react";
 
@@ -86,8 +86,8 @@ export function Home() {
     url: `/products?category=${cat.slug}`
   }));
 
-  // Transform collections into banner format for the carousel
-  const bannerData: BannerItem[] = useMemo(() => {
+  // Transform collections into banner format for the carousel with optimizations
+  const bannerData: OptimizedBannerItem[] = useMemo(() => {
     if (!collections.length) return [];
     
     return collections.map((collection, index) => ({
@@ -96,8 +96,12 @@ export function Home() {
       subtitle: index === 0 ? "Featured Collection" : "Curated For You",
       description: collection.description || `Discover our beautiful ${collection.name.toLowerCase()} collection, thoughtfully designed for your sacred spaces.`,
       imageUrl: collection.imageUrl || `/product-${(collection.id % 8) + 1}.png`,
+      // Generate WebP version if available (you'd need to create these variants)
+      imageUrlWebP: collection.imageUrl?.replace(/\.(jpg|jpeg|png)$/i, '.webp') || undefined,
       href: `/collections/${collection.slug}`,
       ctaText: "Explore Collection",
+      priority: index === 0, // First banner gets priority loading
+      placeholderColor: index % 2 === 0 ? "#f5f0e8" : "#f0ebe3", // Alternating placeholder colors
     }));
   }, [collections]);
 
@@ -116,7 +120,7 @@ export function Home() {
         </section>
       ) : bannerData.length > 0 ? (
         <section className="relative">
-          <BannerCarousel
+          <OptimizedBanner
             banners={bannerData}
             autoPlay={true}
             autoPlayInterval={6000}
@@ -129,7 +133,7 @@ export function Home() {
         </section>
       ) : null}
 
-      <section className="section-glow relative overflow-hidden border-b border-border/70 px-4 py-10 md:px-8 md:py-14">
+      {/* <section className="section-glow relative overflow-hidden border-b border-border/70 px-4 py-10 md:px-8 md:py-14">
         <div className="relative z-10 mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="editorial-card reveal-fade grain-overlay p-7 md:p-10">
             <p className="mb-3 text-xs uppercase tracking-[0.22em] text-muted-foreground">Refined Ramadan Edition</p>
@@ -173,7 +177,7 @@ export function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       <section className="border-b border-border/70 bg-[hsl(35_42%_96%)] px-4 py-8 md:px-8">
         <div className="mx-auto grid w-full max-w-7xl gap-6 md:grid-cols-3">

@@ -363,7 +363,7 @@ export default function TrackingPage() {
                 <p className="text-[10px] font-bold uppercase tracking-wider">Help & Support</p>
               </div>
               <p className="text-[10px] text-muted-foreground leading-relaxed">
-                If you have questions about your delivery, please contact our concierge team at <span className="text-primary font-bold">support@urbanummati.com</span>
+                If you have questions about your delivery, please contact our concierge team at <span className="text-primary font-bold">social@urbanummati.store</span>
               </p>
             </div>
           </div>

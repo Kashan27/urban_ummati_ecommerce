@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
 
       if (existingOrders.length > 0 || usedLink.length > 0) {
         return NextResponse.json(
-          { error: "This email has already been used for a free product" },
+          { error: "You have already claimed this free product." },
           { status: 409 },
         );
       }

@@ -1,5 +1,5 @@
 import { Link } from "@/lib/router";
-import { Facebook, Instagram, Mail } from "lucide-react";
+import { Facebook, Globe, Instagram, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
@@ -12,9 +12,45 @@ type ApiCategory = {
   updatedAt: string | null;
 };
 
+type ApiSocialPlatform = {
+  id: number;
+  name: string;
+  platformLink: string;
+  isActive: boolean;
+  iconKey: string | null;
+  displayOrder: number;
+  handle: string | null;
+  metadata: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+function TikTokIcon({ size }: { size: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M17.6 5.82c-.88-.94-1.34-2.04-1.4-3.32h-2.98v13.14c0 1.43-1.16 2.6-2.6 2.6-1.43 0-2.6-1.17-2.6-2.6 0-1.44 1.17-2.6 2.6-2.6.27 0 .52.04.77.11V9.9c-.25-.03-.51-.05-.77-.05-3.1 0-5.6 2.5-5.6 5.59 0 3.1 2.5 5.6 5.6 5.6 3.09 0 5.59-2.5 5.59-5.6V8.46c1.34.95 2.92 1.47 4.6 1.49V7c-1.06-.03-2.08-.45-2.81-1.18z" />
+    </svg>
+  );
+}
+
+function SocialPlatformIcon({ iconKey, size }: { iconKey: string | null; size: number }) {
+  const key = (iconKey ?? "").trim().toLowerCase();
+  if (key === "instagram") return <Instagram size={size} strokeWidth={1.5} />;
+  if (key === "facebook") return <Facebook size={size} strokeWidth={1.5} />;
+  if (key === "tiktok") return <TikTokIcon size={size} />;
+  return <Globe size={size} strokeWidth={1.5} />;
+}
+
 export function Footer() {
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [socialPlatforms, setSocialPlatforms] = useState<ApiSocialPlatform[]>([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -32,6 +68,21 @@ export function Footer() {
       }
     };
     fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const fetchSocialPlatforms = async () => {
+      try {
+        const response = await fetch("/api/social-platforms");
+        if (!response.ok) throw new Error("Failed to fetch social platforms");
+        const data = await response.json();
+        setSocialPlatforms(data.platforms || []);
+      } catch (error) {
+        console.error("Error fetching social platforms:", error);
+        setSocialPlatforms([]);
+      }
+    };
+    fetchSocialPlatforms();
   }, []);
 
   return (
@@ -77,29 +128,27 @@ export function Footer() {
                 Inquiries
               </span>
               <a 
-                href="mailto:support@urbanummati.com" 
+                href="mailto:social@urbanummati.store" 
                 className="flex items-center gap-2 text-sm transition-colors hover:text-[#C9A883]"
               >
                 <Mail size={14} strokeWidth={1.5} className="text-[#C9A883]" />
-                support@urbanummati.com
+                social@urbanummati.store
               </a>
             </div>
 
             <div className="flex items-center gap-5">
-              <a 
-                href="#" 
-                className="text-slate-400 transition-all hover:scale-110 hover:text-[#C9A883]" 
-                aria-label="Instagram"
-              >
-                <Instagram size={20} strokeWidth={1.5} />
-              </a>
-              <a 
-                href="#" 
-                className="text-slate-400 transition-all hover:scale-110 hover:text-[#C9A883]" 
-                aria-label="Facebook"
-              >
-                <Facebook size={20} strokeWidth={1.5} />
-              </a>
+              {socialPlatforms.map((platform) => (
+                <a
+                  key={platform.id}
+                  href={platform.platformLink}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-slate-400 transition-all hover:scale-110 hover:text-[#C9A883]"
+                  aria-label={platform.name}
+                >
+                  <SocialPlatformIcon iconKey={platform.iconKey} size={20} />
+                </a>
+              ))}
             </div>
           </div>
         </div>

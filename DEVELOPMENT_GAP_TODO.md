@@ -194,7 +194,8 @@ It complements `TODO_PENDING_TASKS.md`, which remains the main spec-aligned chec
 - [ ] Add Contact route/page with usable contact behavior.
 - [ ] Add Shipping and Delivery route/page if footer link remains.
 - [ ] Add Returns and Exchanges route/page if footer link remains.
-- [ ] Add footer social platform links.
+- [x] Add footer social platform links.
+  - Evidence: `apps/islamic-store/app/api/social-platforms/route.ts` + `apps/islamic-store/src/components/layout/Footer.tsx`; `curl -sSf http://localhost:3009/api/social-platforms`
 
 ### 6. Automated QA
 
