@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { categoriesTable, db, productsTable, productUpsellsTable } from "@workspace/db";
+import { categoriesTable, db, productsTable, productUpsellsTable, settingsTable } from "@workspace/db";
 import { and, eq, inArray } from "drizzle-orm";
 import { formatProduct, loadProductMediaMaps } from "@/lib/api-formatters";
 
@@ -9,6 +9,11 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get("productId");
+
+    const [allSettings] = await Promise.all([
+      db.select().from(settingsTable)
+    ]);
+    const settings = allSettings.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
 
     let productsRows: any[] = [];
 
@@ -58,6 +63,7 @@ export async function GET(request: Request) {
           colorsByProductId.get(products.id),
         ),
       ),
+      settings
     });
   } catch (err) {
     console.error("Error getting upsell products", err);

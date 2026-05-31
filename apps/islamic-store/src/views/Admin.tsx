@@ -28,6 +28,8 @@ import { OrdersSection } from "@/components/admin/sections/OrdersSection";
 import { CategoriesSection } from "@/components/admin/sections/CategoriesSection";
 import { CollectionsSection } from "@/components/admin/sections/CollectionsSection";
 import { PromoSection } from "@/components/admin/sections/PromoSection";
+import { UpsellSection } from "@/components/admin/sections/UpsellSection";
+import { AdminsSection } from "@/components/admin/sections/AdminsSection";
 import { SettingsSection } from "@/components/admin/sections/SettingsSection";
 import { OrderDetailsDialog } from "@/components/admin/OrderDetailsDialog";
 import { OrderReceipt } from "@/components/admin/OrderReceipt";
@@ -1108,8 +1110,23 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
               />
             )}
 
+            {activeSection === "upsells" && (
+              <UpsellSection 
+                products={allProductsForSelection?.products}
+                isLoading={isLoadingAllProducts}
+              />
+            )}
+
+            {activeSection === "admins" && (
+              <AdminsSection />
+            )}
+
             {activeSection === "settings" && (
-              <SettingsSection settings={settingsData} onUpdateSettings={handleUpdateSettings} />
+              <SettingsSection 
+                settings={settingsData} 
+                onUpdateSettings={handleUpdateSettings} 
+                products={allProductsForSelection?.products}
+              />
             )}
           </div>
         </main>

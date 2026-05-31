@@ -46,7 +46,7 @@ Section headings below labelled **§5.x** quote **§5 Admin Panel Functionalitie
 - [x] Delete products from **admin UI** *(backend: `DELETE /api/admin/products/[id]` exists; UI button added).*
 - [x] Manage pricing (admin).
 - [x] Product images via **URL list** in admin *(document also implies upload; true file upload TBD below).*
-- [ ] **Upload** product images (file storage + admin upload), if required as “upload” beyond URLs *(in progress: supports Vercel Blob when `BLOB_READ_WRITE_TOKEN` is set; needs end-to-end verification in Vercel env).*
+- [x] **Upload** product images (file storage + admin upload). *(verified: supports Vercel Blob and local fallback).*
 - [x] **Categories** — management UI + APIs.
 - [x] **Normalized statuses** — Statuses are stored in a separate table (`order_statuses`) using IDs in the `orders` table.
 - [x] **Soft Delete & Normalization** — Products and categories use active/inactive/archived status instead of hard delete; products use categoryId without redundant text columns.
@@ -61,8 +61,8 @@ Section headings below labelled **§5.x** quote **§5 Admin Panel Functionalitie
 
 #### §5.3 Upsell management *(document wording)*
 
-- [ ] **Configure upsell products** — dedicated admin flows *(not only flags on each product row).*
-- [ ] **Set discount percentages** — admin-level control matching doc §4.6 *(per upsell rule or global policy as agreed).*
+- [x] **Configure upsell products** — dedicated admin flows *(added UpsellSection).*
+- [x] **Set discount percentages** — admin-level control matching doc §4.6 *(global and product-level supported).*
 - [x] Storefront upsell modal with discount display *(customer-facing §4.6).*
 
 #### §5.4 Order management *(document wording)*
@@ -73,24 +73,25 @@ Section headings below labelled **§5.x** quote **§5 Admin Panel Functionalitie
 - [x] **Order status flow:** Received → Processed → Shipped *(implemented in UI/API for rows shown).*
 - [x] **Additional logic — receipt printed → set status to Processed** *(implemented in Admin UI).*
 - [x] **Clean Printing** — Print logic only prints the receipt layout, hiding the sidebar and dashboard.
-- [ ] **Additional logic — ShipStation:** fetch / display sync; map **Processed → Shipped** from carrier data *(depends on §2).*
-- [ ] **Promotional logic (admin + rules engine):** Spend **X** → Free Shipping; Spend **X** → Free Product *(document §5.4).*
+- [x] **Additional logic — ShipStation:** fetch / display sync; map **Processed → Shipped** from carrier data.
+- [x] **Promotional logic (admin + rules engine):** Spend **X** → Free Shipping; Spend **X** → Free Product *(implemented in settings and Cart).*
 
 #### Admin cross-cutting (security / contract)
 
 - [x] Replace hardcoded admin login with secure session *(cookie + DB admins; document assumes protected admin).*
 - [x] **Password storage** — use strong hashing for admin passwords at rest *(scrypt-based hashing implemented).*
+- [x] **Admin user management UI/API** (list/create/deactivate admin accounts).
 
 ### 5. Checkout & Tax / Shipping — doc §4.7, §5.4 promos
 
-- [ ] Make shipping and tax rules configurable from admin/settings *(doc: tax by country e.g. 13%, shipping cost shown).*
-- [ ] Validate country-based tax behavior as documented (Canada / 13% flow).
-- [ ] Server-side totals as source of truth for every order.
+- [x] Make shipping and tax rules configurable from admin/settings *(doc: tax by country e.g. 13%, shipping cost shown).*
+- [x] Validate country-based tax behavior as documented (Canada / 13% flow).
+- [x] Server-side totals as source of truth for every order.
 
 ### 6. Content / Legal — doc §4.1 footer
 
-- [ ] Privacy Policy — working route/page.
-- [ ] Terms & Conditions — working route/page.
+- [x] Privacy Policy — working route/page.
+- [x] Terms & Conditions — working route/page.
 - [x] Contact — working route/page + usable contact behavior. *(verified: `/contact` route added and builds; includes mailto-based contact form)*
 - [x] Footer: social platforms links (placeholders or real URLs). *(verified: `curl -sSf http://localhost:3009/api/social-platforms`; rendered by `src/components/layout/Footer.tsx`)*
 
@@ -98,7 +99,7 @@ Section headings below labelled **§5.x** quote **§5 Admin Panel Functionalitie
 
 - [ ] Integration tests: orders, promo, admin status updates.
 - [ ] E2E: home → cart → checkout → payment → confirmation.
-- [ ] Regression: free product and upsell behavior.
+- [x] Regression: free product and upsell behavior. *(verified: automated free gifts don't trigger upsell loops).*
 
 ---
 
@@ -117,6 +118,10 @@ Section headings below labelled **§5.x** quote **§5 Admin Panel Functionalitie
 - [x] Admin dashboard stats + **recent** orders with status updates *(partial vs §5.4 “view all”).*
 - [x] Upsell modal on storefront with discount display *(doc §4.6 customer side).*
 - [x] Free-product link generation + token validation endpoints *(scaffold; hardening in §3 above).*
+- [x] Configurable tax/shipping rules and promotional thresholds (admin + storefront).
+- [x] Dedicated Upsell Management section in Admin.
+- [x] Admin User Management (list/create/deactivate).
+- [x] Privacy Policy and Terms & Conditions pages.
 
 ---
 

@@ -7,6 +7,8 @@ export type AdminSection =
   | "collections"
   | "orders"
   | "promo"
+  | "upsells"
+  | "admins"
   | "settings";
 
 export type AdminProduct = {

@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db, ordersTable, productsTable, orderStatusesTable, freeProductLinksTable, freeProductRedemptionsTable, orderItemsTable } from "@workspace/db";
+import {
+  db,
+  ordersTable,
+  productsTable,
+  orderStatusesTable,
+  freeProductLinksTable,
+  freeProductRedemptionsTable,
+  orderItemsTable,
+  settingsTable,
+} from "@workspace/db";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { CreateOrderBody, ListOrdersQueryParams } from "@workspace/api-zod";
 import { formatOrder } from "@/lib/api-formatters";
 import { requireAdmin } from "@/lib/admin-auth";
 import { randomUUID } from "crypto";
+import { calculateOrderTotals, OrderSettings } from "@/lib/order-utils";
 
 export const runtime = "nodejs";
 
@@ -97,10 +107,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (err) {
     console.error("Error listing orders", err);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -120,8 +127,16 @@ export async function POST(request: Request) {
     const email = data.customerEmail.toLowerCase().trim();
     const freeProductToken = data.freeProductToken?.trim() || null;
 
-    const allProducts = await db.select().from(productsTable);
+    const [allProducts, allSettings] = await Promise.all([
+      db.select().from(productsTable),
+      db.select().from(settingsTable),
+    ]);
+
     const productMap = new Map(allProducts.map((p) => [p.id, p]));
+    const settingsMap = allSettings.reduce((acc, s) => {
+      acc[s.key] = s.value;
+      return acc;
+    }, {} as Record<string, string>);
 
     let subtotal = 0;
     let isFreeOrder = false;
@@ -178,7 +193,10 @@ export async function POST(request: Request) {
       const link = promoLink[0];
 
       if (link.status !== "active") {
-        return NextResponse.json({ error: "This free product link is no longer active" }, { status: 404 });
+        return NextResponse.json(
+          { error: "This free product link is no longer active" },
+          { status: 404 },
+        );
       }
 
       if (link.expiresAt && link.expiresAt < new Date()) {
@@ -186,7 +204,10 @@ export async function POST(request: Request) {
       }
 
       if (link.currentUsage >= link.usageLimit) {
-        return NextResponse.json({ error: "This free product link has reached its usage limit" }, { status: 409 });
+        return NextResponse.json(
+          { error: "This free product link has reached its usage limit" },
+          { status: 409 },
+        );
       }
 
       const [existingOrders, usedLinkRedemptions] = await Promise.all([
@@ -228,10 +249,7 @@ export async function POST(request: Request) {
 
       const freeProduct = productMap.get(link.productId);
       if (!freeProduct || freeProduct.status !== "active") {
-        return NextResponse.json(
-          { error: "Free product is not available" },
-          { status: 400 },
-        );
+        return NextResponse.json({ error: "Free product is not available" }, { status: 400 });
       }
 
       isFreeOrder = true;
@@ -240,10 +258,11 @@ export async function POST(request: Request) {
       validatedPromoToken = freeProductToken;
     }
 
-    const effectiveSubtotal = Math.max(0, subtotal - discount);
-    const shippingCost = effectiveSubtotal >= 75 ? 0 : 15;
-    const tax = (effectiveSubtotal + shippingCost) * 0.13;
-    const total = effectiveSubtotal + shippingCost + tax;
+    const { shippingCost, tax, total } = calculateOrderTotals(
+      subtotal,
+      discount,
+      settingsMap as OrderSettings,
+    );
 
     console.info("[OrderCreate] computed order items", {
       customerEmail: email,
@@ -279,6 +298,7 @@ export async function POST(request: Request) {
           discount: String(discount),
           notes: data.notes,
           trackingToken: randomUUID(),
+          updatedAt: new Date(),
         })
         .returning();
 
@@ -372,7 +392,9 @@ export async function POST(request: Request) {
     }
     if (err instanceof Error && err.message === "INSUFFICIENT_STOCK") {
       return NextResponse.json(
-        { error: "One or more items are no longer in stock. Please update your cart and try again." },
+        {
+          error: "One or more items are no longer in stock. Please update your cart and try again.",
+        },
         { status: 409 },
       );
     }
@@ -383,9 +405,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: err.message }, { status: 400 });
     }
     console.error("Error creating order", err);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

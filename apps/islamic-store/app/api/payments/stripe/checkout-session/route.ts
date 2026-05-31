@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { db, freeProductLinksTable, ordersTable, productsTable, orderItemsTable } from "@workspace/db";
+import { db, freeProductLinksTable, ordersTable, productsTable, orderItemsTable, settingsTable } from "@workspace/db";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { CreateOrderBody } from "@workspace/api-zod";
 import { randomUUID } from "crypto";
+import { calculateOrderTotals, OrderSettings } from "@/lib/order-utils";
 
 export const runtime = "nodejs";
 
@@ -34,8 +35,16 @@ export async function POST(request: NextRequest) {
     const email = data.customerEmail.toLowerCase().trim();
     const freeProductToken = data.freeProductToken?.trim() || null;
 
-    const allProducts = await db.select().from(productsTable);
+    const [allProducts, allSettings] = await Promise.all([
+      db.select().from(productsTable),
+      db.select().from(settingsTable),
+    ]);
+
     const productMap = new Map(allProducts.map((p) => [p.id, p]));
+    const settingsMap = allSettings.reduce((acc, s) => {
+      acc[s.key] = s.value;
+      return acc;
+    }, {} as Record<string, string>);
 
     let subtotal = 0;
     let isFreeOrder = false;
@@ -138,10 +147,13 @@ export async function POST(request: NextRequest) {
       validatedPromoToken = freeProductToken;
     }
 
-    const effectiveSubtotal = Math.max(0, subtotal - discount);
-    const shippingCost = effectiveSubtotal >= 75 ? 0 : 15;
-    const tax = (effectiveSubtotal + shippingCost) * 0.13;
-    const total = Math.max(0, effectiveSubtotal + shippingCost + tax);
+    const {
+      shippingCost,
+      tax,
+      total,
+      effectiveSubtotal
+    } = calculateOrderTotals(subtotal, discount, settingsMap as OrderSettings);
+
     const isPaidNow = total <= 0;
     const now = new Date();
 
@@ -313,3 +325,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+

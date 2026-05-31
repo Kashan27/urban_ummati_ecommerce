@@ -1,8 +1,9 @@
 import { Link, useLocation, useSearch } from "@/lib/router";
 import { useCart } from "@/lib/cart-context";
-import { Minus, Plus, X, ArrowRight, ShieldCheck } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { Minus, Plus, X, ArrowRight, ShieldCheck, Truck, Gift } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useGetFreeProductLink, getGetFreeProductLinkQueryKey } from "@workspace/api-client-react";
+import { calculateOrderTotals, OrderSettings } from "@/lib/order-utils";
 
 export function Cart() {
   const { items, addItem, removeItem, updateQuantity, subtotal } = useCart();
@@ -10,6 +11,14 @@ export function Cart() {
   const searchString = useSearch();
   const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
   const promoToken = searchParams.get("promoToken") || searchParams.get("freeProductToken") || "";
+  const [settings, setSettings] = useState<OrderSettings | null>(null);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => setSettings(data))
+      .catch((err) => console.error("Failed to fetch settings", err));
+  }, []);
 
   const { data: promoLink, isError: promoError } = useGetFreeProductLink(promoToken, {
     query: {
@@ -41,9 +50,41 @@ export function Cart() {
     });
   }, [addItem, items, promoLink, promoToken]);
 
-  const shipping = subtotal > 75 ? 0 : 15;
-  const tax = subtotal * 0.13;
-  const total = subtotal + shipping + tax;
+  const {
+    shippingCost,
+    tax,
+    total,
+    shippingThreshold,
+  } = calculateOrderTotals(subtotal, 0, settings || ({} as OrderSettings));
+
+  const freeProductThreshold = parseFloat(settings?.free_product_threshold || "0");
+  const freeProductId = parseInt(settings?.free_product_id || "0");
+
+  const isFreeProductEligible = freeProductThreshold > 0 && subtotal >= freeProductThreshold;
+  const alreadyHasFreeProduct = items.some(i => i.productId === freeProductId && i.price === 0 && !i.promoToken);
+
+  useEffect(() => {
+    if (isFreeProductEligible && !alreadyHasFreeProduct && freeProductId > 0) {
+      // Find the product details to add it correctly
+      fetch(`/api/products/${freeProductId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.product) {
+            addItem({
+              productId: data.product.id,
+              name: `[GIFT] ${data.product.name}`,
+              price: 0,
+              quantity: 1,
+              imageUrl: data.product.imageUrl,
+              color: data.product.colors?.[0]?.name
+            }, { skipUpsell: true });
+          }
+        })
+        .catch(err => console.error("Failed to fetch free gift details", err));
+    } else if (!isFreeProductEligible && alreadyHasFreeProduct) {
+      removeItem(freeProductId);
+    }
+  }, [isFreeProductEligible, alreadyHasFreeProduct, freeProductId, addItem, removeItem]);
 
   if (items.length === 0) {
     return (
@@ -173,16 +214,39 @@ export function Cart() {
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Shipping</span>
-                  <span>{shipping === 0 ? <span className="text-secondary font-bold">Free</span> : `$${shipping.toFixed(2)}`}</span>
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <Truck className="h-3.5 w-3.5" /> Shipping
+                  </span>
+                  <span>{shippingCost === 0 ? <span className="text-secondary font-bold">Free</span> : `$${shippingCost.toFixed(2)}`}</span>
                 </div>
-                {shipping > 0 && (
-                  <p className="text-xs text-muted-foreground text-right mt-1">
-                    Add ${(75 - subtotal).toFixed(2)} more for free shipping!
+                {shippingCost > 0 && shippingThreshold > 0 && (
+                  <p className="text-[10px] text-muted-foreground text-right mt-1 italic">
+                    Add ${(shippingThreshold - subtotal).toFixed(2)} more for free shipping!
                   </p>
                 )}
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Estimated Tax (13%)</span>
+                
+                {freeProductThreshold > 0 && !isFreeProductEligible && (
+                  <div className="mt-4 p-3 bg-primary/5 rounded-sm border border-primary/10">
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-primary uppercase tracking-wider mb-1">
+                      <Gift className="h-3 w-3" /> Special Offer
+                    </div>
+                    <p className="text-[10px] text-muted-foreground leading-snug">
+                      Spend ${(freeProductThreshold - subtotal).toFixed(2)} more to unlock a <span className="text-primary font-semibold">Free Gift</span>!
+                    </p>
+                  </div>
+                )}
+
+                {isFreeProductEligible && (
+                  <div className="mt-4 p-3 bg-secondary/10 rounded-sm border border-secondary/20 flex items-start gap-2">
+                    <Gift className="h-3.5 w-3.5 text-secondary shrink-0 mt-0.5" />
+                    <p className="text-[10px] text-secondary font-bold uppercase tracking-wider leading-snug">
+                      Congratulations! A free gift has been added to your cart.
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex justify-between pt-2">
+                  <span className="text-muted-foreground">Estimated Tax ({(parseFloat(settings?.tax_percent || "13")).toFixed(0)}%)</span>
                   <span>${tax.toFixed(2)}</span>
                 </div>
               </div>

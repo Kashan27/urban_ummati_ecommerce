@@ -41,23 +41,11 @@ export function Navbar() {
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
-  // Animation State Trigger
-  const [isLogoSpinning, setIsLogoSpinning] = useState(false);
-
   const searchPanelId = useMemo(
     () => `search-panel-${Math.random().toString(36).slice(2, 9)}`,
     [],
   );
   const searchInputRef = useRef<HTMLInputElement | null>(null);
-
-  // Automatic Animation Effect (Every 5 seconds)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsLogoSpinning(true);
-      setTimeout(() => setIsLogoSpinning(false), 1000); // Reset after duration
-    }, 5000); 
-    return () => clearInterval(interval);
-  }, []);
 
   const submitSearch = (event: FormEvent) => {
     event.preventDefault();
@@ -269,10 +257,7 @@ export function Navbar() {
                 alt="Urban Ummati"
                 width={48}
                 height={48}
-                // Combined automatic spin and hover spin classes
-                className={`object-contain transition-transform duration-1000 ease-in-out group-hover:rotate-[360deg] ${
-                  isLogoSpinning ? "rotate-[360deg]" : "rotate-0"
-                }`}
+                className="object-contain"
               />
               <h1 className="font-serif text-3xl leading-none tracking-[0.26em] text-foreground md:text-5xl">
                 RBAN UMMATI

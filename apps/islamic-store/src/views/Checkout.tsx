@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useSearch } from "@/lib/router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Truck, Lock, ChevronLeft } from "lucide-react";
 import { Link } from "@/lib/router";
+import { calculateOrderTotals, OrderSettings } from "@/lib/order-utils";
 
 const PROVINCES = [
   "Alberta", "British Columbia", "Manitoba", "New Brunswick",
@@ -38,10 +39,25 @@ export function Checkout() {
   const canceledOrderId = searchParams.get("orderId");
   const [paymentPending, setPaymentPending] = useState(false);
   const [paymentError, setPaymentError] = useState("");
+  const [settings, setSettings] = useState<OrderSettings | null>(null);
 
-  const shippingCost = subtotal >= 75 ? 0 : 15;
-  const tax = (subtotal + shippingCost) * 0.13;
-  const total = subtotal + shippingCost + tax;
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => setSettings(data))
+      .catch((err) => console.error("Failed to fetch settings", err));
+  }, []);
+
+  const promoItem = items.find((i) => i.promoToken);
+  const discount = promoItem ? promoItem.price : 0;
+
+  const {
+    shippingCost,
+    tax,
+    total,
+    taxRate,
+    shippingThreshold,
+  } = calculateOrderTotals(subtotal, discount, settings || ({} as OrderSettings));
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -373,7 +389,7 @@ export function Checkout() {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">HST (13%)</span>
+                <span className="text-muted-foreground">HST ({(taxRate * 100).toFixed(0)}%)</span>
                 <span>${tax.toFixed(2)}</span>
               </div>
               <Separator />
@@ -390,9 +406,9 @@ export function Checkout() {
               </div>
             )}
 
-            {subtotal < 75 && (
+            {subtotal < shippingThreshold && (
               <div className="mt-4 p-3 bg-muted rounded-sm text-xs text-muted-foreground">
-                Add ${(75 - subtotal).toFixed(2)} more for free shipping
+                Add ${(shippingThreshold - subtotal).toFixed(2)} more for free shipping
               </div>
             )}
           </div>
@@ -401,3 +417,4 @@ export function Checkout() {
     </div>
   );
 }
+

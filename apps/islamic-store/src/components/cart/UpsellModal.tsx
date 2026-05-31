@@ -39,8 +39,10 @@ export function UpsellModal() {
   };
 
   const handleAddUpsell = (product: any) => {
-    const price = product.upsellDiscount 
-      ? product.price * (1 - product.upsellDiscount / 100) 
+    const globalDiscount = parseFloat(upsellData?.settings?.upsell_discount_percent || "0");
+    const productDiscount = product.upsellDiscount ?? globalDiscount;
+    const price = productDiscount > 0 
+      ? product.price * (1 - productDiscount / 100) 
       : product.price;
 
     addItem({
@@ -59,6 +61,7 @@ export function UpsellModal() {
 
   const upsellProducts = upsellData.products.slice(0, 3); // Max 3 items
   const itemCount = upsellProducts.length;
+  const globalDiscount = parseFloat(upsellData.settings?.upsell_discount_percent || "0");
 
   return (
     <>
@@ -95,8 +98,9 @@ export function UpsellModal() {
           )}>
             {upsellProducts.map((product) => {
               const isAdded = addedUpsells.includes(product.id);
-              const discountedPrice = product.upsellDiscount 
-                ? product.price * (1 - product.upsellDiscount / 100) 
+              const productDiscount = product.upsellDiscount ?? globalDiscount;
+              const discountedPrice = productDiscount > 0
+                ? product.price * (1 - productDiscount / 100) 
                 : product.price;
 
               return (
@@ -107,9 +111,9 @@ export function UpsellModal() {
                       alt={product.name}
                       className="w-full h-full object-cover"
                     />
-                    {product.upsellDiscount && (
+                    {productDiscount > 0 && (
                       <div className="absolute top-2 left-2 bg-destructive text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider">
-                        SAVE {product.upsellDiscount}%
+                        SAVE {productDiscount}%
                       </div>
                     )}
                   </div>
@@ -124,7 +128,7 @@ export function UpsellModal() {
 
                   <div className="flex items-center gap-2 mb-4 font-sans shrink-0">
                     <span className="font-bold text-lg">${discountedPrice.toFixed(2)}</span>
-                    {product.upsellDiscount && (
+                    {productDiscount > 0 && (
                       <span className="text-muted-foreground line-through text-sm">
                         ${product.price.toFixed(2)}
                       </span>

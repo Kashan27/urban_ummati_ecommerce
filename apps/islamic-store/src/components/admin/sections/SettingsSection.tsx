@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Settings2, Save } from "lucide-react";
+import { Settings2, Save, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import type { AdminProduct } from "@/components/admin/types";
 
 type Props = {
   settings?: Record<string, string>;
   onUpdateSettings?: (updates: Record<string, string>) => Promise<void>;
+  products?: AdminProduct[];
 };
 
-export function SettingsSection({ settings, onUpdateSettings }: Props) {
+export function SettingsSection({ settings, onUpdateSettings, products }: Props) {
   const [localSettings, setLocalSettings] = useState<Record<string, string>>({});
   const [isSavingSettings, setIsSavingSettings] = useState(false);
 
@@ -118,6 +120,56 @@ export function SettingsSection({ settings, onUpdateSettings }: Props) {
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 placeholder="e.g. 15"
               />
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Promotional Offers */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Gift className="h-4 w-4 text-primary" />
+              <h4 className="text-sm font-bold uppercase tracking-widest text-primary/80">Promotional Offers</h4>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Free Product Threshold ($)
+                </label>
+                <input
+                  type="number"
+                  value={localSettings.free_product_threshold || ""}
+                  onChange={(e) =>
+                    setLocalSettings((prev) => ({ ...prev, free_product_threshold: e.target.value }))
+                  }
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="e.g. 150"
+                />
+                <p className="mt-1 text-[10px] text-muted-foreground italic">
+                  Spend this much to get a free gift.
+                </p>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Select Free Gift Product
+                </label>
+                <select
+                  value={localSettings.free_product_id || ""}
+                  onChange={(e) => setLocalSettings((prev) => ({ ...prev, free_product_id: e.target.value }))}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                >
+                  <option value="">None / Disabled</option>
+                  {(products || [])
+                    .filter((p) => p.status === "active")
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
             </div>
           </div>
 
