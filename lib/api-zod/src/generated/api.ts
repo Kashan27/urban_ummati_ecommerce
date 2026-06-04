@@ -49,7 +49,12 @@ export const ListProductsResponse = zod.object({
       upsellDiscount: zod.number().nullish(),
       reviewCount: zod.number(),
       rating: zod.number(),
-      colors: zod.array(zod.string()),
+      colors: zod.array(
+        zod.object({
+          hex: zod.string(),
+          name: zod.string(),
+        }),
+      ),
       mainProductIds: zod
         .array(zod.number())
         .optional()
@@ -90,7 +95,12 @@ export const GetFeaturedProductsResponse = zod.object({
       upsellDiscount: zod.number().nullish(),
       reviewCount: zod.number(),
       rating: zod.number(),
-      colors: zod.array(zod.string()),
+      colors: zod.array(
+        zod.object({
+          hex: zod.string(),
+          name: zod.string(),
+        }),
+      ),
       mainProductIds: zod
         .array(zod.number())
         .optional()
@@ -134,7 +144,12 @@ export const GetUpsellProductsResponse = zod.object({
       upsellDiscount: zod.number().nullish(),
       reviewCount: zod.number(),
       rating: zod.number(),
-      colors: zod.array(zod.string()),
+      colors: zod.array(
+        zod.object({
+          hex: zod.string(),
+          name: zod.string(),
+        }),
+      ),
       mainProductIds: zod
         .array(zod.number())
         .optional()
@@ -176,7 +191,12 @@ export const GetProductResponse = zod.object({
   upsellDiscount: zod.number().nullish(),
   reviewCount: zod.number(),
   rating: zod.number(),
-  colors: zod.array(zod.string()),
+  colors: zod.array(
+    zod.object({
+      hex: zod.string(),
+      name: zod.string(),
+    }),
+  ),
   mainProductIds: zod
     .array(zod.number())
     .optional()
@@ -254,7 +274,12 @@ export const ListCollectionProductsResponse = zod.object({
       upsellDiscount: zod.number().nullish(),
       reviewCount: zod.number(),
       rating: zod.number(),
-      colors: zod.array(zod.string()),
+      colors: zod.array(
+        zod.object({
+          hex: zod.string(),
+          name: zod.string(),
+        }),
+      ),
       mainProductIds: zod
         .array(zod.number())
         .optional()
@@ -277,7 +302,9 @@ export const listOrdersQueryLimitDefault = 50;
 export const listOrdersQueryOffsetDefault = 0;
 
 export const ListOrdersQueryParams = zod.object({
-  status: zod.enum(["received", "processed", "shipped", "delivered"]).optional(),
+  status: zod
+    .enum(["received", "processed", "shipped", "delivered", "canceled"])
+    .optional(),
   limit: zod.coerce.number().default(listOrdersQueryLimitDefault),
   offset: zod.coerce.number().default(listOrdersQueryOffsetDefault),
 });
@@ -310,7 +337,13 @@ export const ListOrdersResponse = zod.object({
       shippingCost: zod.number(),
       tax: zod.number(),
       total: zod.number(),
-      status: zod.enum(["received", "processed", "shipped"]),
+      status: zod.enum([
+        "received",
+        "processed",
+        "shipped",
+        "delivered",
+        "canceled",
+      ]),
       isFreeOrder: zod.boolean(),
       discount: zod.number(),
       paymentProvider: zod.string().nullish(),
@@ -392,7 +425,13 @@ export const GetOrderResponse = zod.object({
   shippingCost: zod.number(),
   tax: zod.number(),
   total: zod.number(),
-  status: zod.enum(["received", "processed", "shipped", "delivered"]),
+  status: zod.enum([
+    "received",
+    "processed",
+    "shipped",
+    "delivered",
+    "canceled",
+  ]),
   isFreeOrder: zod.boolean(),
   discount: zod.number(),
   paymentProvider: zod.string().nullish(),
@@ -421,7 +460,13 @@ export const UpdateOrderStatusParams = zod.object({
 });
 
 export const UpdateOrderStatusBody = zod.object({
-  status: zod.enum(["received", "processed", "shipped", "delivered"]),
+  status: zod.enum([
+    "received",
+    "processed",
+    "shipped",
+    "delivered",
+    "canceled",
+  ]),
 });
 
 export const UpdateOrderStatusResponse = zod.object({
@@ -450,7 +495,13 @@ export const UpdateOrderStatusResponse = zod.object({
   shippingCost: zod.number(),
   tax: zod.number(),
   total: zod.number(),
-  status: zod.enum(["received", "processed", "shipped", "delivered"]),
+  status: zod.enum([
+    "received",
+    "processed",
+    "shipped",
+    "delivered",
+    "canceled",
+  ]),
   isFreeOrder: zod.boolean(),
   discount: zod.number(),
   paymentProvider: zod.string().nullish(),
@@ -513,7 +564,12 @@ export const ListFreeProductLinksResponse = zod.object({
           upsellDiscount: zod.number().nullish(),
           reviewCount: zod.number(),
           rating: zod.number(),
-          colors: zod.array(zod.string()),
+          colors: zod.array(
+            zod.object({
+              hex: zod.string(),
+              name: zod.string(),
+            }),
+          ),
           mainProductIds: zod
             .array(zod.number())
             .optional()
@@ -605,7 +661,12 @@ export const UpdateFreeProductLinkResponse = zod.object({
       upsellDiscount: zod.number().nullish(),
       reviewCount: zod.number(),
       rating: zod.number(),
-      colors: zod.array(zod.string()),
+      colors: zod.array(
+        zod.object({
+          hex: zod.string(),
+          name: zod.string(),
+        }),
+      ),
       mainProductIds: zod
         .array(zod.number())
         .optional()
@@ -678,7 +739,12 @@ export const GetFreeProductLinkResponse = zod.object({
       upsellDiscount: zod.number().nullish(),
       reviewCount: zod.number(),
       rating: zod.number(),
-      colors: zod.array(zod.string()),
+      colors: zod.array(
+        zod.object({
+          hex: zod.string(),
+          name: zod.string(),
+        }),
+      ),
       mainProductIds: zod
         .array(zod.number())
         .optional()
@@ -731,7 +797,14 @@ export const CreateProductBody = zod.object({
   featured: zod.boolean().default(createProductBodyFeaturedDefault),
   isUpsell: zod.boolean().default(createProductBodyIsUpsellDefault),
   upsellDiscount: zod.number().nullish(),
-  colors: zod.array(zod.string()).optional(),
+  colors: zod
+    .array(
+      zod.object({
+        hex: zod.string(),
+        name: zod.string(),
+      }),
+    )
+    .optional(),
   mainProductIds: zod
     .array(zod.number())
     .optional()
@@ -761,7 +834,14 @@ export const UpdateProductBody = zod.object({
   featured: zod.boolean().default(updateProductBodyFeaturedDefault),
   isUpsell: zod.boolean().default(updateProductBodyIsUpsellDefault),
   upsellDiscount: zod.number().nullish(),
-  colors: zod.array(zod.string()).optional(),
+  colors: zod
+    .array(
+      zod.object({
+        hex: zod.string(),
+        name: zod.string(),
+      }),
+    )
+    .optional(),
   mainProductIds: zod
     .array(zod.number())
     .optional()
@@ -788,7 +868,12 @@ export const UpdateProductResponse = zod.object({
   upsellDiscount: zod.number().nullish(),
   reviewCount: zod.number(),
   rating: zod.number(),
-  colors: zod.array(zod.string()),
+  colors: zod.array(
+    zod.object({
+      hex: zod.string(),
+      name: zod.string(),
+    }),
+  ),
   mainProductIds: zod
     .array(zod.number())
     .optional()
@@ -847,7 +932,13 @@ export const GetAdminStatsResponse = zod.object({
       shippingCost: zod.number(),
       tax: zod.number(),
       total: zod.number(),
-      status: zod.enum(["received", "processed", "shipped"]),
+      status: zod.enum([
+        "received",
+        "processed",
+        "shipped",
+        "delivered",
+        "canceled",
+      ]),
       isFreeOrder: zod.boolean(),
       discount: zod.number(),
       paymentProvider: zod.string().nullish(),
@@ -872,5 +963,7 @@ export const GetAdminStatsResponse = zod.object({
     received: zod.number(),
     processed: zod.number(),
     shipped: zod.number(),
+    delivered: zod.number(),
+    canceled: zod.number(),
   }),
 });

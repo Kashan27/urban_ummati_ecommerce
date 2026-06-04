@@ -1,4 +1,3 @@
-import pg from "pg";
 // Note: We'll use fetch directly since we just need to hit the ShipStation API
 // We rely on the environment variables already present in the workspace
 
@@ -30,7 +29,7 @@ async function registerWebhook() {
       })
     });
 
-    const data = await response.json();
+    const data = (await response.json().catch(() => null)) as any;
 
     if (response.ok) {
       console.log("Success! Webhook registered successfully.");

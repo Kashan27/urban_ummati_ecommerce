@@ -32,6 +32,7 @@ export async function GET(request: Request) {
       processed: ordersWithStatus.filter((r) => r.statusName === "processed").length,
       shipped: ordersWithStatus.filter((r) => r.statusName === "shipped").length,
       delivered: ordersWithStatus.filter((r) => r.statusName === "delivered").length,
+      canceled: ordersWithStatus.filter((r) => r.statusName === "canceled").length,
     };
 
     return NextResponse.json({

@@ -21,6 +21,10 @@ export interface Collection {
     createdAt: string;
     updatedAt?: string | null;
 }
+export interface ProductColor {
+    hex: string;
+    name: string;
+}
 export interface Product {
     id: number;
     name: string;
@@ -41,10 +45,7 @@ export interface Product {
     upsellDiscount?: number | null;
     reviewCount: number;
     rating: number;
-    colors: {
-        hex: string;
-        name: string;
-    }[];
+    colors: ProductColor[];
     /** List of products this item is an upsell for */
     mainProductIds?: number[];
     /** List of products that are upsells for this item */
@@ -58,6 +59,7 @@ export declare const OrderStatus: {
     readonly processed: "processed";
     readonly shipped: "shipped";
     readonly delivered: "delivered";
+    readonly canceled: "canceled";
 };
 export interface OrderItem {
     id: number;
@@ -128,6 +130,7 @@ export declare const UpdateOrderStatusBodyStatus: {
     readonly processed: "processed";
     readonly shipped: "shipped";
     readonly delivered: "delivered";
+    readonly canceled: "canceled";
 };
 export interface UpdateOrderStatusBody {
     status: UpdateOrderStatusBodyStatus;
@@ -210,7 +213,7 @@ export interface CreateProductBody {
     featured?: boolean;
     isUpsell?: boolean;
     upsellDiscount?: number | null;
-    colors?: string[];
+    colors?: ProductColor[];
     /** List of main products this item should be an upsell for */
     mainProductIds?: number[];
 }
@@ -218,6 +221,8 @@ export type AdminStatsOrdersByStatus = {
     received: number;
     processed: number;
     shipped: number;
+    delivered: number;
+    canceled: number;
 };
 export interface AdminStats {
     totalOrders: number;
@@ -269,6 +274,7 @@ export declare const ListOrdersStatus: {
     readonly processed: "processed";
     readonly shipped: "shipped";
     readonly delivered: "delivered";
+    readonly canceled: "canceled";
 };
 export type ListOrders200 = {
     orders: Order[];

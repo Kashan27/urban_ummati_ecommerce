@@ -5,6 +5,7 @@
  * Islamic Products E-Commerce API
  * OpenAPI spec version: 0.1.0
  */
+import type { ProductColor } from "./productColor";
 
 export interface CreateProductBody {
   name: string;
@@ -18,7 +19,7 @@ export interface CreateProductBody {
   featured?: boolean;
   isUpsell?: boolean;
   upsellDiscount?: number | null;
-  colors?: string[];
+  colors?: ProductColor[];
   /** List of main products this item should be an upsell for */
   mainProductIds?: number[];
 }

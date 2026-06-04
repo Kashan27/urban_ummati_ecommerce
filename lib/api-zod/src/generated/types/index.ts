@@ -39,6 +39,7 @@ export * from "./order";
 export * from "./orderItem";
 export * from "./orderStatus";
 export * from "./product";
+export * from "./productColor";
 export * from "./updateFreeProductLinkBody";
 export * from "./updateFreeProductLinkBodyStatus";
 export * from "./updateOrderStatusBody";

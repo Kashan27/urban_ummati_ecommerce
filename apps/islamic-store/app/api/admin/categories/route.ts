@@ -8,6 +8,7 @@ export const runtime = "nodejs";
 
 const CategoryBody = z.object({
   name: z.string().min(2),
+  imageUrl: z.string().url().optional(),
   isActive: z.boolean().optional().default(true),
 });
 
@@ -68,6 +69,7 @@ export async function POST(request: Request) {
       .values({
         name,
         slug,
+        imageUrl: parsed.data.imageUrl,
         isActive: parsed.data.isActive,
       })
       .returning();

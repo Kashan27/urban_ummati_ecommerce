@@ -18,7 +18,7 @@ import {
 import { DatePickerInput } from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 
-type PaymentStatus = "all" | "pending" | "paid" | "failed" | "refunded";
+type PaymentStatus = "all" | "pending" | "paid" | "failed" | "canceled" | "refunded";
 
 interface OrdersSectionProps {
   orders: Order[] | undefined;
@@ -36,7 +36,10 @@ interface OrdersSectionProps {
   page?: number;
   onPageChange?: (page: number) => void;
   totalOrders?: number;
-  onOrderStatusChange: (orderId: number, status: "received" | "processed" | "shipped" | "delivered") => void;
+  onOrderStatusChange: (
+    orderId: number,
+    status: "received" | "processed" | "shipped" | "delivered" | "canceled",
+  ) => void;
   onViewOrderDetails: (order: Order) => void;
   onPrintReceipt: (order: Order) => void;
   onPrintPackingSlip: (order: Order) => void;
@@ -48,6 +51,7 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   processed: { label: "Processed", color: "bg-amber-500" },
   shipped: { label: "Shipped", color: "bg-emerald-500" },
   delivered: { label: "Delivered", color: "bg-purple-500" },
+  canceled: { label: "Canceled", color: "bg-red-500" },
 };
 
 const paymentStatusLabels: Record<PaymentStatus, string> = {
@@ -55,8 +59,35 @@ const paymentStatusLabels: Record<PaymentStatus, string> = {
   pending: "Pending",
   paid: "Paid",
   failed: "Failed",
+  canceled: "Canceled",
   refunded: "Refunded",
 };
+
+function getPaymentBadge(status: unknown) {
+  const s = typeof status === "string" ? status : "";
+  const normalized: Exclude<PaymentStatus, "all"> =
+    s === "paid" || s === "pending" || s === "failed" || s === "canceled" || s === "refunded"
+      ? s
+      : "pending";
+
+  const label = paymentStatusLabels[normalized];
+  const className =
+    normalized === "paid"
+      ? "bg-emerald-100 text-emerald-800 border-transparent"
+      : normalized === "pending"
+        ? "bg-amber-100 text-amber-900 border-transparent"
+        : normalized === "failed"
+          ? "bg-red-100 text-red-800 border-transparent"
+          : normalized === "canceled"
+            ? "bg-muted text-muted-foreground border-transparent"
+            : "bg-purple-100 text-purple-800 border-transparent";
+
+  return (
+    <Badge className={cn("h-6 px-2 text-[10px] font-bold uppercase tracking-wider", className)}>
+      {label}
+    </Badge>
+  );
+}
 
 export function OrdersSection({
   orders,
@@ -148,6 +179,7 @@ export function OrdersSection({
                   { key: "processed", label: "Processed" },
                   { key: "shipped", label: "Shipped" },
                   { key: "delivered", label: "Delivered" },
+                  { key: "canceled", label: "Canceled" },
                 ] as const
               ).map((opt) => (
                 <Button
@@ -289,6 +321,7 @@ export function OrdersSection({
                 <th className="p-3 text-left font-semibold">Customer</th>
                 <th className="p-3 text-left font-semibold">Items</th>
                 <th className="p-3 text-left font-semibold">Total</th>
+                <th className="p-3 text-left font-semibold">Payment</th>
                 <th className="p-3 text-left font-semibold">Date</th>
                 <th className="p-3 text-left font-semibold">Status</th>
                 <th className="p-3 text-right font-semibold">Actions</th>
@@ -308,6 +341,9 @@ export function OrdersSection({
                   <td className="p-3">
                     <span className="font-bold text-foreground">${order.total.toFixed(2)}</span>
                   </td>
+                  <td className="p-3">
+                    {getPaymentBadge(order.paymentStatus)}
+                  </td>
                   <td className="p-3 text-muted-foreground text-[11px]">
                     {new Date(order.createdAt).toLocaleDateString("en-CA")}
                   </td>
@@ -319,13 +355,17 @@ export function OrdersSection({
                           order.status === "received" && "bg-blue-500 shadow-blue-200",
                           order.status === "processed" && "bg-amber-500 shadow-amber-200",
                           order.status === "shipped" && "bg-emerald-500 shadow-emerald-200",
-                          order.status === "delivered" && "bg-purple-500 shadow-purple-200"
+                          order.status === "delivered" && "bg-purple-500 shadow-purple-200",
+                          order.status === "canceled" && "bg-red-500 shadow-red-200"
                         )}
                       />
                       <select
                         value={order.status}
                         onChange={(e) =>
-                          onOrderStatusChange(order.id, e.target.value as "received" | "processed" | "shipped" | "delivered")
+                          onOrderStatusChange(
+                            order.id,
+                            e.target.value as "received" | "processed" | "shipped" | "delivered" | "canceled",
+                          )
                         }
                         className="h-7 rounded-md border border-input bg-background px-2 text-[11px] font-medium uppercase tracking-wider"
                       >
@@ -333,6 +373,7 @@ export function OrdersSection({
                         <option value="processed">Processed</option>
                         <option value="shipped">Shipped</option>
                         <option value="delivered">Delivered</option>
+                        <option value="canceled">Canceled</option>
                       </select>
                     </div>
                   </td>

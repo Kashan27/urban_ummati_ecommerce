@@ -10,6 +10,7 @@ type ApiCategory = {
   id: number;
   name: string;
   slug: string;
+  imageUrl: string | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string | null;
@@ -82,7 +83,7 @@ export function Home() {
   const homeCategories = categories.map(cat => ({
     title: cat.name,
     subtitle: `Explore our ${cat.name.toLowerCase()} collection`,
-    img: `/product-${cat.id % 8 + 1}.png`, // Use placeholder images based on category ID
+    img: cat.imageUrl || `/product-${cat.id % 8 + 1}.png`, // Use category image or fallback to placeholder
     url: `/products?category=${cat.slug}`
   }));
 

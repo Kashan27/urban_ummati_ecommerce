@@ -10,4 +10,6 @@ export type AdminStatsOrdersByStatus = {
   received: number;
   processed: number;
   shipped: number;
+  delivered: number;
+  canceled: number;
 };

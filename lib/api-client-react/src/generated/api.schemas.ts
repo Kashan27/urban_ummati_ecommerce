@@ -24,6 +24,11 @@ export interface Collection {
   updatedAt?: string | null;
 }
 
+export interface ProductColor {
+  hex: string;
+  name: string;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -44,7 +49,7 @@ export interface Product {
   upsellDiscount?: number | null;
   reviewCount: number;
   rating: number;
-  colors: {hex: string; name: string}[];
+  colors: ProductColor[];
   /** List of products this item is an upsell for */
   mainProductIds?: number[];
   /** List of products that are upsells for this item */
@@ -60,6 +65,7 @@ export const OrderStatus = {
   processed: "processed",
   shipped: "shipped",
   delivered: "delivered",
+  canceled: "canceled",
 } as const;
 
 export interface OrderItem {
@@ -137,6 +143,7 @@ export const UpdateOrderStatusBodyStatus = {
   processed: "processed",
   shipped: "shipped",
   delivered: "delivered",
+  canceled: "canceled",
 } as const;
 
 export interface UpdateOrderStatusBody {
@@ -239,7 +246,7 @@ export interface CreateProductBody {
   featured?: boolean;
   isUpsell?: boolean;
   upsellDiscount?: number | null;
-  colors?: string[];
+  colors?: ProductColor[];
   /** List of main products this item should be an upsell for */
   mainProductIds?: number[];
 }
@@ -248,6 +255,8 @@ export type AdminStatsOrdersByStatus = {
   received: number;
   processed: number;
   shipped: number;
+  delivered: number;
+  canceled: number;
 };
 
 export interface AdminStats {
@@ -312,6 +321,7 @@ export const ListOrdersStatus = {
   processed: "processed",
   shipped: "shipped",
   delivered: "delivered",
+  canceled: "canceled",
 } as const;
 
 export type ListOrders200 = {

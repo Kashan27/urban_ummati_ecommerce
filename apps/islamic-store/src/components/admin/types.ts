@@ -42,6 +42,7 @@ export type AdminCategory = {
   id: number;
   name: string;
   slug: string;
+  imageUrl: string | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

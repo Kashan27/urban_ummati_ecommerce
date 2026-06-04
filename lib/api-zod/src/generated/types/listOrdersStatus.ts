@@ -14,4 +14,5 @@ export const ListOrdersStatus = {
   processed: "processed",
   shipped: "shipped",
   delivered: "delivered",
+  canceled: "canceled",
 } as const;

@@ -58,7 +58,16 @@ export declare const ListProductsResponse: zod.ZodObject<{
         upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
         reviewCount: zod.ZodNumber;
         rating: zod.ZodNumber;
-        colors: zod.ZodArray<zod.ZodString, "many">;
+        colors: zod.ZodArray<zod.ZodObject<{
+            hex: zod.ZodString;
+            name: zod.ZodString;
+        }, "strip", zod.ZodTypeAny, {
+            name: string;
+            hex: string;
+        }, {
+            name: string;
+            hex: string;
+        }>, "many">;
         mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         createdAt: zod.ZodString;
@@ -78,7 +87,10 @@ export declare const ListProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -103,7 +115,10 @@ export declare const ListProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -131,7 +146,10 @@ export declare const ListProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -159,7 +177,10 @@ export declare const ListProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -196,7 +217,16 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
         reviewCount: zod.ZodNumber;
         rating: zod.ZodNumber;
-        colors: zod.ZodArray<zod.ZodString, "many">;
+        colors: zod.ZodArray<zod.ZodObject<{
+            hex: zod.ZodString;
+            name: zod.ZodString;
+        }, "strip", zod.ZodTypeAny, {
+            name: string;
+            hex: string;
+        }, {
+            name: string;
+            hex: string;
+        }>, "many">;
         mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         createdAt: zod.ZodString;
@@ -216,7 +246,10 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -241,7 +274,10 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -268,7 +304,10 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -295,7 +334,10 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -338,7 +380,16 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
         reviewCount: zod.ZodNumber;
         rating: zod.ZodNumber;
-        colors: zod.ZodArray<zod.ZodString, "many">;
+        colors: zod.ZodArray<zod.ZodObject<{
+            hex: zod.ZodString;
+            name: zod.ZodString;
+        }, "strip", zod.ZodTypeAny, {
+            name: string;
+            hex: string;
+        }, {
+            name: string;
+            hex: string;
+        }>, "many">;
         mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         createdAt: zod.ZodString;
@@ -358,7 +409,10 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -383,7 +437,10 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -410,7 +467,10 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -437,7 +497,10 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -479,7 +542,16 @@ export declare const GetProductResponse: zod.ZodObject<{
     upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
     reviewCount: zod.ZodNumber;
     rating: zod.ZodNumber;
-    colors: zod.ZodArray<zod.ZodString, "many">;
+    colors: zod.ZodArray<zod.ZodObject<{
+        hex: zod.ZodString;
+        name: zod.ZodString;
+    }, "strip", zod.ZodTypeAny, {
+        name: string;
+        hex: string;
+    }, {
+        name: string;
+        hex: string;
+    }>, "many">;
     mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
     linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
     createdAt: zod.ZodString;
@@ -499,7 +571,10 @@ export declare const GetProductResponse: zod.ZodObject<{
     isUpsell: boolean;
     reviewCount: number;
     rating: number;
-    colors: string[];
+    colors: {
+        name: string;
+        hex: string;
+    }[];
     createdAt: string;
     comparePrice?: number | null | undefined;
     categoryId?: number | null | undefined;
@@ -524,7 +599,10 @@ export declare const GetProductResponse: zod.ZodObject<{
     isUpsell: boolean;
     reviewCount: number;
     rating: number;
-    colors: string[];
+    colors: {
+        name: string;
+        hex: string;
+    }[];
     createdAt: string;
     comparePrice?: number | null | undefined;
     categoryId?: number | null | undefined;
@@ -661,7 +739,16 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
         reviewCount: zod.ZodNumber;
         rating: zod.ZodNumber;
-        colors: zod.ZodArray<zod.ZodString, "many">;
+        colors: zod.ZodArray<zod.ZodObject<{
+            hex: zod.ZodString;
+            name: zod.ZodString;
+        }, "strip", zod.ZodTypeAny, {
+            name: string;
+            hex: string;
+        }, {
+            name: string;
+            hex: string;
+        }>, "many">;
         mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         createdAt: zod.ZodString;
@@ -681,7 +768,10 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -706,7 +796,10 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -734,7 +827,10 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -772,7 +868,10 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -801,15 +900,15 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
 export declare const listOrdersQueryLimitDefault = 50;
 export declare const listOrdersQueryOffsetDefault = 0;
 export declare const ListOrdersQueryParams: zod.ZodObject<{
-    status: zod.ZodOptional<zod.ZodEnum<["received", "processed", "shipped", "delivered"]>>;
+    status: zod.ZodOptional<zod.ZodEnum<["received", "processed", "shipped", "delivered", "canceled"]>>;
     limit: zod.ZodDefault<zod.ZodNumber>;
     offset: zod.ZodDefault<zod.ZodNumber>;
 }, "strip", zod.ZodTypeAny, {
     limit: number;
     offset: number;
-    status?: "received" | "processed" | "shipped" | "delivered" | undefined;
+    status?: "received" | "processed" | "shipped" | "delivered" | "canceled" | undefined;
 }, {
-    status?: "received" | "processed" | "shipped" | "delivered" | undefined;
+    status?: "received" | "processed" | "shipped" | "delivered" | "canceled" | undefined;
     limit?: number | undefined;
     offset?: number | undefined;
 }>;
@@ -856,7 +955,7 @@ export declare const ListOrdersResponse: zod.ZodObject<{
         shippingCost: zod.ZodNumber;
         tax: zod.ZodNumber;
         total: zod.ZodNumber;
-        status: zod.ZodEnum<["received", "processed", "shipped"]>;
+        status: zod.ZodEnum<["received", "processed", "shipped", "delivered", "canceled"]>;
         isFreeOrder: zod.ZodBoolean;
         discount: zod.ZodNumber;
         paymentProvider: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
@@ -876,7 +975,7 @@ export declare const ListOrdersResponse: zod.ZodObject<{
         notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         createdAt: zod.ZodString;
     }, "strip", zod.ZodTypeAny, {
-        status: "received" | "processed" | "shipped";
+        status: "received" | "processed" | "shipped" | "delivered" | "canceled";
         id: number;
         createdAt: string;
         total: number;
@@ -919,7 +1018,7 @@ export declare const ListOrdersResponse: zod.ZodObject<{
         shippedAt?: string | null | undefined;
         notes?: string | null | undefined;
     }, {
-        status: "received" | "processed" | "shipped";
+        status: "received" | "processed" | "shipped" | "delivered" | "canceled";
         id: number;
         createdAt: string;
         total: number;
@@ -966,7 +1065,7 @@ export declare const ListOrdersResponse: zod.ZodObject<{
 }, "strip", zod.ZodTypeAny, {
     total: number;
     orders: {
-        status: "received" | "processed" | "shipped";
+        status: "received" | "processed" | "shipped" | "delivered" | "canceled";
         id: number;
         createdAt: string;
         total: number;
@@ -1012,7 +1111,7 @@ export declare const ListOrdersResponse: zod.ZodObject<{
 }, {
     total: number;
     orders: {
-        status: "received" | "processed" | "shipped";
+        status: "received" | "processed" | "shipped" | "delivered" | "canceled";
         id: number;
         createdAt: string;
         total: number;
@@ -1169,7 +1268,7 @@ export declare const GetOrderResponse: zod.ZodObject<{
     shippingCost: zod.ZodNumber;
     tax: zod.ZodNumber;
     total: zod.ZodNumber;
-    status: zod.ZodEnum<["received", "processed", "shipped", "delivered"]>;
+    status: zod.ZodEnum<["received", "processed", "shipped", "delivered", "canceled"]>;
     isFreeOrder: zod.ZodBoolean;
     discount: zod.ZodNumber;
     paymentProvider: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
@@ -1189,7 +1288,7 @@ export declare const GetOrderResponse: zod.ZodObject<{
     notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     createdAt: zod.ZodString;
 }, "strip", zod.ZodTypeAny, {
-    status: "received" | "processed" | "shipped" | "delivered";
+    status: "received" | "processed" | "shipped" | "delivered" | "canceled";
     id: number;
     createdAt: string;
     total: number;
@@ -1232,7 +1331,7 @@ export declare const GetOrderResponse: zod.ZodObject<{
     shippedAt?: string | null | undefined;
     notes?: string | null | undefined;
 }, {
-    status: "received" | "processed" | "shipped" | "delivered";
+    status: "received" | "processed" | "shipped" | "delivered" | "canceled";
     id: number;
     createdAt: string;
     total: number;
@@ -1286,11 +1385,11 @@ export declare const UpdateOrderStatusParams: zod.ZodObject<{
     id: number;
 }>;
 export declare const UpdateOrderStatusBody: zod.ZodObject<{
-    status: zod.ZodEnum<["received", "processed", "shipped", "delivered"]>;
+    status: zod.ZodEnum<["received", "processed", "shipped", "delivered", "canceled"]>;
 }, "strip", zod.ZodTypeAny, {
-    status: "received" | "processed" | "shipped" | "delivered";
+    status: "received" | "processed" | "shipped" | "delivered" | "canceled";
 }, {
-    status: "received" | "processed" | "shipped" | "delivered";
+    status: "received" | "processed" | "shipped" | "delivered" | "canceled";
 }>;
 export declare const UpdateOrderStatusResponse: zod.ZodObject<{
     id: zod.ZodNumber;
@@ -1334,7 +1433,7 @@ export declare const UpdateOrderStatusResponse: zod.ZodObject<{
     shippingCost: zod.ZodNumber;
     tax: zod.ZodNumber;
     total: zod.ZodNumber;
-    status: zod.ZodEnum<["received", "processed", "shipped", "delivered"]>;
+    status: zod.ZodEnum<["received", "processed", "shipped", "delivered", "canceled"]>;
     isFreeOrder: zod.ZodBoolean;
     discount: zod.ZodNumber;
     paymentProvider: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
@@ -1354,7 +1453,7 @@ export declare const UpdateOrderStatusResponse: zod.ZodObject<{
     notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     createdAt: zod.ZodString;
 }, "strip", zod.ZodTypeAny, {
-    status: "received" | "processed" | "shipped" | "delivered";
+    status: "received" | "processed" | "shipped" | "delivered" | "canceled";
     id: number;
     createdAt: string;
     total: number;
@@ -1397,7 +1496,7 @@ export declare const UpdateOrderStatusResponse: zod.ZodObject<{
     shippedAt?: string | null | undefined;
     notes?: string | null | undefined;
 }, {
-    status: "received" | "processed" | "shipped" | "delivered";
+    status: "received" | "processed" | "shipped" | "delivered" | "canceled";
     id: number;
     createdAt: string;
     total: number;
@@ -1488,7 +1587,16 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
             reviewCount: zod.ZodNumber;
             rating: zod.ZodNumber;
-            colors: zod.ZodArray<zod.ZodString, "many">;
+            colors: zod.ZodArray<zod.ZodObject<{
+                hex: zod.ZodString;
+                name: zod.ZodString;
+            }, "strip", zod.ZodTypeAny, {
+                name: string;
+                hex: string;
+            }, {
+                name: string;
+                hex: string;
+            }>, "many">;
             mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
             linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
             createdAt: zod.ZodString;
@@ -1508,7 +1616,10 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             isUpsell: boolean;
             reviewCount: number;
             rating: number;
-            colors: string[];
+            colors: {
+                name: string;
+                hex: string;
+            }[];
             createdAt: string;
             comparePrice?: number | null | undefined;
             categoryId?: number | null | undefined;
@@ -1533,7 +1644,10 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             isUpsell: boolean;
             reviewCount: number;
             rating: number;
-            colors: string[];
+            colors: {
+                name: string;
+                hex: string;
+            }[];
             createdAt: string;
             comparePrice?: number | null | undefined;
             categoryId?: number | null | undefined;
@@ -1594,7 +1708,10 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             isUpsell: boolean;
             reviewCount: number;
             rating: number;
-            colors: string[];
+            colors: {
+                name: string;
+                hex: string;
+            }[];
             createdAt: string;
             comparePrice?: number | null | undefined;
             categoryId?: number | null | undefined;
@@ -1639,7 +1756,10 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             isUpsell: boolean;
             reviewCount: number;
             rating: number;
-            colors: string[];
+            colors: {
+                name: string;
+                hex: string;
+            }[];
             createdAt: string;
             comparePrice?: number | null | undefined;
             categoryId?: number | null | undefined;
@@ -1688,7 +1808,10 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             isUpsell: boolean;
             reviewCount: number;
             rating: number;
-            colors: string[];
+            colors: {
+                name: string;
+                hex: string;
+            }[];
             createdAt: string;
             comparePrice?: number | null | undefined;
             categoryId?: number | null | undefined;
@@ -1736,7 +1859,10 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             isUpsell: boolean;
             reviewCount: number;
             rating: number;
-            colors: string[];
+            colors: {
+                name: string;
+                hex: string;
+            }[];
             createdAt: string;
             comparePrice?: number | null | undefined;
             categoryId?: number | null | undefined;
@@ -1832,7 +1958,16 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
         reviewCount: zod.ZodNumber;
         rating: zod.ZodNumber;
-        colors: zod.ZodArray<zod.ZodString, "many">;
+        colors: zod.ZodArray<zod.ZodObject<{
+            hex: zod.ZodString;
+            name: zod.ZodString;
+        }, "strip", zod.ZodTypeAny, {
+            name: string;
+            hex: string;
+        }, {
+            name: string;
+            hex: string;
+        }>, "many">;
         mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         createdAt: zod.ZodString;
@@ -1852,7 +1987,10 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -1877,7 +2015,10 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -1938,7 +2079,10 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -1983,7 +2127,10 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -2048,7 +2195,16 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
         reviewCount: zod.ZodNumber;
         rating: zod.ZodNumber;
-        colors: zod.ZodArray<zod.ZodString, "many">;
+        colors: zod.ZodArray<zod.ZodObject<{
+            hex: zod.ZodString;
+            name: zod.ZodString;
+        }, "strip", zod.ZodTypeAny, {
+            name: string;
+            hex: string;
+        }, {
+            name: string;
+            hex: string;
+        }>, "many">;
         mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
         createdAt: zod.ZodString;
@@ -2068,7 +2224,10 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -2093,7 +2252,10 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -2154,7 +2316,10 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -2199,7 +2364,10 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         isUpsell: boolean;
         reviewCount: number;
         rating: number;
-        colors: string[];
+        colors: {
+            name: string;
+            hex: string;
+        }[];
         createdAt: string;
         comparePrice?: number | null | undefined;
         categoryId?: number | null | undefined;
@@ -2238,7 +2406,16 @@ export declare const CreateProductBody: zod.ZodObject<{
     featured: zod.ZodDefault<zod.ZodBoolean>;
     isUpsell: zod.ZodDefault<zod.ZodBoolean>;
     upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
-    colors: zod.ZodOptional<zod.ZodArray<zod.ZodString, "many">>;
+    colors: zod.ZodOptional<zod.ZodArray<zod.ZodObject<{
+        hex: zod.ZodString;
+        name: zod.ZodString;
+    }, "strip", zod.ZodTypeAny, {
+        name: string;
+        hex: string;
+    }, {
+        name: string;
+        hex: string;
+    }>, "many">>;
     mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
 }, "strip", zod.ZodTypeAny, {
     category: string;
@@ -2252,7 +2429,10 @@ export declare const CreateProductBody: zod.ZodObject<{
     comparePrice?: number | null | undefined;
     images?: string[] | undefined;
     upsellDiscount?: number | null | undefined;
-    colors?: string[] | undefined;
+    colors?: {
+        name: string;
+        hex: string;
+    }[] | undefined;
     mainProductIds?: number[] | undefined;
 }, {
     category: string;
@@ -2266,7 +2446,10 @@ export declare const CreateProductBody: zod.ZodObject<{
     inStock?: boolean | undefined;
     isUpsell?: boolean | undefined;
     upsellDiscount?: number | null | undefined;
-    colors?: string[] | undefined;
+    colors?: {
+        name: string;
+        hex: string;
+    }[] | undefined;
     mainProductIds?: number[] | undefined;
 }>;
 /**
@@ -2294,7 +2477,16 @@ export declare const UpdateProductBody: zod.ZodObject<{
     featured: zod.ZodDefault<zod.ZodBoolean>;
     isUpsell: zod.ZodDefault<zod.ZodBoolean>;
     upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
-    colors: zod.ZodOptional<zod.ZodArray<zod.ZodString, "many">>;
+    colors: zod.ZodOptional<zod.ZodArray<zod.ZodObject<{
+        hex: zod.ZodString;
+        name: zod.ZodString;
+    }, "strip", zod.ZodTypeAny, {
+        name: string;
+        hex: string;
+    }, {
+        name: string;
+        hex: string;
+    }>, "many">>;
     mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
 }, "strip", zod.ZodTypeAny, {
     category: string;
@@ -2308,7 +2500,10 @@ export declare const UpdateProductBody: zod.ZodObject<{
     comparePrice?: number | null | undefined;
     images?: string[] | undefined;
     upsellDiscount?: number | null | undefined;
-    colors?: string[] | undefined;
+    colors?: {
+        name: string;
+        hex: string;
+    }[] | undefined;
     mainProductIds?: number[] | undefined;
 }, {
     category: string;
@@ -2322,7 +2517,10 @@ export declare const UpdateProductBody: zod.ZodObject<{
     inStock?: boolean | undefined;
     isUpsell?: boolean | undefined;
     upsellDiscount?: number | null | undefined;
-    colors?: string[] | undefined;
+    colors?: {
+        name: string;
+        hex: string;
+    }[] | undefined;
     mainProductIds?: number[] | undefined;
 }>;
 export declare const UpdateProductResponse: zod.ZodObject<{
@@ -2345,7 +2543,16 @@ export declare const UpdateProductResponse: zod.ZodObject<{
     upsellDiscount: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
     reviewCount: zod.ZodNumber;
     rating: zod.ZodNumber;
-    colors: zod.ZodArray<zod.ZodString, "many">;
+    colors: zod.ZodArray<zod.ZodObject<{
+        hex: zod.ZodString;
+        name: zod.ZodString;
+    }, "strip", zod.ZodTypeAny, {
+        name: string;
+        hex: string;
+    }, {
+        name: string;
+        hex: string;
+    }>, "many">;
     mainProductIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
     linkedUpsellIds: zod.ZodOptional<zod.ZodArray<zod.ZodNumber, "many">>;
     createdAt: zod.ZodString;
@@ -2365,7 +2572,10 @@ export declare const UpdateProductResponse: zod.ZodObject<{
     isUpsell: boolean;
     reviewCount: number;
     rating: number;
-    colors: string[];
+    colors: {
+        name: string;
+        hex: string;
+    }[];
     createdAt: string;
     comparePrice?: number | null | undefined;
     categoryId?: number | null | undefined;
@@ -2390,7 +2600,10 @@ export declare const UpdateProductResponse: zod.ZodObject<{
     isUpsell: boolean;
     reviewCount: number;
     rating: number;
-    colors: string[];
+    colors: {
+        name: string;
+        hex: string;
+    }[];
     createdAt: string;
     comparePrice?: number | null | undefined;
     categoryId?: number | null | undefined;
@@ -2468,7 +2681,7 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
         shippingCost: zod.ZodNumber;
         tax: zod.ZodNumber;
         total: zod.ZodNumber;
-        status: zod.ZodEnum<["received", "processed", "shipped"]>;
+        status: zod.ZodEnum<["received", "processed", "shipped", "delivered", "canceled"]>;
         isFreeOrder: zod.ZodBoolean;
         discount: zod.ZodNumber;
         paymentProvider: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
@@ -2488,7 +2701,7 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
         notes: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         createdAt: zod.ZodString;
     }, "strip", zod.ZodTypeAny, {
-        status: "received" | "processed" | "shipped";
+        status: "received" | "processed" | "shipped" | "delivered" | "canceled";
         id: number;
         createdAt: string;
         total: number;
@@ -2531,7 +2744,7 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
         shippedAt?: string | null | undefined;
         notes?: string | null | undefined;
     }, {
-        status: "received" | "processed" | "shipped";
+        status: "received" | "processed" | "shipped" | "delivered" | "canceled";
         id: number;
         createdAt: string;
         total: number;
@@ -2578,14 +2791,20 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
         received: zod.ZodNumber;
         processed: zod.ZodNumber;
         shipped: zod.ZodNumber;
+        delivered: zod.ZodNumber;
+        canceled: zod.ZodNumber;
     }, "strip", zod.ZodTypeAny, {
         received: number;
         processed: number;
         shipped: number;
+        delivered: number;
+        canceled: number;
     }, {
         received: number;
         processed: number;
         shipped: number;
+        delivered: number;
+        canceled: number;
     }>;
 }, "strip", zod.ZodTypeAny, {
     totalOrders: number;
@@ -2593,7 +2812,7 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
     pendingOrders: number;
     totalProducts: number;
     recentOrders: {
-        status: "received" | "processed" | "shipped";
+        status: "received" | "processed" | "shipped" | "delivered" | "canceled";
         id: number;
         createdAt: string;
         total: number;
@@ -2640,6 +2859,8 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
         received: number;
         processed: number;
         shipped: number;
+        delivered: number;
+        canceled: number;
     };
 }, {
     totalOrders: number;
@@ -2647,7 +2868,7 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
     pendingOrders: number;
     totalProducts: number;
     recentOrders: {
-        status: "received" | "processed" | "shipped";
+        status: "received" | "processed" | "shipped" | "delivered" | "canceled";
         id: number;
         createdAt: string;
         total: number;
@@ -2694,6 +2915,8 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
         received: number;
         processed: number;
         shipped: number;
+        delivered: number;
+        canceled: number;
     };
 }>;
 //# sourceMappingURL=api.d.ts.map

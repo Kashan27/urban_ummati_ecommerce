@@ -12,6 +12,7 @@
     "@vercel/blob": "^2.3.3",
     "color-name-list": "^14.36.0",
     "drizzle-orm": "catalog:",
+    "react-quill": "^2.0.0",
     "stripe": "^22.0.2"
   },
   "devDependencies": {

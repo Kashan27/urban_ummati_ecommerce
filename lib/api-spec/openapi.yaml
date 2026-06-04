@@ -218,7 +218,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [received, processed, shipped, delivered]
+            enum: [received, processed, shipped, delivered, canceled]
         - name: limit
           in: query
           schema:
@@ -562,6 +562,17 @@ components:
         - isActive
         - createdAt
 
+    ProductColor:
+      type: object
+      properties:
+        hex:
+          type: string
+        name:
+          type: string
+      required:
+        - hex
+        - name
+
     Product:
       type: object
       properties:
@@ -614,7 +625,7 @@ components:
         colors:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/ProductColor"
         mainProductIds:
           type: array
           items:
@@ -683,7 +694,7 @@ components:
           type: number
         status:
           type: string
-          enum: [received, processed, shipped]
+          enum: [received, processed, shipped, delivered, canceled]
         isFreeOrder:
           type: boolean
         discount:
@@ -838,7 +849,7 @@ components:
       properties:
         status:
           type: string
-          enum: [received, processed, shipped, delivered]
+          enum: [received, processed, shipped, delivered, canceled]
       required:
         - status
 
@@ -998,7 +1009,7 @@ components:
         colors:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/ProductColor"
         mainProductIds:
           type: array
           items:
@@ -1035,10 +1046,16 @@ components:
               type: integer
             shipped:
               type: integer
+            delivered:
+              type: integer
+            canceled:
+              type: integer
           required:
             - received
             - processed
             - shipped
+            - delivered
+            - canceled
       required:
         - totalOrders
         - totalRevenue

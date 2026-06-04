@@ -109,7 +109,7 @@ export function Products() {
             p.categoryName,
             p.categorySlug,
             p.category,
-            ...(p.colors || []),
+            ...(p.colors?.map((c) => c.name) ?? []),
           ]
             .join(" ")
             .toLowerCase();

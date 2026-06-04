@@ -36,6 +36,7 @@ import { OrderReceipt } from "@/components/admin/OrderReceipt";
 import { OrderPackingSlip } from "@/components/admin/OrderPackingSlip";
 import { OrderShippingLabel } from "@/components/admin/OrderShippingLabel";
 import type { Order } from "@workspace/api-zod";
+import type { UpdateOrderStatusBodyStatus } from "@workspace/api-client-react";
 
 function useDebouncedValue<T>(value: T, delayMs: number) {
   const [debounced, setDebounced] = useState(value);
@@ -67,9 +68,11 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   const [productSaveError, setProductSaveError] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([""]);
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryImageUrl, setNewCategoryImageUrl] = useState("");
   const [isSavingCategory, setIsSavingCategory] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
   const [editingCategoryName, setEditingCategoryName] = useState("");
+  const [editingCategoryImageUrl, setEditingCategoryImageUrl] = useState("");
   const [newCollectionName, setNewCollectionName] = useState("");
   const [newCollectionDescription, setNewCollectionDescription] = useState("");
   const [newCollectionImageUrl, setNewCollectionImageUrl] = useState("");
@@ -87,7 +90,9 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   const [confirmAction, setConfirmAction] = useState<(() => Promise<void> | void) | null>(null);
   const [confirmPending, setConfirmPending] = useState(false);
   const [orderStatusFilter, setOrderStatusFilter] = useState<ListOrdersStatus | undefined>(undefined);
-  const [orderPaymentStatusFilter, setOrderPaymentStatusFilter] = useState<"all" | "pending" | "paid" | "failed" | "refunded">("all");
+  const [orderPaymentStatusFilter, setOrderPaymentStatusFilter] = useState<
+    "all" | "pending" | "paid" | "failed" | "canceled" | "refunded"
+  >("all");
   const [orderSearchQuery, setOrderSearchQuery] = useState("");
   const [orderDateFrom, setOrderDateFrom] = useState("");
   const [orderDateTo, setOrderDateTo] = useState("");
@@ -305,7 +310,9 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   const deleteFreeLink = useDeleteFreeProductLink();
 
   const productForm = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
+    // @hookform/resolvers@3.10.x types are Zod v4-based; our workspace uses Zod v3.
+    // Runtime is compatible, but we need a cast to avoid TS type mismatch.
+    resolver: zodResolver(productSchema as any),
     defaultValues: {
       name: "",
       description: "",
@@ -640,7 +647,10 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
     }
   }
 
-  function handleUpdateOrderStatus(orderId: number, status: "received" | "processed" | "shipped" | "delivered") {
+  function handleUpdateOrderStatus(
+    orderId: number,
+    status: UpdateOrderStatusBodyStatus,
+  ) {
     updateStatus.mutate(
       { id: orderId, data: { status } },
       {
@@ -749,13 +759,21 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, isActive: true }),
+        body: JSON.stringify({ name, imageUrl: newCategoryImageUrl || undefined, isActive: true }),
       });
       if (!response.ok) {
-        throw new Error("Failed to create category");
+        if (response.status === 409) {
+          throw new Error("A category with this name already exists.");
+        }
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || "Failed to create category");
       }
       setNewCategoryName("");
+      setNewCategoryImageUrl("");
       await queryClient.invalidateQueries({ queryKey: ["adminCategories"] });
+      toast.success("Category created successfully");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to create category");
     } finally {
       setIsSavingCategory(false);
     }
@@ -770,14 +788,18 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, imageUrl: editingCategoryImageUrl || undefined }),
       });
       if (!response.ok) {
         throw new Error("Failed to update category");
       }
       setEditingCategoryId(null);
       setEditingCategoryName("");
+      setEditingCategoryImageUrl("");
       await queryClient.invalidateQueries({ queryKey: ["adminCategories"] });
+      toast.success("Category updated successfully");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update category");
     } finally {
       setIsSavingCategory(false);
     }
@@ -1016,7 +1038,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
                 statusFilter={orderStatusFilter}
                 onStatusFilterChange={setOrderStatusFilter}
                 paymentStatusFilter={orderPaymentStatusFilter}
-                onPaymentStatusFilterChange={setOrderPaymentStatusFilter}
+                onPaymentStatusFilterChange={(status) => setOrderPaymentStatusFilter(status)}
                 searchQuery={orderSearchQuery}
                 onSearchQueryChange={setOrderSearchQuery}
                 dateFrom={orderDateFrom}
@@ -1039,17 +1061,23 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
                 categories={categoriesData?.categories}
                 newCategoryName={newCategoryName}
                 onNewCategoryNameChange={setNewCategoryName}
+                newCategoryImageUrl={newCategoryImageUrl}
+                onNewCategoryImageUrlChange={setNewCategoryImageUrl}
                 isSavingCategory={isSavingCategory}
                 editingCategoryId={editingCategoryId}
                 editingCategoryName={editingCategoryName}
                 onEditingCategoryNameChange={setEditingCategoryName}
+                editingCategoryImageUrl={editingCategoryImageUrl}
+                onEditingCategoryImageUrlChange={setEditingCategoryImageUrl}
                 onStartEdit={(category) => {
                   setEditingCategoryId(category.id);
                   setEditingCategoryName(category.name);
+                  setEditingCategoryImageUrl(category.imageUrl || '');
                 }}
                 onCancelEdit={() => {
                   setEditingCategoryId(null);
-                  setEditingCategoryName("");
+                  setEditingCategoryName('');
+                  setEditingCategoryImageUrl('');
                 }}
                 onCreateCategory={handleCreateCategory}
                 onUpdateCategory={handleUpdateCategory}
@@ -1126,6 +1154,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
                 settings={settingsData} 
                 onUpdateSettings={handleUpdateSettings} 
                 products={allProductsForSelection?.products}
+                categories={categoriesData?.categories}
               />
             )}
           </div>

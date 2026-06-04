@@ -94,6 +94,7 @@ export function formatOrder(
     2: "processed",
     3: "shipped",
     4: "delivered",
+    5: "canceled",
   };
   const derivedStatus = statusName || statusMap[Number(statusId)] || "received";
 

@@ -17,7 +17,10 @@ type Props = {
   statsLoading: boolean;
   stats: StatsShape | undefined;
   statsDataPresent: boolean;
-  onOrderStatusChange: (orderId: number, status: "received" | "processed" | "shipped") => void;
+  onOrderStatusChange: (
+    orderId: number,
+    status: "received" | "processed" | "shipped" | "delivered" | "canceled",
+  ) => void;
   onViewOrderDetails: (order: Order) => void;
   onPrintReceipt: (order: Order) => void;
   onPrintPackingSlip: (order: Order) => void;
@@ -118,7 +121,10 @@ export function DashboardSection({
                         <select
                           value={order.status}
                           onChange={(e) =>
-                            onOrderStatusChange(order.id, e.target.value as "received" | "processed" | "shipped")
+                            onOrderStatusChange(
+                              order.id,
+                              e.target.value as "received" | "processed" | "shipped" | "delivered" | "canceled",
+                            )
                           }
                           className="rounded-md border border-input bg-background px-2 py-1 text-xs"
                           data-testid={`select-order-status-${order.id}`}
@@ -126,6 +132,8 @@ export function DashboardSection({
                           <option value="received">Received</option>
                           <option value="processed">Processed</option>
                           <option value="shipped">Shipped</option>
+                          <option value="delivered">Delivered</option>
+                          <option value="canceled">Canceled</option>
                         </select>
                         <button
                           onClick={() => onViewOrderDetails(order)}

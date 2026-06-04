@@ -70,7 +70,7 @@ export async function DELETE(
     const currentAdmin = await db
       .select()
       .from(adminsTable)
-      .where(eq(adminsTable.username, adminAuth.username || ""))
+      .where(eq(adminsTable.username, adminAuth.session.u))
       .then(rows => rows[0]);
 
     if (currentAdmin?.id === adminId) {

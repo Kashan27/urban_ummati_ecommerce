@@ -9,6 +9,7 @@ export const runtime = "nodejs";
 const ParamsSchema = z.object({ id: z.number().int().positive() });
 const UpdateCategoryBody = z.object({
   name: z.string().min(2).optional(),
+  imageUrl: z.string().url().optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -58,6 +59,7 @@ export async function PUT(
       .set({
         name: nextName,
         slug: nextSlug,
+        imageUrl: bodyParsed.data.imageUrl ?? current[0].imageUrl,
         isActive: bodyParsed.data.isActive ?? current[0].isActive,
         updatedAt: new Date(),
       })

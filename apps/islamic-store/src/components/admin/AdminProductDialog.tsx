@@ -8,13 +8,13 @@ import { Button } from "@/components/ui/button";
 import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, Check, ChevronsUpDown, X, Package, DollarSign, Image, Layers, Settings, Scale } from "lucide-react";
+import { AlertCircle, X, Package, DollarSign, Image, Layers, Settings, Scale } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AdminCategory, AdminCollection, AdminProduct } from "@/components/admin/types";
 import type { ProductFormValues } from "@/components/admin/product-form-schema";
 import { ColorInput } from "@/components/admin/ColorInput";
+import { SimpleRichTextEditor } from "@/components/admin/SimpleRichTextEditor";
 
 type Props = {
   mode: "create" | "edit";
@@ -226,11 +226,10 @@ export function AdminProductDialogContent({
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <textarea
-                        {...field}
-                        rows={4}
+                      <SimpleRichTextEditor
+                        value={field.value || ""}
+                        onChange={field.onChange}
                         placeholder="Describe your product..."
-                        className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                       />
                     </FormControl>
                     <FormMessage />
@@ -635,9 +634,9 @@ export function AdminProductDialogContent({
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm font-semibold">Featured Product</FormLabel>
+                      <FormLabel className="text-sm font-semibold">New Arrival / Featured</FormLabel>
                       <p className="text-xs text-muted-foreground">
-                        Display this product in featured sections on the homepage
+                        Display this product in the "New Arrivals" section and featured areas on the homepage
                       </p>
                     </div>
                   </FormItem>

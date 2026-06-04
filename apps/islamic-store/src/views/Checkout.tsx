@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useSearch } from "@/lib/router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,9 +37,14 @@ export function Checkout() {
   const searchParams = new URLSearchParams(searchString);
   const canceled = searchParams.get("canceled") === "1";
   const canceledOrderId = searchParams.get("orderId");
+  const canceledOrderToken = searchParams.get("token") ?? "";
   const [paymentPending, setPaymentPending] = useState(false);
   const [paymentError, setPaymentError] = useState("");
   const [settings, setSettings] = useState<OrderSettings | null>(null);
+  const [cancelFinalizeStatus, setCancelFinalizeStatus] = useState<
+    "idle" | "pending" | "done" | "error"
+  >("idle");
+  const cancelFinalizeKeyRef = useRef<string>("");
 
   useEffect(() => {
     fetch("/api/settings")
@@ -47,6 +52,32 @@ export function Checkout() {
       .then((data) => setSettings(data))
       .catch((err) => console.error("Failed to fetch settings", err));
   }, []);
+
+  // If the customer comes back from Stripe via cancel_url, cancel the pending order immediately and
+  // restore inventory. (Stripe doesn't send an immediate "canceled" webhook.)
+  useEffect(() => {
+    if (!canceled) return;
+    if (!canceledOrderId) return;
+    if (!canceledOrderToken) return;
+
+    const key = `${canceledOrderId}:${canceledOrderToken}`;
+    if (cancelFinalizeKeyRef.current === key) return;
+    cancelFinalizeKeyRef.current = key;
+
+    setCancelFinalizeStatus("pending");
+    fetch("/api/payments/stripe/cancel-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId: canceledOrderId, token: canceledOrderToken }),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("cancel_failed");
+        setCancelFinalizeStatus("done");
+      })
+      .catch(() => {
+        setCancelFinalizeStatus("error");
+      });
+  }, [canceled, canceledOrderId, canceledOrderToken]);
 
   const promoItem = items.find((i) => i.promoToken);
   const discount = promoItem ? promoItem.price : 0;
@@ -60,7 +91,9 @@ export function Checkout() {
   } = calculateOrderTotals(subtotal, discount, settings || ({} as OrderSettings));
 
   const form = useForm<CheckoutFormValues>({
-    resolver: zodResolver(checkoutSchema),
+    // @hookform/resolvers@3.10.x types are Zod v4-based; our workspace uses Zod v3.
+    // Runtime is compatible, but we need a cast to avoid TS type mismatch.
+    resolver: zodResolver(checkoutSchema as any),
     defaultValues: {
       customerName: "",
       customerEmail: "",
@@ -145,7 +178,14 @@ export function Checkout() {
         <div className="mb-8 rounded-md border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <span>
-              Payment was canceled. {canceledOrderId ? `Order #${canceledOrderId} is still pending.` : ""}
+              Payment was canceled.{" "}
+              {canceledOrderId
+                ? cancelFinalizeStatus === "done"
+                  ? `Order #${canceledOrderId} was canceled and stock was released.`
+                  : cancelFinalizeStatus === "pending"
+                    ? `Canceling order #${canceledOrderId}...`
+                    : `Order #${canceledOrderId} is still pending.`
+                : ""}
             </span>
             {canceledOrderId ? (
               <Button
@@ -417,4 +457,3 @@ export function Checkout() {
     </div>
   );
 }
-

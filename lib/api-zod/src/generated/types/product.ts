@@ -5,6 +5,7 @@
  * Islamic Products E-Commerce API
  * OpenAPI spec version: 0.1.0
  */
+import type { ProductColor } from "./productColor";
 
 export interface Product {
   id: number;
@@ -26,7 +27,7 @@ export interface Product {
   upsellDiscount?: number | null;
   reviewCount: number;
   rating: number;
-  colors: string[];
+  colors: ProductColor[];
   /** List of products this item is an upsell for */
   mainProductIds?: number[];
   /** List of products that are upsells for this item */

@@ -267,6 +267,7 @@ export async function POST(request: NextRequest) {
       mode: "payment",
       currency: "cad",
       customer_email: email,
+      payment_method_types: ["card"],
       line_items: [
         {
           quantity: 1,
@@ -288,7 +289,9 @@ export async function POST(request: NextRequest) {
         },
       },
       success_url: `${fallbackOrigin}/order-confirmation/${order.id}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${fallbackOrigin}/checkout?canceled=1&orderId=${order.id}`,
+      cancel_url: `${fallbackOrigin}/checkout?canceled=1&orderId=${order.id}&token=${encodeURIComponent(
+        order.trackingToken ?? "",
+      )}`,
     });
 
     await db
@@ -325,4 +328,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
-

@@ -40,6 +40,22 @@ export function Navbar() {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [settings, setSettings] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch("/api/admin/settings");
+        if (response.ok) {
+          const data = await response.json();
+          setSettings(data);
+        }
+      } catch (error) {
+        console.error("Error fetching settings:", error);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const searchPanelId = useMemo(
     () => `search-panel-${Math.random().toString(36).slice(2, 9)}`,
@@ -242,10 +258,17 @@ export function Navbar() {
             <Link href="/products?featured=true" className="transition-colors hover:text-foreground">
               New Arrivals
             </Link>
-            <span className="text-border">|</span>
-            <Link href="/products?category=wall-art" className="transition-colors hover:text-foreground">
-              Signature Art
-            </Link>
+            {(settings.signature_art_category_slug || categories.some(c => c.slug === 'wall-art')) && (
+              <>
+                <span className="text-border">|</span>
+                <Link 
+                  href={`/products?category=${settings.signature_art_category_slug || 'wall-art'}`} 
+                  className="transition-colors hover:text-foreground"
+                >
+                  Signature Art
+                </Link>
+              </>
+            )}
           </div>
         </div>
 

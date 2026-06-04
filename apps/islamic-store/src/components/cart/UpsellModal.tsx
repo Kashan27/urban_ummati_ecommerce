@@ -39,7 +39,8 @@ export function UpsellModal() {
   };
 
   const handleAddUpsell = (product: any) => {
-    const globalDiscount = parseFloat(upsellData?.settings?.upsell_discount_percent || "0");
+    const settings = (upsellData as any)?.settings as Record<string, string> | undefined;
+    const globalDiscount = parseFloat(settings?.upsell_discount_percent || "0");
     const productDiscount = product.upsellDiscount ?? globalDiscount;
     const price = productDiscount > 0 
       ? product.price * (1 - productDiscount / 100) 
@@ -51,7 +52,7 @@ export function UpsellModal() {
       price: price,
       quantity: 1,
       imageUrl: product.imageUrl,
-      color: product.colors?.[0]
+      color: product.colors?.[0]?.name
     }, { skipUpsell: true });
     
     setAddedUpsells(prev => [...prev, product.id]);
@@ -61,7 +62,8 @@ export function UpsellModal() {
 
   const upsellProducts = upsellData.products.slice(0, 3); // Max 3 items
   const itemCount = upsellProducts.length;
-  const globalDiscount = parseFloat(upsellData.settings?.upsell_discount_percent || "0");
+  const settings = (upsellData as any)?.settings as Record<string, string> | undefined;
+  const globalDiscount = parseFloat(settings?.upsell_discount_percent || "0");
 
   return (
     <>

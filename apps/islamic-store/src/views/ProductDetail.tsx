@@ -133,10 +133,10 @@ export function ProductDetail() {
           <span className="text-foreground truncate">{product.name}</span>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-12 lg:gap-16">
-          
+        <div className="flex flex-col md:flex-row gap-12 lg:gap-16 items-start">
+
           {/* Images */}
-          <div className="w-full md:w-1/2 flex flex-col-reverse md:flex-row gap-4">
+          <div className="w-full md:w-1/2 flex flex-col-reverse md:flex-row gap-4 md:sticky md:top-24 self-start">
             {/* Thumbnails (Left on desktop, bottom on mobile) */}
             <div className="flex md:flex-col gap-4 overflow-x-auto md:overflow-y-auto md:w-20 lg:w-24 shrink-0 pb-2 md:pb-0 hide-scrollbar">
               {allImages.map((img, idx) => (
@@ -291,9 +291,10 @@ export function ProductDetail() {
             </div>
 
             {/* Description */}
-            <div className="mb-10 prose prose-sm md:prose-base text-foreground/80 font-sans max-w-none">
-              <p>{product.description}</p>
-            </div>
+            <div
+              className="mb-10 prose prose-sm md:prose-base text-foreground/80 font-sans max-w-none"
+              dangerouslySetInnerHTML={{ __html: product.description || "" }}
+            />
 
             {/* Value Props */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-6 border-y border-border">

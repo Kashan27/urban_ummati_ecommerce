@@ -30,6 +30,7 @@ export async function PATCH(
       processed: 2,
       shipped: 3,
       delivered: 4,
+      canceled: 5,
     };
 
     const statusId = statusMap[bodyParsed.data.status];
