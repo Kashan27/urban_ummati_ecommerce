@@ -11,6 +11,7 @@ export const productsTable = pgTable("products", {
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
   comparePrice: numeric("compare_price", { precision: 10, scale: 2 }),
   categoryId: integer("category_id").notNull().references(() => categoriesTable.id),
+  sku: text("sku"),
   imageUrl: text("image_url").notNull(),
   inStock: boolean("in_stock").notNull().default(true),
   inventoryQuantity: integer("inventory_quantity"),

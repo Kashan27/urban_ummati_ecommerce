@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { X, Plus, Check } from "lucide-react";
 import { Link } from "@/lib/router";
 import { useCart } from "@/lib/cart-context";
-import { cn } from "@/lib/utils";
+import { cn, getProductSlug } from "@/lib/utils";
 import { useGetUpsellProducts, getGetUpsellProductsQueryKey } from "@workspace/api-client-react";
 
 export function UpsellModal() {
@@ -121,7 +121,7 @@ export function UpsellModal() {
                   </div>
 
                   <Link 
-                    href={`/products/${product.id}`}
+                    href={`/products/${getProductSlug(product.name, product.id)}`}
                     onClick={handleClose}
                     className="font-serif text-lg mb-2 line-clamp-2 hover:text-primary transition-colors flex-1"
                   >

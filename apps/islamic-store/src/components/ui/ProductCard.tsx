@@ -1,6 +1,7 @@
 import { Link } from "@/lib/router";
 import { Star, StarHalf } from "lucide-react";
 import type { Product } from "@workspace/api-client-react";
+import { getProductSlug } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: Product }) {
   // Generate star rating display
@@ -22,7 +23,7 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <Link href={`/products/${product.id}`} className="group block w-full bg-white transition-all duration-300 hover:shadow-lg">
+    <Link href={`/products/${getProductSlug(product.name, product.id)}`} className="group block w-full bg-white transition-all duration-300 hover:shadow-lg">
       <div className="relative aspect-square overflow-hidden bg-muted">
         {/* Placeholder if no image */}
         <img 

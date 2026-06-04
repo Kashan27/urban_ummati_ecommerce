@@ -598,6 +598,9 @@ components:
         categorySlug:
           type: string
           nullable: true
+        sku:
+          type: string
+          nullable: true
         imageUrl:
           type: string
         images:
@@ -774,6 +777,9 @@ components:
           type: integer
         productName:
           type: string
+        sku:
+          type: string
+          nullable: true
         productImage:
           type: string
         price:

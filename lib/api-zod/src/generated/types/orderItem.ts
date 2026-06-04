@@ -10,6 +10,7 @@ export interface OrderItem {
   id: number;
   productId: number;
   productName: string;
+  sku?: string | null;
   productImage: string;
   price: number;
   quantity: number;

@@ -4,12 +4,12 @@ import { useGetProduct, getGetProductQueryKey } from "@workspace/api-client-reac
 import { useCart } from "@/lib/cart-context";
 import { Star, StarHalf, Minus, Plus, Truck, ShieldCheck, RefreshCw, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { cn, getProductIdFromSlug } from "@/lib/utils";
 import { getColorName } from "@/lib/color-utils";
 
 export function ProductDetail() {
   const { id } = useParams<{ id: string }>();
-  const productId = parseInt(id, 10);
+  const productId = parseInt(getProductIdFromSlug(id), 10);
   const { addItem, setIsCartOpen } = useCart();
   
   const [quantity, setQuantity] = useState(1);

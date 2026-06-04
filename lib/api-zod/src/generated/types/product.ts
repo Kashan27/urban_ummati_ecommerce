@@ -17,6 +17,7 @@ export interface Product {
   categoryId?: number | null;
   categoryName?: string | null;
   categorySlug?: string | null;
+  sku?: string | null;
   imageUrl: string;
   images: string[];
   inStock: boolean;

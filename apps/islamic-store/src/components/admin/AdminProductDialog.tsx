@@ -321,6 +321,25 @@ export function AdminProductDialogContent({
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={productForm.control}
+                  name="sku"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-semibold uppercase tracking-wider">SKU</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value ?? ""}
+                          placeholder="e.g. TAS-001"
+                        />
+                      </FormControl>
+                      <p className="text-[10px] text-muted-foreground mt-1">Unique identifier for warehouse</p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={productForm.control}
                   name="inventoryQuantity"
                   render={({ field }) => (
                     <FormItem>

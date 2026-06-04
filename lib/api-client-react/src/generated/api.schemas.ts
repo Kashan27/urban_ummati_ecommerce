@@ -39,6 +39,7 @@ export interface Product {
   categoryId?: number | null;
   categoryName?: string | null;
   categorySlug?: string | null;
+  sku?: string | null;
   imageUrl: string;
   images: string[];
   inStock: boolean;
@@ -72,6 +73,7 @@ export interface OrderItem {
   id: number;
   productId: number;
   productName: string;
+  sku?: string | null;
   productImage: string;
   price: number;
   quantity: number;

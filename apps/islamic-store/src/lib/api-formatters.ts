@@ -28,6 +28,7 @@ export function formatProduct(
     categoryName,
     categorySlug,
     category: categorySlug,
+    sku: p.sku,
     imageUrl: p.imageUrl,
     images: normalizedImages,
     inStock: p.inStock,

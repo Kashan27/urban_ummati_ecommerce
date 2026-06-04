@@ -4,6 +4,7 @@ import { Minus, Plus, X, ArrowRight, ShieldCheck, Truck, Gift } from "lucide-rea
 import { useEffect, useMemo, useState } from "react";
 import { useGetFreeProductLink, getGetFreeProductLinkQueryKey } from "@workspace/api-client-react";
 import { calculateOrderTotals, OrderSettings } from "@/lib/order-utils";
+import { getProductSlug } from "@/lib/utils";
 
 export function Cart() {
   const { items, addItem, removeItem, updateQuantity, subtotal } = useCart();
@@ -136,7 +137,7 @@ export function Cart() {
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
                         <div className="flex justify-between">
-                          <Link href={`/products/${item.productId}`} className="font-serif text-lg hover:text-primary transition-colors pr-4">
+                          <Link href={`/products/${getProductSlug(item.name, item.productId)}`} className="font-serif text-lg hover:text-primary transition-colors pr-4">
                             {item.name}
                           </Link>
                           <button onClick={() => removeItem(item.productId, item.color)} className="text-muted-foreground hover:text-destructive">
@@ -163,7 +164,7 @@ export function Cart() {
                       <img src={item.imageUrl || '/product-1.png'} alt={item.name} className="w-full h-full object-cover" />
                     </div>
                     <div>
-                      <Link href={`/products/${item.productId}`} className="font-serif text-lg hover:text-primary transition-colors">
+                      <Link href={`/products/${getProductSlug(item.name, item.productId)}`} className="font-serif text-lg hover:text-primary transition-colors">
                         {item.name}
                       </Link>
                       {item.color && <p className="text-sm text-muted-foreground font-sans mt-1">Color: {item.color}</p>}

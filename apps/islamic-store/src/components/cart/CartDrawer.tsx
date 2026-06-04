@@ -3,6 +3,7 @@
 import { X, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
 import { Link, useLocation } from "@/lib/router";
 import { useCart } from "@/lib/cart-context";
+import { getProductSlug } from "@/lib/utils";
 
 export function CartDrawer() {
   const { items, removeItem, updateQuantity, subtotal, isCartOpen, setIsCartOpen } = useCart();
@@ -65,7 +66,7 @@ export function CartDrawer() {
                     <div>
                       <div className="flex justify-between items-start gap-2">
                         <Link 
-                          href={`/products/${item.productId}`}
+                          href={`/products/${getProductSlug(item.name, item.productId)}`}
                           onClick={() => setIsCartOpen(false)}
                           className="font-serif text-base line-clamp-2 hover:text-primary transition-colors"
                         >

@@ -68,7 +68,9 @@ export function OrderPackingSlip({ order }: Props) {
                   <td className="py-4 text-left">
                     <p className="font-medium text-foreground">{item.productName}</p>
                     {item.color ? <p className="text-xs text-gray-500">Color: {item.color}</p> : null}
-                    <p className="text-xs text-gray-400 font-mono">SKU: {item.productId.toString().padStart(4, '0')}</p>
+                    <p className="text-xs text-gray-400 font-mono">
+                      SKU: {item.sku || item.productId.toString().padStart(4, "0")}
+                    </p>
                   </td>
                   <td className="py-4 text-right">
                     <div className="inline-block h-6 w-6 border-2 border-gray-200 rounded"></div>

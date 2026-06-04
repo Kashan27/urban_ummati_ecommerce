@@ -57,6 +57,7 @@ export const orderItemsTable = pgTable("order_items", {
     .notNull()
     .references(() => productsTable.id),
   productName: text("product_name").notNull(),
+  sku: text("sku"),
   productImage: text("product_image"),
   color: text("color"),
   unitPrice: numeric("unit_price", { precision: 10, scale: 2 }).notNull(),

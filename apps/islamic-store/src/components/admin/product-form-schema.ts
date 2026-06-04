@@ -6,6 +6,7 @@ export const productSchema = z.object({
   status: z.enum(["draft", "active"]).default("active"),
   price: z.coerce.number().positive(),
   comparePrice: z.coerce.number().optional().nullable(),
+  sku: z.string().optional().nullable(),
   categoryId: z.coerce.number().int().positive(),
   collectionIds: z.array(z.number().int().positive()).default([]),
   inStock: z.boolean().default(true),

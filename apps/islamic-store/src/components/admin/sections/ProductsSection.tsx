@@ -21,7 +21,7 @@ import { AdminProductDialogContent } from "@/components/admin/AdminProductDialog
 import type { AdminProduct, AdminCategory, AdminCollection } from "@/components/admin/types";
 import type { ProductFormValues } from "@/components/admin/product-form-schema";
 import { Link } from "@/lib/router";
-import { cn } from "@/lib/utils";
+import { cn, getProductSlug } from "@/lib/utils";
 
 type Props = {
   products: AdminProduct[] | undefined;
@@ -485,7 +485,7 @@ export function ProductsSection({
                 </td>
                 <td className="p-3 text-right">
                   <div className="flex justify-end gap-1 transition-all duration-200">
-                    <Link href={`/products/${product.id}`}>
+                    <Link href={`/products/${getProductSlug(product.name, product.id)}`}>
                       <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full hover:bg-primary/10 hover:text-primary transition-colors">
                         <Eye className="h-3.5 w-3.5" />
                       </Button>

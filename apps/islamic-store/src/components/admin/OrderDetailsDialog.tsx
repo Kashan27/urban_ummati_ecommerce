@@ -243,7 +243,7 @@ export function OrderDetailsDialog({
                       <div>
                         <div className="font-medium">{item.productName}</div>
                         <div className="text-xs text-muted-foreground">
-                          Qty: {item.quantity} {item.color && `• Color: ${item.color}`}
+                          Qty: {item.quantity} {item.color && `• Color: ${item.color}`} {item.sku && `• SKU: ${item.sku}`}
                         </div>
                       </div>
                     </div>
