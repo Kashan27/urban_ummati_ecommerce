@@ -80,19 +80,19 @@ export function CollectionDetail() {
     <main className="flex-1 w-full pb-24">
       {/* Header Banner */}
       {collection?.imageUrl ? (
-        <div className="relative w-full h-[300px] md:h-[400px] mb-12">
+        <div className="relative w-full aspect-[3/2] md:aspect-auto md:h-[450px] mb-12 overflow-hidden">
           <img 
             src={collection.imageUrl} 
             alt={collection.name} 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-center p-4">
-            <div className="max-w-3xl">
-              <h1 className="font-serif text-4xl md:text-6xl text-white mb-4 uppercase tracking-tight">
+          <div className="absolute inset-0 bg-black/35 flex items-center justify-center text-center p-6">
+            <div className="max-w-3xl px-4">
+              <h1 className="font-serif text-3xl md:text-6xl text-white mb-4 uppercase tracking-tight drop-shadow-md">
                 {collection.name}
               </h1>
               {collection.description && (
-                <p className="text-white/90 text-lg md:text-xl font-sans max-w-2xl mx-auto leading-relaxed">
+                <p className="text-white/95 text-sm md:text-xl font-sans max-w-2xl mx-auto leading-relaxed drop-shadow-sm">
                   {collection.description}
                 </p>
               )}
@@ -101,37 +101,37 @@ export function CollectionDetail() {
         </div>
       ) : (
         <div className="max-w-7xl mx-auto px-4 md:px-8 pt-10 mb-10">
-          <div className="text-xs uppercase tracking-widest text-muted-foreground">
-            <Link href="/collections" className="hover:text-foreground">
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            <Link href="/collections" className="hover:text-foreground transition-colors">
               Collections
             </Link>{" "}
             / {collection?.name ?? slug}
           </div>
-          <h1 className="mt-3 font-serif text-4xl md:text-5xl text-foreground">
+          <h1 className="mt-3 font-serif text-3xl md:text-5xl text-foreground">
             {collection?.name ?? "Collection"}
           </h1>
           {collection?.description && (
-            <p className="mt-4 text-muted-foreground text-lg max-w-3xl font-sans leading-relaxed">
+            <p className="mt-4 text-muted-foreground text-base max-w-3xl font-sans leading-relaxed">
               {collection.description}
             </p>
           )}
-          <div className="mt-4 w-16 h-0.5 bg-secondary"></div>
+          <div className="mt-5 w-16 h-0.5 bg-secondary"></div>
         </div>
       )}
 
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-12">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="animate-pulse">
-                <div className="bg-muted aspect-square w-full mb-4"></div>
-                <div className="h-4 bg-muted w-3/4 mb-2"></div>
-                <div className="h-4 bg-muted w-1/2"></div>
+                <div className="bg-muted aspect-square w-full mb-5"></div>
+                <div className="h-5 bg-muted w-3/4 mb-3"></div>
+                <div className="h-4 bg-muted w-1/4"></div>
               </div>
             ))}
           </div>
         ) : products.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-12">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
