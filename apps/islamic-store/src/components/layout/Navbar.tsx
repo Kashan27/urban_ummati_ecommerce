@@ -1,5 +1,8 @@
+"use client";
+
 import { Link, useLocation } from "@/lib/router";
 import { Search, User, ShoppingBag, Menu, X } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useCart } from "@/lib/cart-context";
@@ -31,6 +34,7 @@ type SearchSuggestion =
 
 export function Navbar() {
   const { itemCount } = useCart();
+  const isMobile = useIsMobile();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [location, setLocation] = useLocation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -390,20 +394,34 @@ export function Navbar() {
       {isSearchOpen && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={closeSearch} />
-          <div className="absolute left-1/2 top-16 w-[min(860px,calc(100%-2rem))] -translate-x-1/2 overflow-hidden rounded-2xl border border-border bg-background shadow-xl max-h-[80vh] flex flex-col">
-            <form onSubmit={submitSearch} className="flex items-center gap-3 border-b border-border/70 bg-background px-4 py-4">
-              <div className="flex flex-1 items-center gap-3 rounded-xl border border-border bg-white px-4 py-3">
-                <Search className="h-5 w-5 text-muted-foreground" />
+          <div className={`absolute overflow-hidden border border-border bg-background shadow-xl flex flex-col ${
+            isMobile 
+              ? "inset-0 z-50 h-[100dvh] w-full rounded-none border-none" 
+              : "left-1/2 top-16 w-[min(860px,calc(100%-2rem))] -translate-x-1/2 rounded-2xl max-h-[80vh]"
+          }`}>
+            <form onSubmit={submitSearch} className="flex items-center gap-3 border-b border-border/70 bg-background px-4 py-3">
+              {isMobile && (
+                <button 
+                  type="button" 
+                  onClick={closeSearch}
+                  className="mr-1 rounded-full p-1 hover:bg-muted"
+                >
+                  <X className="h-5 w-5 text-muted-foreground" />
+                </button>
+              )}
+              <div className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-white px-3 py-2">
+                <Search className="h-4 w-4 text-muted-foreground" />
                 <input
                   ref={searchInputRef}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-transparent text-base outline-none"
-                  placeholder="Search products, categories..."
+                  className="w-full bg-transparent text-sm outline-none"
+                  placeholder="Search products..."
                   autoComplete="off"
+                  enterKeyHint="search"
                 />
               </div>
-              <button type="submit" className="rounded-xl bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/90">
+              <button type="submit" className="rounded-lg bg-primary px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-primary-foreground hover:bg-primary/90">
                 Search
               </button>
             </form>

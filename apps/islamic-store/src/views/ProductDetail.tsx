@@ -258,36 +258,41 @@ export function ProductDetail() {
             )}
 
             {/* Quantity & Add to Cart */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-10">
-              <div className="flex items-center border border-border h-14 bg-white">
+            <div className="flex flex-col gap-4 mb-10">
+              <div className="flex flex-row items-center gap-4">
+                {/* Quantity Selector */}
+                <div className="flex items-center border border-border h-12 bg-white rounded-lg overflow-hidden shrink-0">
+                  <button 
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="px-4 h-full text-muted-foreground hover:text-foreground transition-colors hover:bg-muted active:bg-muted/80"
+                    disabled={quantity <= 1}
+                  >
+                    <Minus size={14} />
+                  </button>
+                  <span className="w-10 text-center font-sans font-bold text-sm">{quantity}</span>
+                  <button 
+                    onClick={() => setQuantity(Math.min(maxPurchaseQty, quantity + 1))}
+                    className="px-4 h-full text-muted-foreground hover:text-foreground transition-colors hover:bg-muted active:bg-muted/80"
+                    disabled={quantity >= maxPurchaseQty}
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
+                
+                {/* Add to Cart Button */}
                 <button 
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-5 h-full text-muted-foreground hover:text-foreground transition-colors hover:bg-muted"
-                  disabled={quantity <= 1}
+                  onClick={handleAddToCart}
+                  disabled={!product.inStock || (isEnforced && stockQty === 0)}
+                  className={cn(
+                    "flex-1 h-12 font-sans uppercase tracking-widest text-[10px] md:text-xs font-bold transition-all flex items-center justify-center gap-2 rounded-lg shadow-sm",
+                    product.inStock 
+                      ? "bg-primary text-primary-foreground hover:bg-primary/95 hover:shadow-md active:scale-[0.98]" 
+                      : "bg-muted text-muted-foreground cursor-not-allowed"
+                  )}
                 >
-                  <Minus size={16} />
-                </button>
-                <span className="w-12 text-center font-sans font-bold">{quantity}</span>
-                <button 
-                  onClick={() => setQuantity(Math.min(maxPurchaseQty, quantity + 1))}
-                  className="px-5 h-full text-muted-foreground hover:text-foreground transition-colors hover:bg-muted"
-                  disabled={quantity >= maxPurchaseQty}
-                >
-                  <Plus size={16} />
+                  {product.inStock ? 'Add to Cart' : 'Sold Out'}
                 </button>
               </div>
-              
-              <button 
-                onClick={handleAddToCart}
-                disabled={!product.inStock || (isEnforced && stockQty === 0)}
-                className={`flex-1 h-14 font-sans uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-2 ${
-                  product.inStock 
-                    ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:-translate-y-1 hover:shadow-lg' 
-                    : 'bg-muted text-muted-foreground cursor-not-allowed'
-                }`}
-              >
-                {product.inStock ? 'Add to Cart' : 'Sold Out'}
-              </button>
             </div>
 
             {/* Description */}
