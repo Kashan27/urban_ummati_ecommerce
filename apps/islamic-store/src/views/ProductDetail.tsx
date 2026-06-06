@@ -297,7 +297,7 @@ export function ProductDetail() {
             />
 
             {/* Value Props */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-6 border-y border-border">
+            {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-6 border-y border-border">
               <div className="flex flex-col items-center text-center gap-2">
                 <Truck size={24} className="text-secondary" strokeWidth={1.5} />
                 <span className="font-sans text-xs uppercase tracking-wider font-bold">Free Shipping</span>
@@ -313,7 +313,7 @@ export function ProductDetail() {
                 <span className="font-sans text-xs uppercase tracking-wider font-bold">Free Returns</span>
                 <span className="font-sans text-xs text-muted-foreground">Within 30 days</span>
               </div>
-            </div>
+            </div> */}
 
             {/* Dimensions */}
             {(product.weight || product.length || product.width || product.height) && (

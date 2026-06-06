@@ -107,7 +107,7 @@ export function Home() {
   }, [collections]);
 
   return (
-    <main className="flex-1 w-full">
+    <main className="flex-1 w-full overflow-x-hidden">
       <div className="border-b border-border/70 bg-primary py-2 text-center text-[11px] font-medium uppercase tracking-[0.22em] text-primary-foreground">
         Handpicked Urban Ummati | Fast Canada-Wide Shipping
       </div>
@@ -180,7 +180,7 @@ export function Home() {
         </div>
       </section> */}
 
-      <section className="border-b border-border/70 bg-[hsl(35_42%_96%)] px-4 py-8 md:px-8">
+      {/* <section className="border-b border-border/70 bg-[hsl(35_42%_96%)] px-4 py-8 md:px-8">
         <div className="mx-auto grid w-full max-w-7xl gap-6 md:grid-cols-3">
           <div className="flex items-start gap-3">
             <Truck className="mt-0.5 h-5 w-5 text-secondary" strokeWidth={1.7} />
@@ -204,26 +204,26 @@ export function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
-      <section className="px-4 py-20 md:px-8">
+      <section className="px-4 py-12 md:px-8 md:py-20">
         <div className="mx-auto w-full max-w-7xl">
           <div className="mb-10 flex items-end justify-between gap-6">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Browse</p>
-              <h2 className="mt-2 font-serif text-4xl md:text-5xl">Shop by Category</h2>
+              <h2 className="mt-2 font-serif text-2xl md:text-4xl lg:text-5xl">Shop by Category</h2>
             </div>
             <Link href="/products" className="hidden text-xs uppercase tracking-[0.16em] text-primary transition-colors hover:text-secondary md:inline-flex">
               View All Products
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-4">
             {isLoadingCategories ? (
               // Loading skeletons
               [1, 2, 3, 4].map(i => (
                 <div key={i} className="editorial-card animate-pulse overflow-hidden p-3">
-                  <div className="h-64 rounded-sm bg-muted"></div>
+                  <div className="h-48 md:h-64 rounded-sm bg-muted"></div>
                   <div className="px-2 pb-1 pt-4">
                     <div className="h-6 w-3/4 rounded bg-muted"></div>
                     <div className="mt-2 h-4 w-1/2 rounded bg-muted"></div>
@@ -234,7 +234,7 @@ export function Home() {
             ) : homeCategories.length > 0 ? (
               homeCategories.map((cat) => (
                 <Link key={cat.title} href={cat.url} className="editorial-card group block overflow-hidden p-3">
-                  <div className="relative h-64 overflow-hidden rounded-sm">
+                  <div className="relative h-48 md:h-64 overflow-hidden rounded-sm">
                     <img
                       src={cat.img}
                       alt={cat.title}
@@ -243,8 +243,8 @@ export function Home() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
                   </div>
                   <div className="px-2 pb-1 pt-4">
-                    <h3 className="font-serif text-2xl">{cat.title}</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">{cat.subtitle}</p>
+                    <h3 className="font-serif text-xl md:text-2xl">{cat.title}</h3>
+                    <p className="mt-1 text-xs md:text-sm text-muted-foreground">{cat.subtitle}</p>
                     <span className="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.17em] text-primary">
                       Explore <ArrowRight size={13} />
                     </span>

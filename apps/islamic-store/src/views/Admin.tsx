@@ -107,6 +107,8 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   const [productMaxPrice, setProductMaxPrice] = useState("");
   const [lowStockThreshold, setLowStockThreshold] = useState(5);
   const [productPage, setProductPage] = useState(0);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [categoryStatusFilter, setCategoryStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
   const [printMode, setPrintMode] = useState<"receipt" | "packing-slip" | "shipping-label">("receipt");
@@ -435,6 +437,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       comparePrice: null,
       categoryId: categoriesData?.categories?.[0]?.id || 1,
       collectionIds: [],
+      sku: "",
       inStock: true,
       inventoryQuantity: null,
       featured: false,
@@ -465,6 +468,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
       comparePrice: product.comparePrice ?? null,
       categoryId: product.categoryId || categoriesData?.categories?.[0]?.id || 1,
       collectionIds: [],
+      sku: product.sku ?? "",
       inStock: product.inStock,
       inventoryQuantity: product.inventoryQuantity ?? null,
       featured: product.featured,
@@ -1059,6 +1063,10 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
             {activeSection === "categories" && (
               <CategoriesSection
                 categories={categoriesData?.categories}
+                search={categorySearch}
+                onSearchChange={setCategorySearch}
+                statusFilter={categoryStatusFilter}
+                onStatusFilterChange={setCategoryStatusFilter}
                 newCategoryName={newCategoryName}
                 onNewCategoryNameChange={setNewCategoryName}
                 newCategoryImageUrl={newCategoryImageUrl}

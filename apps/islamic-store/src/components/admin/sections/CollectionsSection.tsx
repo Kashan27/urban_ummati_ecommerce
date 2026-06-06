@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import type { AdminCollection } from "@/components/admin/types";
 import { useState, useRef } from "react";
 import {
@@ -14,6 +15,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Edit, Eye, Trash2, Plus, Pencil } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Props = {
   collections: AdminCollection[] | undefined;
@@ -107,79 +110,91 @@ export function CollectionsSection({
   };
 
   return (
-    <div className="max-w-6xl">
-      <div className="mb-8 flex justify-between items-end">
-        <div>
-          <h2 className="font-serif text-2xl tracking-tight">Collections</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Group products into curated sets separate from categories.
-          </p>
+    <div className="flex flex-col h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)]">
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 space-y-4 pb-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">Collections</h2>
+            <p className="text-xs text-muted-foreground">Group products into curated sets separate from categories</p>
+          </div>
+          <Button
+            size="sm"
+            className="h-8 gap-1.5 px-3 text-xs font-medium bg-primary hover:bg-primary/90 text-primary-foreground"
+            onClick={() => setIsAddDialogOpen(true)}
+          >
+            <Plus className="h-3.5 w-3.5" /> Add Collection
+          </Button>
         </div>
-        <Button onClick={() => setIsAddDialogOpen(true)}>Add New Collection</Button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/80 text-xs uppercase tracking-wider text-muted-foreground">
+      <div className="flex-1 overflow-auto min-h-0 custom-scrollbar">
+        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <table className="w-full text-xs border-collapse">
+          <thead className="sticky top-0 z-10 bg-muted/95 backdrop-blur-sm border-b shadow-sm text-muted-foreground font-medium">
             <tr>
-              <th className="p-4 text-left">Image</th>
-              <th className="p-4 text-left">Name</th>
-              <th className="p-4 text-left">Slug</th>
-              <th className="p-4 text-left">Status</th>
-              <th className="p-4 text-left">Show on Home</th>
-              <th className="p-4 text-left">Actions</th>
+              <th className="p-3 text-left font-semibold">Preview</th>
+              <th className="p-3 text-left font-semibold">Collection Details</th>
+              <th className="p-3 text-left font-semibold">Slug</th>
+              <th className="p-3 text-left font-semibold">Status</th>
+              <th className="p-3 text-left font-semibold">Home View</th>
+              <th className="p-3 text-right font-semibold">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
+          <tbody className="divide-y divide-border/60">
             {collections?.map((collection) => (
-              <tr key={collection.id}>
-                <td className="p-4">
-                  {collection.imageUrl ? (
-                    <img src={collection.imageUrl} alt={collection.name} className="h-10 w-16 object-cover rounded border" />
-                  ) : (
-                    <div className="h-10 w-16 bg-muted rounded border flex items-center justify-center text-[10px] text-muted-foreground">No Image</div>
-                  )}
+              <tr key={collection.id} className="hover:bg-primary/[0.02] transition-colors group">
+                <td className="p-3">
+                  <div className="h-9 w-14 rounded border border-border/50 bg-muted overflow-hidden shrink-0">
+                    {collection.imageUrl ? (
+                      <img src={collection.imageUrl} alt={collection.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground">No Image</div>
+                    )}
+                  </div>
                 </td>
-                <td className="p-4">
-                  <div className="font-medium">{collection.name}</div>
+                <td className="p-3">
+                  <div className="font-bold text-foreground text-sm">{collection.name}</div>
                   {collection.description && (
-                    <div className="text-xs text-muted-foreground line-clamp-1 max-w-xs">{collection.description}</div>
+                    <div className="text-[10px] text-muted-foreground line-clamp-1 max-w-xs">{collection.description}</div>
                   )}
                 </td>
-                <td className="p-4 text-muted-foreground">{collection.slug}</td>
-                <td className="p-4">
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs ${
-                      collection.isActive ? "bg-green-100 text-green-800" : "bg-slate-100 text-slate-700"
-                    }`}
-                  >
-                    {collection.isActive ? "Active" : "Inactive"}
-                  </span>
+                <td className="p-3 text-muted-foreground font-mono">{collection.slug}</td>
+                <td className="p-3">
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      "h-2 w-2 rounded-full shadow-sm",
+                      collection.isActive ? "bg-emerald-500 shadow-emerald-200" : "bg-amber-500 shadow-amber-200"
+                    )} />
+                    <span className="font-semibold capitalize text-foreground/80">{collection.isActive ? "Active" : "Inactive"}</span>
+                  </div>
                 </td>
-                <td className="p-4">
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs ${
-                      collection.showOnHome ? "bg-blue-100 text-blue-800" : "bg-slate-100 text-slate-700"
-                    }`}
-                  >
-                    {collection.showOnHome ? "Yes" : "No"}
-                  </span>
+                <td className="p-3">
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      "h-2 w-2 rounded-full",
+                      collection.showOnHome ? "bg-blue-500" : "bg-slate-300"
+                    )} />
+                    <span className="font-medium text-muted-foreground">{collection.showOnHome ? "Visible" : "Hidden"}</span>
+                  </div>
                 </td>
-                <td className="p-4">
-                  <div className="flex flex-wrap gap-2">
+                <td className="p-3 text-right">
+                  <div className="flex justify-end items-center gap-1 transition-all duration-200">
                     <Button
-                      size="sm"
-                      variant="outline"
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 rounded-full hover:bg-primary/5 hover:text-primary transition-colors"
                       onClick={() => onStartEdit(collection)}
                     >
-                      Edit
+                      <Edit className="h-3.5 w-3.5" />
                     </Button>
+                    <Separator orientation="vertical" className="h-4 mx-1 my-auto hidden sm:block opacity-50" />
                     <Button
+                      variant="ghost"
                       size="sm"
-                      variant="outline"
+                      className="h-7 px-2 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/5"
                       onClick={() => onDeleteCollection(collection.id)}
                     >
-                      Delete
+                      {collection.isActive ? "Inactive" : "Active"}
                     </Button>
                   </div>
                 </td>
@@ -359,5 +374,6 @@ export function CollectionsSection({
         </DialogContent>
       </Dialog>
     </div>
-  );
+  </div>
+);
 }

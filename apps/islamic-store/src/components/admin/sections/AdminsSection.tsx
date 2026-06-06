@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { UserPlus, Shield, Power, Trash2, Key, Info, CheckCircle2, XCircle } from "lucide-react";
+import { Shield, Power, Trash2, Key, Info, CheckCircle2, XCircle, Separator as SeparatorIcon, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -103,18 +104,25 @@ export function AdminsSection() {
   };
 
   return (
-    <div className="max-w-5xl space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-serif text-3xl tracking-tight">Admin Management</h1>
-          <p className="text-muted-foreground">Manage authorized personnel and their access roles</p>
+    <div className="flex flex-col h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)]">
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 space-y-4 pb-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">Admin Management</h2>
+            <p className="text-xs text-muted-foreground">Manage authorized personnel and their access roles</p>
+          </div>
+          <Button
+            size="sm"
+            className="h-8 gap-1.5 px-3 text-xs font-medium bg-primary hover:bg-primary/90 text-primary-foreground"
+            onClick={() => setIsAddDialogOpen(true)}
+          >
+            <Plus className="h-3.5 w-3.5" /> Add Admin
+          </Button>
         </div>
-        <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
-          <UserPlus className="h-4 w-4" /> Add Admin
-        </Button>
       </div>
 
-      <Card className="bg-primary/5 border-primary/20">
+      <div className="flex-1 overflow-auto min-h-0 custom-scrollbar space-y-6">
+        <Card className="bg-primary/5 border-primary/20">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
             <Info className="h-5 w-5 text-primary mt-0.5" />
@@ -129,82 +137,80 @@ export function AdminsSection() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden border-border/60 shadow-sm">
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Login</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <table className="w-full text-xs border-collapse">
+            <thead className="sticky top-0 z-10 bg-muted/95 backdrop-blur-sm border-b shadow-sm text-muted-foreground font-medium">
+              <tr>
+                <th className="p-3 text-left font-semibold">Administrator</th>
+                <th className="p-3 text-left font-semibold">Security Role</th>
+                <th className="p-3 text-left font-semibold">Account Status</th>
+                <th className="p-3 text-left font-semibold">Last Activity</th>
+                <th className="p-3 text-right font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/60">
               {isLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><div className="h-4 w-32 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell><div className="h-4 w-16 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell><div className="h-4 w-16 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell><div className="h-4 w-24 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell className="text-right"><div className="h-8 w-20 ml-auto bg-muted animate-pulse rounded" /></TableCell>
-                  </TableRow>
+                  <tr key={i} className="animate-pulse">
+                    <td className="p-3"><div className="h-4 w-32 bg-muted rounded" /></td>
+                    <td className="p-3"><div className="h-4 w-16 bg-muted rounded" /></td>
+                    <td className="p-3"><div className="h-4 w-16 bg-muted rounded" /></td>
+                    <td className="p-3"><div className="h-4 w-24 bg-muted rounded" /></td>
+                    <td className="p-3 text-right"><div className="h-7 w-20 ml-auto bg-muted rounded" /></td>
+                  </tr>
                 ))
               ) : admins.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                    No admin users found
-                  </TableCell>
-                </TableRow>
+                <tr>
+                  <td colSpan={5} className="h-24 text-center text-muted-foreground">
+                    No authorized admin users found
+                  </td>
+                </tr>
               ) : (
                 admins.map((admin) => (
-                  <TableRow key={admin.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                  <tr key={admin.id} className="hover:bg-primary/[0.02] transition-colors group">
+                    <td className="p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[10px] border border-primary/20">
                           {admin.username.substring(0, 2).toUpperCase()}
                         </div>
-                        <span className="font-medium">{admin.username}</span>
+                        <span className="font-bold text-foreground">{admin.username}</span>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="capitalize text-[10px]">{admin.role}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1.5">
-                        {admin.isActive ? (
-                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                        ) : (
-                          <XCircle className="h-3.5 w-3.5 text-destructive" />
-                        )}
-                        <span className={cn("text-xs font-medium", admin.isActive ? "text-emerald-600" : "text-destructive")}>
+                    </td>
+                    <td className="p-3">
+                      <Badge variant="secondary" className="capitalize text-[9px] font-bold px-1.5 py-0 bg-muted border-border/50">{admin.role}</Badge>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-2">
+                        <div className={cn(
+                          "h-2 w-2 rounded-full shadow-sm",
+                          admin.isActive ? "bg-emerald-500 shadow-emerald-200" : "bg-amber-500 shadow-amber-200"
+                        )} />
+                        <span className="font-semibold capitalize text-foreground/80">
                           {admin.isActive ? "Active" : "Inactive"}
                         </span>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-xs font-mono">
-                      {admin.lastLoginAt ? new Date(admin.lastLoginAt).toLocaleString() : "Never"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    </td>
+                    <td className="p-3 text-muted-foreground text-[10px] font-medium uppercase tracking-tighter">
+                      {admin.lastLoginAt ? new Date(admin.lastLoginAt).toLocaleString() : "No Activity Recorded"}
+                    </td>
+                    <td className="p-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="h-8 w-8 p-0"
+                          className="h-7 px-2 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/5"
                           onClick={() => handleToggleStatus(admin)}
-                          title={admin.isActive ? "Deactivate" : "Activate"}
                         >
-                          <Power className={cn("h-4 w-4", admin.isActive ? "text-destructive" : "text-emerald-500")} />
+                          {admin.isActive ? "Deactivate" : "Activate"}
                         </Button>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                  </tr>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </tbody>
+          </table>
         </CardContent>
       </Card>
 
@@ -244,5 +250,6 @@ export function AdminsSection() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  </div>
+);
 }

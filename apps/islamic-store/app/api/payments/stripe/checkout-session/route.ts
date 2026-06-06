@@ -152,7 +152,6 @@ export async function POST(request: NextRequest) {
       shippingCost,
       tax,
       total,
-      effectiveSubtotal
     } = calculateOrderTotals(subtotal, discount, settingsMap as OrderSettings);
 
     const isPaidNow = total <= 0;
@@ -252,18 +251,16 @@ export async function POST(request: NextRequest) {
       return [newOrder];
     });
 
+    const origin = request.headers.get("origin") ?? "";
+    const fallbackOrigin = origin || "http://localhost:3009";
+
     if (total <= 0) {
-      const origin = request.headers.get("origin") ?? "";
-      const fallbackOrigin = origin || "http://localhost:3009";
       return NextResponse.json({
         redirectUrl: `${fallbackOrigin}/order-confirmation/${order.id}`,
       });
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-    const origin = request.headers.get("origin") ?? "";
-    const fallbackOrigin = origin || "http://localhost:3009";
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -296,12 +293,13 @@ export async function POST(request: NextRequest) {
       )}`,
     });
 
+    // Cleaned Up: Only store stripeCheckoutSessionId here. 
+    // The stripePaymentIntentId is always null right after session creation in payment mode;
+    // populate it dynamically when processing the 'checkout.session.completed' webhook.
     await db
       .update(ordersTable)
       .set({
         stripeCheckoutSessionId: session.id,
-        stripePaymentIntentId:
-          typeof session.payment_intent === "string" ? session.payment_intent : null,
         updatedAt: new Date(),
       })
       .where(eq(ordersTable.id, order.id));

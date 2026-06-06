@@ -88,15 +88,18 @@ export function UpsellSection({ products, isLoading }: Props) {
   };
 
   return (
-    <div className="max-w-7xl space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-serif text-3xl tracking-tight">Upsell Management</h1>
-          <p className="text-muted-foreground">Configure product-to-product upsell recommendations</p>
+    <div className="flex flex-col h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)]">
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 space-y-4 pb-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">Upsell Management</h2>
+            <p className="text-xs text-muted-foreground">Configure product-to-product upsell recommendations</p>
+          </div>
         </div>
       </div>
 
-      <Card className="bg-primary/5 border-primary/20">
+      <div className="flex-1 overflow-auto min-h-0 custom-scrollbar space-y-6">
+        <Card className="bg-primary/5 border-primary/20">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
             <Info className="h-5 w-5 text-primary mt-0.5" />
@@ -121,66 +124,68 @@ export function UpsellSection({ products, isLoading }: Props) {
         />
       </div>
 
-      <Card>
+      <Card className="overflow-hidden border-border/60 shadow-sm">
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Product</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Current Upsells</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <table className="w-full text-xs border-collapse">
+            <thead className="sticky top-0 z-10 bg-muted/95 backdrop-blur-sm border-b shadow-sm text-muted-foreground font-medium">
+              <tr>
+                <th className="p-3 text-left font-semibold">Recommended Product</th>
+                <th className="p-3 text-left font-semibold">Classification</th>
+                <th className="p-3 text-left font-semibold">Configuration</th>
+                <th className="p-3 text-right font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/60">
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><div className="h-4 w-40 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell><div className="h-4 w-20 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell><div className="h-4 w-10 bg-muted animate-pulse rounded" /></TableCell>
-                    <TableCell className="text-right"><div className="h-8 w-24 ml-auto bg-muted animate-pulse rounded" /></TableCell>
-                  </TableRow>
+                  <tr key={i} className="animate-pulse">
+                    <td className="p-3"><div className="h-4 w-40 bg-muted rounded" /></td>
+                    <td className="p-3"><div className="h-4 w-20 bg-muted rounded" /></td>
+                    <td className="p-3"><div className="h-4 w-10 bg-muted rounded" /></td>
+                    <td className="p-3 text-right"><div className="h-7 w-20 ml-auto bg-muted rounded" /></td>
+                  </tr>
                 ))
               ) : filteredProducts.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
-                    No products found
-                  </TableCell>
-                </TableRow>
+                <tr>
+                  <td colSpan={4} className="h-24 text-center text-muted-foreground">
+                    No active products found for upsell configuration
+                  </td>
+                </tr>
               ) : (
                 filteredProducts.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell>
+                  <tr key={product.id} className="hover:bg-primary/[0.02] transition-colors group">
+                    <td className="p-3">
                       <div className="flex items-center gap-3">
-                        <img src={product.imageUrl} className="h-8 w-8 rounded object-cover" alt="" />
-                        <span className="font-medium">{product.name}</span>
+                        <img src={product.imageUrl} className="h-9 w-9 rounded border border-border/50 object-cover" alt="" />
+                        <span className="font-bold text-foreground truncate max-w-[200px]">{product.name}</span>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="text-[10px]">{product.categoryName}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1.5">
-                        <Tag className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-sm">Manage...</span>
+                    </td>
+                    <td className="p-3">
+                      <Badge variant="outline" className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0 bg-background border-border/60">{product.categoryName}</Badge>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Tag className="h-3 w-3" />
+                        <span className="font-medium">Define rules...</span>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="gap-1.5 hover:bg-primary/10 hover:text-primary"
-                        onClick={() => handleManageUpsells(product)}
-                      >
-                        Manage Upsells <ArrowRight className="h-3.5 w-3.5" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                    <td className="p-3 text-right">
+                      <div className="flex justify-end items-center gap-1 transition-all duration-200">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 px-2 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/5 gap-1.5"
+                          onClick={() => handleManageUpsells(product)}
+                        >
+                          Manage <ArrowRight className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </tbody>
+          </table>
         </CardContent>
       </Card>
 
@@ -255,5 +260,6 @@ export function UpsellSection({ products, isLoading }: Props) {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  </div>
+);
 }

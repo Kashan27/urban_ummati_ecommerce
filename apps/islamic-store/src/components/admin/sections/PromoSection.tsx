@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Link as LinkIcon, Copy, Download, Search, Trash2, Edit3, Eye, Plus } from "lucide-react";
+import { Link as LinkIcon, Copy, Download, Search, Trash2, Edit3, Eye, Plus, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import type { AdminProduct } from "@/components/admin/types";
 import { cn } from "@/lib/utils";
@@ -249,20 +250,25 @@ export function PromoSection({
   };
 
   return (
-    <div className="max-w-7xl space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-serif text-3xl tracking-tight">Free Product Links</h1>
-          <p className="text-muted-foreground">Generate and manage promotional links for products</p>
+    <div className="flex flex-col h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)]">
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 space-y-4 pb-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">Free Product Links</h2>
+            <p className="text-xs text-muted-foreground">Generate and manage promotional links for products</p>
+          </div>
+          <Button
+            size="sm"
+            className="h-8 gap-1.5 px-3 text-xs font-medium bg-primary hover:bg-primary/90 text-primary-foreground"
+            onClick={() => setShowGenerateDialog(true)}
+          >
+            <Plus className="h-3.5 w-3.5" /> Generate Link
+          </Button>
         </div>
-        <Button onClick={() => setShowGenerateDialog(true)} size="lg">
-          <Plus className="mr-2 h-4 w-4" />
-          Generate New Link
-        </Button>
       </div>
 
-      {/* Stats Cards */}
+      <div className="flex-1 overflow-auto min-h-0 custom-scrollbar space-y-6">
+        {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -346,127 +352,123 @@ export function PromoSection({
       </div>
 
       {/* Links Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Link Management</CardTitle>
-          <CardDescription>
-            {filteredLinks.length} of {promoLinks.length} links match your filters
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <Card className="overflow-hidden border-border/60 shadow-sm">
+        <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead>Token</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Usage</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Expires</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <table className="w-full text-xs border-collapse">
+              <thead className="sticky top-0 z-10 bg-muted/95 backdrop-blur-sm border-b shadow-sm text-muted-foreground font-medium">
+                <tr>
+                  <th className="p-3 text-left font-semibold">Promotional Item</th>
+                  <th className="p-3 text-left font-semibold">Access Token</th>
+                  <th className="p-3 text-left font-semibold">Policy Type</th>
+                  <th className="p-3 text-left font-semibold">Status</th>
+                  <th className="p-3 text-left font-semibold">Usage Log</th>
+                  <th className="p-3 text-left font-semibold">Expiry</th>
+                  <th className="p-3 text-right font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/60">
                 {filteredLinks.map((link) => (
-                  <TableRow key={link.id}>
-                    <TableCell>
+                  <tr key={link.id} className="hover:bg-primary/[0.02] transition-colors group">
+                    <td className="p-3">
                       <div className="flex items-center gap-3">
-                        <div>
-                          <p className="font-medium">{link.product?.name || `Product #${link.productId}`}</p>
-                          <p className="text-sm text-muted-foreground">${link.product?.price?.toFixed(2)}</p>
+                        <div className="min-w-0">
+                          <p className="font-bold text-foreground truncate max-w-[180px]">{link.product?.name || `Product #${link.productId}`}</p>
+                          <p className="text-[10px] text-muted-foreground font-medium">${link.product?.price?.toFixed(2)}</p>
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-mono text-xs">{link.token.slice(0, 8)}...</div>
-                    </TableCell>
-                    <TableCell>{getTypeBadge(getLinkType(link))}</TableCell>
-                    <TableCell>{getStatusBadge(link)}</TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm">{getLinkCurrentUsage(link)}</span>
-                          {link.usageLimit && <span className="text-sm text-muted-foreground">/ {link.usageLimit}</span>}
+                    </td>
+                    <td className="p-3">
+                      <div className="font-mono text-[10px] bg-muted px-1.5 py-0.5 rounded border border-border/50 text-muted-foreground">{link.token.slice(0, 12)}...</div>
+                    </td>
+                    <td className="p-3">
+                      <Badge variant="outline" className="text-[9px] font-bold uppercase tracking-wider h-5 px-2 border-border/60 bg-background">{getLinkType(link).replace('-', ' ')}</Badge>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-2">
+                        <div className={cn(
+                          "h-2 w-2 rounded-full shadow-sm",
+                          getLinkStatus(link) === "active" ? "bg-emerald-500 shadow-emerald-200" : "bg-amber-500 shadow-amber-200"
+                        )} />
+                        <span className="font-semibold capitalize text-foreground/80">{getLinkStatus(link)}</span>
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <div className="space-y-1.5 w-32">
+                        <div className="flex items-center justify-between text-[10px] font-bold">
+                          <span className="text-foreground">{getLinkCurrentUsage(link)}</span>
+                          <span className="text-muted-foreground">/ {link.usageLimit || "∞"}</span>
                         </div>
                         {link.usageLimit && (
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="w-full bg-muted rounded-full h-1 overflow-hidden">
                             <div 
                               className={cn(
-                                "h-2 rounded-full",
+                                "h-full rounded-full transition-all duration-500",
                                 getUsagePercentage(link) >= 90 ? "bg-red-500" : 
-                                getUsagePercentage(link) >= 70 ? "bg-yellow-500" : "bg-green-500"
+                                getUsagePercentage(link) >= 70 ? "bg-amber-500" : "bg-emerald-500"
                               )}
                               style={{ width: `${getUsagePercentage(link)}%` }}
                             />
                           </div>
                         )}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">{new Date(link.createdAt).toLocaleDateString()}</div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
+                    </td>
+                    <td className="p-3">
+                      <div className="text-[10px] font-medium text-muted-foreground">
                         {link.expiresAt 
-                          ? new Date(link.expiresAt).toLocaleDateString()
-                          : "Never"
+                          ? new Date(link.expiresAt).toLocaleDateString("en-CA")
+                          : "Indefinite"
                         }
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-end gap-2">
+                    </td>
+                    <td className="p-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
                         <Button
                           variant="ghost"
-                          size="sm"
+                          size="icon"
+                          className="h-7 w-7 rounded-full hover:bg-primary/5 hover:text-primary transition-colors"
                           onClick={() => handleCopyLink(link)}
-                          className="h-8 w-8 p-0"
+                          title="Copy Link"
                         >
-                          <Copy className="h-4 w-4" />
+                          <Copy className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                           variant="ghost"
-                          size="sm"
+                          size="icon"
+                          className="h-7 w-7 rounded-full hover:bg-primary/5 hover:text-primary transition-colors"
                           onClick={() => handleViewUsage(link)}
-                          className="h-8 w-8 p-0"
+                          title="View Usage"
                         >
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-3.5 w-3.5" />
                         </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
-                              ⋯
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEditLink(link)}>
-                              <Edit3 className="mr-2 h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onArchiveLink?.(link.id)}>
-                              <Download className="mr-2 h-4 w-4" />
-                              Archive
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => onDeleteLink?.(link.id)}
-                              className="text-red-600"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 rounded-full hover:bg-primary/5 hover:text-primary transition-colors"
+                          onClick={() => handleEditLink(link)}
+                          title="Edit Settings"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Separator orientation="vertical" className="h-4 mx-1 my-auto hidden sm:block opacity-50" />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/5"
+                          onClick={() => onArchiveLink?.(link.id)}
+                        >
+                          Archive
+                        </Button>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
+              </tbody>
+            </table>
             {filteredLinks.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                No links found matching your criteria
+              <div className="text-center py-12 text-muted-foreground flex flex-col items-center gap-2">
+                <Search className="h-8 w-8 opacity-20" />
+                <p className="font-medium text-sm">No promotional links found</p>
               </div>
             )}
           </div>
@@ -667,5 +669,6 @@ export function PromoSection({
         </DialogContent>
       </Dialog>
     </div>
-  );
+  </div>
+);
 }

@@ -39,7 +39,7 @@ function BannerSkeleton({ aspectRatio = "wide" }: { aspectRatio?: string }) {
     video: "aspect-video",
     wide: "aspect-[21/9]",
     ultrawide: "aspect-[3/1]",
-    auto: "min-h-[400px] md:min-h-[500px] lg:min-h-[600px]",
+    auto: "h-[200px] sm:h-[280px] md:h-[400px] lg:h-[600px]",
   };
 
   return (
@@ -181,7 +181,7 @@ export function OptimizedBanner({
     video: "aspect-video",
     wide: "aspect-[21/9]",
     ultrawide: "aspect-[3/1]",
-    auto: "min-h-[400px] md:min-h-[500px] lg:min-h-[600px]",
+    auto: "h-[200px] sm:h-[280px] md:h-[400px] lg:h-[600px]",
   };
 
   const currentBanner = banners[currentIndex];
@@ -190,7 +190,7 @@ export function OptimizedBanner({
   return (
     <div
       className={cn(
-        "group relative w-full overflow-hidden rounded-2xl bg-muted",
+        "group relative w-full overflow-hidden rounded-none sm:rounded-2xl bg-muted",
         aspectClasses[aspectRatio],
         className
       )}
@@ -207,9 +207,9 @@ export function OptimizedBanner({
           alt={currentBanner.title}
           priority={priority}
           placeholderColor="#f5f5f5"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
+          sizes="100vw"
           className={cn(
-            "transition-transform duration-700 ease-out",
+            "transition-transform duration-700 ease-out w-full h-full object-cover",
             isTransitioning ? "scale-105" : "scale-100"
           )}
         />
@@ -217,33 +217,33 @@ export function OptimizedBanner({
 
       {/* Gradient Overlay */}
       <div
-        className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent"
-        style={{ opacity: Math.max(overlayOpacity, 0.6) }}
+        className="absolute inset-0 bg-gradient-to-r from-background via-background/50 sm:via-background/80 to-transparent"
+        style={{ opacity: Math.max(overlayOpacity, 0.4) }}
       />
 
       {/* Content */}
       <div className="relative z-10 flex h-full items-center">
-        <div className="w-full px-6 md:px-12 lg:px-20">
-          <div className="max-w-xl">
+        <div className="w-full sm:w-1/2 px-4 sm:px-6 md:px-12 lg:px-16">
+          <div className="max-w-sm sm:max-w-md md:max-w-lg">
             {currentBanner.subtitle && (
-              <p className="mb-3 text-xs font-bold uppercase tracking-[0.3em] text-primary drop-shadow-lg">
+              <p className="mb-2 sm:mb-3 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] sm:tracking-[0.3em] text-primary drop-shadow-lg line-clamp-1">
                 {currentBanner.subtitle}
               </p>
             )}
-            <h2 className="mb-4 font-serif text-3xl text-foreground md:text-4xl lg:text-5xl xl:text-6xl leading-[0.95] drop-shadow-lg">
+            <h2 className="mb-3 sm:mb-4 font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight drop-shadow-lg line-clamp-3 sm:line-clamp-none">
               {currentBanner.title}
             </h2>
             {currentBanner.description && (
-              <p className="mb-6 text-sm text-foreground/80 md:text-base leading-relaxed max-w-md drop-shadow-md">
+              <p className="hidden md:block mb-6 text-sm text-foreground/80 md:text-base leading-relaxed drop-shadow-md">
                 {currentBanner.description}
               </p>
             )}
             <Link
               href={currentBanner.href ?? "/products"}
-              className="inline-flex items-center gap-2 bg-primary px-6 py-3 text-sm font-bold uppercase tracking-wider text-primary-foreground transition-all duration-300 hover:bg-primary/90 hover:gap-3 hover:shadow-lg"
+              className="inline-flex items-center gap-2 bg-primary px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold uppercase tracking-wider text-primary-foreground transition-all duration-300 hover:bg-primary/90 hover:gap-3 hover:shadow-lg active:scale-95"
             >
               {currentBanner.ctaText || "Explore"}
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
             </Link>
           </div>
         </div>
@@ -254,33 +254,33 @@ export function OptimizedBanner({
         <>
           <button
             onClick={goToPrevious}
-            className="absolute left-4 top-1/2 z-20 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-background/80 text-foreground opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-background hover:scale-110 group-hover:opacity-100"
+            className="absolute left-2 sm:left-4 top-1/2 z-20 grid h-9 w-9 sm:h-12 sm:w-12 -translate-y-1/2 place-items-center rounded-full bg-background/80 text-foreground opacity-0 sm:opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-background hover:scale-110 group-hover:opacity-100 active:scale-95"
             aria-label="Previous banner"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-4 top-1/2 z-20 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-background/80 text-foreground opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-background hover:scale-110 group-hover:opacity-100"
+            className="absolute right-2 sm:right-4 top-1/2 z-20 grid h-9 w-9 sm:h-12 sm:w-12 -translate-y-1/2 place-items-center rounded-full bg-background/80 text-foreground opacity-0 sm:opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-background hover:scale-110 group-hover:opacity-100 active:scale-95"
             aria-label="Next banner"
           >
-            <ChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         </>
       )}
 
       {/* Indicators */}
       {showIndicators && banners.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
+        <div className="absolute bottom-3 sm:bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 sm:gap-2">
           {banners.map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
               className={cn(
-                "h-2 rounded-full transition-all duration-300",
+                "h-1.5 sm:h-2 rounded-full transition-all duration-300",
                 currentIndex === index
-                  ? "w-8 bg-primary"
-                  : "w-2 bg-primary/40 hover:bg-primary/60"
+                  ? "w-6 sm:w-8 bg-primary"
+                  : "w-1.5 sm:w-2 bg-primary/40 hover:bg-primary/60"
               )}
               aria-label={`Go to banner ${index + 1}`}
             />

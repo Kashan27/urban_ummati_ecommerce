@@ -145,7 +145,7 @@ export function AdminProductDialogContent({
   return (
     <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto p-0">
       <DialogHeader className="px-6 py-4 border-b bg-muted/30">
-        <DialogTitle className="font-serif text-xl">
+        <DialogTitle className="text-xl font-semibold tracking-tight">
           {mode === "edit" ? "Edit Product" : "Add New Product"}
         </DialogTitle>
       </DialogHeader>

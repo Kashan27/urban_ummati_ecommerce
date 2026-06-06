@@ -88,7 +88,7 @@ export function OrderDetailsDialog({
       <DialogContent className="max-w-2xl no-print">
         <DialogHeader>
           <div className="flex items-center justify-between pr-8">
-            <DialogTitle className="font-serif text-2xl">
+            <DialogTitle className="text-2xl font-semibold tracking-tight">
               Order #{currentOrder.id.toString().padStart(5, "0")}
             </DialogTitle>
             <StatusBadge status={currentOrder.status} />
@@ -276,7 +276,7 @@ export function OrderDetailsDialog({
                 </div>
               )}
               <Separator className="my-2" />
-              <div className="flex justify-between font-serif text-lg font-bold">
+              <div className="flex justify-between text-lg font-bold tracking-tight">
                 <span>Total</span>
                 <span>${order.total.toFixed(2)}</span>
               </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ListOrdersStatus, Order } from "@workspace/api-zod";
-import { Search, SlidersHorizontal, X, Calendar, CreditCard, User } from "lucide-react";
+import { Search, SlidersHorizontal, X, Calendar, CreditCard, User, Eye, Printer, Package, Truck, Trash2, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -381,39 +381,46 @@ export function OrdersSection({
                     <div className="flex items-center justify-end gap-1">
                       <Button
                         variant="ghost"
-                        size="sm"
-                        className="h-7 px-2 text-[10px] font-medium text-muted-foreground hover:text-foreground"
+                        size="icon"
+                        className="h-7 w-7 rounded-full hover:bg-primary/5 hover:text-primary transition-colors"
                         onClick={() => onViewOrderDetails(order)}
+                        title="View Details"
                       >
-                        Details
+                        <Eye className="h-3.5 w-3.5" />
                       </Button>
+                      
                       {order.status === "received" && (
                         <Button
                           variant="ghost"
-                          size="sm"
-                          className="h-7 px-2 text-[10px] font-medium text-primary hover:text-primary"
+                          size="icon"
+                          className="h-7 w-7 rounded-full hover:bg-primary/5 hover:text-primary transition-colors"
                           onClick={() => onPrintPackingSlip(order)}
+                          title="Pack Order"
                         >
-                          Pack
+                          <Package className="h-3.5 w-3.5" />
                         </Button>
                       )}
+                      
                       {order.status === "processed" && (
                         <Button
                           variant="ghost"
-                          size="sm"
-                          className="h-7 px-2 text-[10px] font-medium text-primary hover:text-primary"
+                          size="icon"
+                          className="h-7 w-7 rounded-full hover:bg-primary/5 hover:text-primary transition-colors"
                           onClick={() => onPrintShippingLabel(order)}
+                          title="Ship Order"
                         >
-                          Ship
+                          <Truck className="h-3.5 w-3.5" />
                         </Button>
                       )}
+                      
                       <Button
                         variant="ghost"
-                        size="sm"
-                        className="h-7 px-2 text-[10px] font-medium text-muted-foreground hover:text-foreground"
+                        size="icon"
+                        className="h-7 w-7 rounded-full hover:bg-primary/5 hover:text-primary transition-colors"
                         onClick={() => onPrintReceipt(order)}
+                        title="Print Receipt"
                       >
-                        Receipt
+                        <Printer className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </td>

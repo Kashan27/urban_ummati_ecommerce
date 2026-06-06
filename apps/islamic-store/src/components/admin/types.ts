@@ -22,6 +22,7 @@ export type AdminProduct = {
   categoryName: string | null;
   categorySlug: string | null;
   category: string | null;
+  sku?: string | null;
   imageUrl: string;
   images: string[];
   inStock: boolean;

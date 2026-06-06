@@ -1,11 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   ExternalLink,
   LayoutDashboard,
   LogOut,
-  Sparkles,
 } from "lucide-react";
 import type { AdminNavItem, AdminSection } from "@/components/admin/types";
 import { cn } from "@/lib/utils";
@@ -31,21 +31,27 @@ export function AdminSidebar({ navItems, activeSection, onLogout }: Props) {
         "no-print",
       )}
     >
-      {/* Header */}
-      <div className="relative px-5 pb-4 pt-6">
-        <div
-          className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
-          aria-hidden
-        />
-        <div className="flex items-start gap-3">
-          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary shadow-sm shadow-primary/20">
-            <Sparkles className="h-5 w-5 text-primary-foreground" />
+      {/* Header - Mirrored from Storefront */}
+      <div className="px-5 py-6">
+        <Link href="/" className="group block">
+          <div className="flex items-center gap-2">
+            <Image
+              src="/logo.png"
+              alt="Urban Ummati"
+              width={28}
+              height={28}
+              className="object-contain"
+            />
+            <h1 className="font-serif text-xl leading-none tracking-[0.2em] text-foreground">
+              RBAN UMMATI
+            </h1>
           </div>
-          <div className="min-w-0 flex-1 pt-0.5">
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary">Urban Ummati</p>
-            <p className="truncate font-serif text-lg font-bold tracking-tight text-foreground">Admin</p>
-            <p className="mt-1 text-[11px] text-muted-foreground font-medium">Store management</p>
-          </div>
+          <p className="mt-1 text-[8px] uppercase tracking-[0.4em] text-muted-foreground">
+            Timeless Islamic Living
+          </p>
+        </Link>
+        <div className="mt-4 inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-primary">
+          Admin Panel
         </div>
       </div>
 

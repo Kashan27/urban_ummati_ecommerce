@@ -149,12 +149,12 @@ export function Products() {
   };
 
   return (
-    <main className="flex-1 w-full pt-10 pb-24">
+    <main className="flex-1 w-full pt-6 md:pt-10 pb-24">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="font-serif text-4xl md:text-5xl text-foreground mb-4">
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="font-serif text-2xl md:text-4xl lg:text-5xl text-foreground mb-4">
             {featuredParam === "true" ? "New Arrivals" : 
              activeCategory ? categories.find(c => c.slug === activeCategory)?.name : 
              "All Products"}
@@ -164,7 +164,7 @@ export function Products() {
             Discover our collection of premium Islamic decor, carefully curated to bring beauty, peace, and spiritual connection to your home.
           </p>
 
-          <form onSubmit={handleSearchSubmit} className="mt-8 max-w-xl mx-auto">
+          <form onSubmit={handleSearchSubmit} className="mt-6 md:mt-8 max-w-xl mx-auto">
             <div className="relative">
               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input
@@ -215,7 +215,7 @@ export function Products() {
               
               {/* Categories */}
               <div>
-                <h3 className="font-serif text-xl mb-4 border-b border-border pb-2">Categories</h3>
+                <h3 className="font-serif text-lg md:text-xl mb-4 border-b border-border pb-2">Categories</h3>
                 <ul className="space-y-3">
                   {/* "All Products" option */}
                   <li key="all">
@@ -257,7 +257,7 @@ export function Products() {
 
               {/* Sort */}
               <div>
-                <h3 className="font-serif text-xl mb-4 border-b border-border pb-2">Sort By</h3>
+                <h3 className="font-serif text-lg md:text-xl mb-4 border-b border-border pb-2">Sort By</h3>
                 <ul className="space-y-3">
                   {SORTS.map(sort => (
                     <li key={sort.id}>
@@ -296,7 +296,7 @@ export function Products() {
 
             {/* Grid */}
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 gap-y-8 md:gap-y-10">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div key={i} className="animate-pulse">
                     <div className="bg-muted aspect-square w-full mb-4"></div>
@@ -306,7 +306,7 @@ export function Products() {
                 ))}
               </div>
             ) : sortedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 gap-y-8 md:gap-y-10">
                 {sortedProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}

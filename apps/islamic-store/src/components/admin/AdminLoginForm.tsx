@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -28,9 +29,23 @@ export function AdminLoginForm({
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm bg-card border border-border rounded-xl p-8 shadow-sm">
-        <div className="text-center mb-8">
-          <h1 className="font-serif text-3xl tracking-[0.14em] mb-1">URBAN UMMATI</h1>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Admin Panel</p>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <div className="flex items-center gap-3 mb-2">
+            <Image
+              src="/logo.png"
+              alt="Urban Ummati"
+              width={42}
+              height={42}
+              className="object-contain"
+            />
+            <h1 className="font-serif text-3xl leading-none tracking-[0.2em] text-foreground">
+              RBAN UMMATI
+            </h1>
+          </div>
+          <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground mb-1">Timeless Islamic Living</p>
+          <div className="mt-4 inline-flex items-center rounded-md bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
+            Admin Panel
+          </div>
         </div>
         <div className="space-y-4">
           <div>

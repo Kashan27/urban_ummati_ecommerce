@@ -34,17 +34,22 @@ export function SettingsSection({ settings, onUpdateSettings, products, categori
   };
 
   return (
-    <div className="max-w-2xl">
-      <div className="mb-8">
-        <h2 className="font-serif text-2xl tracking-tight">Global Settings</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Manage store-wide rules, tax, and shipping thresholds.</p>
+    <div className="flex flex-col h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)]">
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 space-y-4 pb-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">Global Settings</h2>
+            <p className="text-xs text-muted-foreground">Manage store-wide rules, tax, and shipping thresholds</p>
+          </div>
+        </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <div className="flex-1 overflow-auto min-h-0 custom-scrollbar">
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm max-w-2xl">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Settings2 className="h-5 w-5 text-primary" />
-            <h3 className="font-serif text-lg">Store Configuration</h3>
+            <h3 className="text-lg font-semibold tracking-tight">Store Configuration</h3>
           </div>
           <Button
             size="sm"
@@ -267,7 +272,8 @@ export function SettingsSection({ settings, onUpdateSettings, products, categori
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) {

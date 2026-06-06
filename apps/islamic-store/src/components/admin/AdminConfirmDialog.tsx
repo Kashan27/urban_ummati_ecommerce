@@ -32,7 +32,7 @@ export function AdminConfirmDialog({
     >
       <DialogContent className="max-w-md no-print">
         <DialogHeader>
-          <DialogTitle className="font-serif text-xl">{title}</DialogTitle>
+          <DialogTitle className="text-xl font-semibold tracking-tight">{title}</DialogTitle>
         </DialogHeader>
         <p className="text-sm text-muted-foreground">{description}</p>
         <div className="flex justify-end gap-3 pt-4">

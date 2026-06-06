@@ -1,5 +1,6 @@
 import { Link, useLocation } from "@/lib/router";
 import { Search, User, ShoppingBag, Menu, X } from "lucide-react";
+
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useCart } from "@/lib/cart-context";
 import Image from "next/image";
@@ -241,14 +242,14 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <span>Canadian Dispatch</span>
           <span className="text-border">|</span>
-          <span>Free Shipping Over $75</span>
+          <span> {settings.free_shipping_threshold ?  `Free Shipping Over $${settings.free_shipping_threshold}` : `Free Shipping Available`}</span>
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 bg-[#fbfbf9] px-4 py-4 md:px-6">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
+      <div className="mx-auto flex w-full max-w-7xl items-center bg-[#fbfbf9] px-4 py-4 md:px-6">
+        <div className="flex flex-1 items-center justify-start">
           <button
-            className="rounded-md border border-border/80 p-2 text-foreground md:hidden"
+            className="rounded-md p-1.5 text-foreground md:hidden"
             onClick={() => setIsMobileMenuOpen(true)}
             aria-label="Open menu"
           >
@@ -272,29 +273,29 @@ export function Navbar() {
           </div>
         </div>
 
-        <div className="flex min-w-0 flex-col items-center text-center">
+        <div className="flex shrink-0 flex-col items-center text-center">
           <Link href="/" className="group inline-flex flex-col items-center">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 md:gap-3">
               <Image
                 src="/logo.png"
                 alt="Urban Ummati"
-                width={48}
-                height={48}
-                className="object-contain"
+                width={36}
+                height={36}
+                className="object-contain md:h-12 md:w-12 h-9 w-9"
               />
-              <h1 className="font-serif text-3xl leading-none tracking-[0.26em] text-foreground md:text-5xl">
+              <h1 className="font-serif text-xl leading-none tracking-[0.12em] text-foreground md:text-5xl md:tracking-[0.26em]">
                 RBAN UMMATI
               </h1>
             </div>
-            <p className="mt-1 text-[10px] uppercase tracking-[0.42em] text-muted-foreground md:text-xs">
+            <p className="mt-1 text-[8px] uppercase tracking-[0.2em] text-muted-foreground md:text-xs md:tracking-[0.42em]">
               Timeless Islamic Living
             </p>
           </Link>
         </div>
 
-        <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-foreground/80 md:gap-4">
+        <div className="flex flex-1 items-center justify-end gap-1 text-foreground/80 md:gap-4">
           <button
-            className="rounded-md border border-transparent p-2 transition-colors hover:border-border hover:text-foreground"
+            className="rounded-md p-1.5 transition-colors hover:text-foreground"
             aria-label="Search"
             onClick={() => {
               setSearchTerm("");
@@ -303,8 +304,8 @@ export function Navbar() {
           >
             <Search className="h-5 w-5" />
           </button>
-          <Link href="/cart" className="relative rounded-md border border-transparent p-2 transition-colors hover:border-border hover:text-foreground">
-            <ShoppingBag className="h-6 w-6 md:h-5 md:w-5" />
+          <Link href="/cart" className="relative p-1.5 transition-colors hover:text-foreground">
+            <ShoppingBag className="h-5 w-5" />
             {itemCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-[10px] font-bold text-white">
                 {itemCount}
@@ -345,8 +346,8 @@ export function Navbar() {
 
       {/* Rest of mobile menu and search panel remains unchanged */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm md:hidden">
-          <div className="mx-auto flex h-full w-full max-w-lg flex-col border-l border-border bg-background">
+        <div className="fixed inset-0 z-[100] bg-background md:hidden">
+          <div className="flex h-[100dvh] w-full flex-col bg-background">
             <div className="flex items-center justify-between border-b border-border px-4 py-4">
               <h2 className="font-serif text-2xl tracking-[0.22em]">URBAN UMMATI</h2>
               <button
@@ -357,7 +358,7 @@ export function Navbar() {
                 <X className="h-6 w-6" />
               </button>
             </div>
-            <div className="flex flex-1 flex-col overflow-y-auto px-4 py-6">
+            <div className="flex flex-1 flex-col overflow-y-auto px-4 py-6 custom-scrollbar">
               <button
                 className="mb-4 flex items-center justify-between rounded-md border border-border bg-white px-4 py-3 text-sm uppercase tracking-[0.16em] text-muted-foreground"
                 onClick={() => {
