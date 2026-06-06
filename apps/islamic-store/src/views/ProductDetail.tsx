@@ -284,7 +284,7 @@ export function ProductDetail() {
                   onClick={handleAddToCart}
                   disabled={!product.inStock || (isEnforced && stockQty === 0)}
                   className={cn(
-                    "flex-1 h-12 font-sans uppercase tracking-widest text-[10px] md:text-xs font-bold transition-all flex items-center justify-center gap-2 rounded-lg shadow-sm",
+                    "flex-1 h-12 font-sans uppercase tracking-widest text-[10px] md:text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm",
                     product.inStock 
                       ? "bg-primary text-primary-foreground hover:bg-primary/95 hover:shadow-md active:scale-[0.98]" 
                       : "bg-muted text-muted-foreground cursor-not-allowed"
