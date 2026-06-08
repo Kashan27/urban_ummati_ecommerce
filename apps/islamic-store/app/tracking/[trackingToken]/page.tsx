@@ -75,7 +75,6 @@ export default function TrackingPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
-  const [isLogoSpinning, setIsLogoSpinning] = useState(false);
 
   const handleCopyUrl = () => {
     if (typeof window !== "undefined") {
@@ -84,15 +83,6 @@ export default function TrackingPage() {
       setTimeout(() => setIsCopied(false), 2000);
     }
   };
-
-  // Automatic Logo Animation (Every 5 seconds)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsLogoSpinning(true);
-      setTimeout(() => setIsLogoSpinning(false), 1000);
-    }, 5000); 
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     if (!trackingToken) {
@@ -167,17 +157,9 @@ export default function TrackingPage() {
       {/* Precision Header */}
       <header className="bg-white border-b border-gray-100 px-6 py-3 sticky top-0 z-50 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="transition-opacity hover:opacity-80 group flex items-center gap-2">
-            <img 
-              src="/logo.png" 
-              alt="Urban Ummati" 
-              className={cn(
-                "h-7 w-auto transition-transform duration-1000 ease-in-out group-hover:rotate-[360deg]",
-                isLogoSpinning ? "rotate-[360deg]" : "rotate-0"
-              )} 
-            />
+          <Link href="/" className="transition-opacity hover:opacity-80 group flex items-center">
             <span className="font-serif text-lg tracking-[0.2em] text-foreground leading-none mt-1">
-              RBAN UMMATI
+              URBAN UMMATI
             </span>
           </Link>
           <div className="flex items-center gap-4">

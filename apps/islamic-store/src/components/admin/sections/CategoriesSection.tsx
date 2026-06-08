@@ -29,7 +29,7 @@ type Props = {
   onCancelEdit: () => void;
   onCreateCategory: () => void;
   onUpdateCategory: (id: number) => void;
-  onDeleteCategory: (id: number) => void;
+  onToggleCategoryActive: (category: AdminCategory) => void;
 };
 
 // Form Section Header Component
@@ -79,7 +79,7 @@ export function CategoriesSection({
   onCancelEdit,
   onCreateCategory,
   onUpdateCategory,
-  onDeleteCategory,
+  onToggleCategoryActive,
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingUploadTarget = useRef<'new' | number | null>(null);
@@ -483,7 +483,7 @@ export function CategoriesSection({
                           variant="ghost"
                           size="sm"
                           className="h-7 px-2 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/5"
-                          onClick={() => onDeleteCategory(category.id)}
+                          onClick={() => onToggleCategoryActive(category)}
                         >
                           {category.isActive ? "Inactive" : "Active"}
                         </Button>

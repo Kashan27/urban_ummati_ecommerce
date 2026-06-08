@@ -100,7 +100,7 @@ export function Home() {
       // Generate WebP version if available (you'd need to create these variants)
       imageUrlWebP: collection.imageUrl?.replace(/\.(jpg|jpeg|png)$/i, '.webp') || undefined,
       href: `/collections/${collection.slug}`,
-      ctaText: "Explore Collection",
+      ctaText: "Explore",
       priority: index === 0, // First banner gets priority loading
       placeholderColor: index % 2 === 0 ? "#f5f0e8" : "#f0ebe3", // Alternating placeholder colors
     }));
@@ -114,7 +114,7 @@ export function Home() {
 
       {/* Banner Carousel - Showcasing Collections */}
       {isLoadingCollections ? (
-        <section className="relative h-[400px] md:h-[500px] lg:h-[600px] bg-muted animate-pulse">
+        <section className="relative h-[140px] sm:h-[200px] md:h-[300px] lg:h-[450px] bg-muted animate-pulse">
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           </div>
@@ -211,7 +211,7 @@ export function Home() {
           <div className="mb-10 flex items-end justify-between gap-6">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Browse</p>
-              <h2 className="mt-2 font-serif text-2xl md:text-4xl lg:text-5xl">Shop by Category</h2>
+              <h1 className="mt-2 font-serif text-2xl md:text-4xl lg:text-5xl">Shop by Category</h1>
             </div>
             <Link href="/products" className="hidden text-xs uppercase tracking-[0.16em] text-primary transition-colors hover:text-secondary md:inline-flex">
               View All Products

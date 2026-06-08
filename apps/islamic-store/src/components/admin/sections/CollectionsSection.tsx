@@ -42,7 +42,7 @@ type Props = {
   onCancelEdit: () => void;
   onCreateCollection: () => void;
   onUpdateCollection: (id: number) => void;
-  onDeleteCollection: (id: number) => void;
+  onToggleCollectionActive: (collection: AdminCollection) => void;
 };
 
 export function CollectionsSection({
@@ -69,7 +69,7 @@ export function CollectionsSection({
   onCancelEdit,
   onCreateCollection,
   onUpdateCollection,
-  onDeleteCollection,
+  onToggleCollectionActive,
 }: Props) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -192,7 +192,7 @@ export function CollectionsSection({
                       variant="ghost"
                       size="sm"
                       className="h-7 px-2 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/5"
-                      onClick={() => onDeleteCollection(collection.id)}
+                      onClick={() => onToggleCollectionActive(collection)}
                     >
                       {collection.isActive ? "Inactive" : "Active"}
                     </Button>

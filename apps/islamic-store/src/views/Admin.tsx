@@ -809,27 +809,34 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
     }
   }
 
-  async function handleDeleteCategory(id: number) {
-    setConfirmTitle("Deactivate category?");
+  async function handleToggleCategoryActive(category: AdminCategory) {
+    const nextActive = !category.isActive;
+    const actionLabel = nextActive ? "Activate" : "Deactivate";
+
+    setConfirmTitle(`${actionLabel} category?`);
     setConfirmDescription(
-      "This marks the category as inactive. It will no longer appear on the storefront, but existing product links will be preserved for history.",
+      nextActive
+        ? `This will make "${category.name}" active and visible on the storefront.`
+        : `This marks "${category.name}" as inactive. It will no longer appear on the storefront, but existing product links will be preserved for history.`,
     );
-    setConfirmLabel("Deactivate");
+    setConfirmLabel(actionLabel);
     setConfirmAction(() => async () => {
       setIsSavingCategory(true);
       try {
-        const response = await fetch(`/api/admin/categories/${id}`, {
-          method: "DELETE",
+        const response = await fetch(`/api/admin/categories/${category.id}`, {
+          method: "PUT",
           credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isActive: nextActive }),
         });
         if (!response.ok) {
           const error = await response.json().catch(() => null);
-          throw new Error(error?.error || "Failed to deactivate category");
+          throw new Error(error?.error || `Failed to ${actionLabel.toLowerCase()} category`);
         }
         await queryClient.invalidateQueries({ queryKey: ["adminCategories"] });
-        toast.success("Category deactivated");
+        toast.success(`Category ${nextActive ? "activated" : "deactivated"}`);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Deactivation failed");
+        toast.error(error instanceof Error ? error.message : `${actionLabel} failed`);
         throw error;
       } finally {
         setIsSavingCategory(false);
@@ -898,27 +905,34 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
     }
   }
 
-  async function handleDeleteCollection(id: number) {
-    setConfirmTitle("Deactivate collection?");
+  async function handleToggleCollectionActive(collection: AdminCollection) {
+    const nextActive = !collection.isActive;
+    const actionLabel = nextActive ? "Activate" : "Deactivate";
+
+    setConfirmTitle(`${actionLabel} collection?`);
     setConfirmDescription(
-      "This marks the collection as inactive. It will no longer be visible on the storefront, but product relationships are preserved for history.",
+      nextActive
+        ? `This will make "${collection.name}" active and visible on the storefront.`
+        : `This marks "${collection.name}" as inactive. It will no longer be visible on the storefront, but product relationships are preserved for history.`,
     );
-    setConfirmLabel("Deactivate");
+    setConfirmLabel(actionLabel);
     setConfirmAction(() => async () => {
       setIsSavingCollection(true);
       try {
-        const response = await fetch(`/api/admin/collections/${id}`, {
-          method: "DELETE",
+        const response = await fetch(`/api/admin/collections/${collection.id}`, {
+          method: "PUT",
           credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isActive: nextActive }),
         });
         if (!response.ok) {
           const error = await response.json().catch(() => null);
-          throw new Error(error?.error || "Failed to deactivate collection");
+          throw new Error(error?.error || `Failed to ${actionLabel.toLowerCase()} collection`);
         }
         await queryClient.invalidateQueries({ queryKey: ["adminCollections"] });
-        toast.success("Collection deactivated");
+        toast.success(`Collection ${nextActive ? "activated" : "deactivated"}`);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Deactivation failed");
+        toast.error(error instanceof Error ? error.message : `${actionLabel} failed`);
         throw error;
       } finally {
         setIsSavingCollection(false);
@@ -1089,7 +1103,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
                 }}
                 onCreateCategory={handleCreateCategory}
                 onUpdateCategory={handleUpdateCategory}
-                onDeleteCategory={handleDeleteCategory}
+                onToggleCategoryActive={handleToggleCategoryActive}
               />
             )}
 
@@ -1130,7 +1144,7 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
                 }}
                 onCreateCollection={handleCreateCollection}
                 onUpdateCollection={handleUpdateCollection}
-                onDeleteCollection={handleDeleteCollection}
+                onToggleCollectionActive={handleToggleCollectionActive}
               />
             )}
 

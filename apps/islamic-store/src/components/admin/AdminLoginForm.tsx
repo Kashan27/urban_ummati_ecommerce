@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -30,16 +29,9 @@ export function AdminLoginForm({
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm bg-card border border-border rounded-xl p-8 shadow-sm">
         <div className="text-center mb-8 flex flex-col items-center">
-          <div className="flex items-center gap-3 mb-2">
-            <Image
-              src="/logo.png"
-              alt="Urban Ummati"
-              width={42}
-              height={42}
-              className="object-contain"
-            />
+          <div className="flex items-center mb-2">
             <h1 className="font-serif text-3xl leading-none tracking-[0.2em] text-foreground">
-              RBAN UMMATI
+              URBAN UMMATI
             </h1>
           </div>
           <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground mb-1">Timeless Islamic Living</p>

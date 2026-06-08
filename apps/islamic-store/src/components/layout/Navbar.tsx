@@ -6,7 +6,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useCart } from "@/lib/cart-context";
-import Image from "next/image";
 
 type ApiCategory = {
   id: number;
@@ -279,16 +278,9 @@ export function Navbar() {
 
         <div className="flex shrink-0 flex-col items-center text-center">
           <Link href="/" className="group inline-flex flex-col items-center">
-            <div className="flex items-center gap-1.5 md:gap-3">
-              <Image
-                src="/logo.png"
-                alt="Urban Ummati"
-                width={36}
-                height={36}
-                className="object-contain md:h-12 md:w-12 h-9 w-9"
-              />
+            <div className="flex items-center">
               <h1 className="font-serif text-xl leading-none tracking-[0.12em] text-foreground md:text-5xl md:tracking-[0.26em]">
-                RBAN UMMATI
+                URBAN UMMATI
               </h1>
             </div>
             <p className="mt-1 text-[8px] uppercase tracking-[0.2em] text-muted-foreground md:text-xs md:tracking-[0.42em]">

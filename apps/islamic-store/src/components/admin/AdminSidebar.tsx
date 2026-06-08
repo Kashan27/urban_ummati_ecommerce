@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   ExternalLink,
@@ -34,16 +33,9 @@ export function AdminSidebar({ navItems, activeSection, onLogout }: Props) {
       {/* Header - Mirrored from Storefront */}
       <div className="px-5 py-6">
         <Link href="/" className="group block">
-          <div className="flex items-center gap-2">
-            <Image
-              src="/logo.png"
-              alt="Urban Ummati"
-              width={28}
-              height={28}
-              className="object-contain"
-            />
+          <div className="flex items-center">
             <h1 className="font-serif text-xl leading-none tracking-[0.2em] text-foreground">
-              RBAN UMMATI
+              URBAN UMMATI
             </h1>
           </div>
           <p className="mt-1 text-[8px] uppercase tracking-[0.4em] text-muted-foreground">

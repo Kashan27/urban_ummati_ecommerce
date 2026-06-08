@@ -39,7 +39,7 @@ function BannerSkeleton({ aspectRatio = "wide" }: { aspectRatio?: string }) {
     video: "aspect-video",
     wide: "aspect-[21/9]",
     ultrawide: "aspect-[3/1]",
-    auto: "h-[200px] sm:h-[280px] md:h-[400px] lg:h-[600px]",
+    auto: "h-[140px] sm:h-[200px] md:h-[300px] lg:h-[450px]",
   };
 
   return (
@@ -181,7 +181,7 @@ export function OptimizedBanner({
     video: "aspect-video",
     wide: "aspect-[21/9]",
     ultrawide: "aspect-[3/1]",
-    auto: "h-[200px] sm:h-[280px] md:h-[400px] lg:h-[600px]",
+    auto: "h-[140px] sm:h-[200px] md:h-[300px] lg:h-[450px]",
   };
 
   const currentBanner = banners[currentIndex];
@@ -190,7 +190,7 @@ export function OptimizedBanner({
   return (
     <div
       className={cn(
-        "group relative w-full overflow-hidden rounded-none sm:rounded-2xl bg-muted",
+        "group relative w-full overflow-hidden rounded-none sm:rounded-2xl bg-[#f5f5f5]",
         aspectClasses[aspectRatio],
         className
       )}
@@ -223,14 +223,14 @@ export function OptimizedBanner({
 
       {/* Content */}
       <div className="relative z-10 flex h-full items-center">
-        <div className="w-full sm:w-1/2 px-4 sm:px-6 md:px-12 lg:px-16">
+        <div className="w-full sm:w-1/2 px-6 sm:px-10 md:px-12 lg:px-16">
           <div className="max-w-sm sm:max-w-md md:max-w-lg">
             {currentBanner.subtitle && (
-              <p className="mb-2 sm:mb-3 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] sm:tracking-[0.3em] text-primary drop-shadow-lg line-clamp-1">
+              <p className="mb-2 sm:mb-3 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.3em] text-primary drop-shadow-lg line-clamp-1">
                 {currentBanner.subtitle}
               </p>
             )}
-            <h2 className="mb-3 sm:mb-4 font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight drop-shadow-lg line-clamp-3 sm:line-clamp-none">
+            <h2 className="mb-3 sm:mb-4 font-serif text-xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight drop-shadow-lg line-clamp-3 sm:line-clamp-none">
               {currentBanner.title}
             </h2>
             {currentBanner.description && (
@@ -240,7 +240,7 @@ export function OptimizedBanner({
             )}
             <Link
               href={currentBanner.href ?? "/products"}
-              className="inline-flex items-center gap-2 bg-primary px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold uppercase tracking-wider text-primary-foreground transition-all duration-300 hover:bg-primary/90 hover:gap-3 hover:shadow-lg active:scale-95"
+              className="inline-flex items-center gap-1.5 bg-primary px-3.5 sm:px-5 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-primary-foreground transition-all duration-300 hover:bg-primary/90 hover:gap-2.5 hover:shadow-lg active:scale-95"
             >
               {currentBanner.ctaText || "Explore"}
               <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />

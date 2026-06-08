@@ -1,7 +1,6 @@
 import { Link } from "@/lib/router";
 import { Facebook, Globe, Instagram, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 
 type ApiCategory = {
   id: number;
@@ -88,55 +87,29 @@ export function Footer() {
   return (
     // Reduced mt-24 to mt-12 to bring the footer closer to the content
     <footer className="mt-12 border-t border-[#C9A883]/20 bg-[#FAF9F6] text-[#152238]">
-      <div className="mx-auto max-w-7xl px-6 py-10"> {/* Reduced py-16 to py-10 */}
+      <div className="mx-auto max-w-7xl px-6 py-10">
         
-        <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-3">
+        <div className="grid grid-cols-1 items-start gap-10 md:grid-cols-4">
           
-          {/* 1. BRAND SECTION */}
-          <div className="flex flex-col">
+          {/* 1. BRAND SECTION (LEFT) */}
+          <div className="flex flex-col gap-6">
             <Link href="/" className="group inline-block w-fit">
-              <div className="flex items-center gap-2">
-                <Image
-                  src="/logo.png"
-                  alt="Urban Ummati"
-                  width={28}
-                  height={28}
-                  className="object-contain transition-transform duration-1000 ease-in-out group-hover:rotate-[360deg]"
-                />
+              <div className="flex items-center">
                 <h2 className="font-serif text-2xl tracking-[0.14em]">
-                  RBAN UMMATI
+                  URBAN UMMATI
                 </h2>
               </div>
               <p className="mt-1 text-[9px] font-medium uppercase tracking-[0.4em] text-[#C9A883]">
                 Timeless Islamic Living
               </p>
             </Link>
-          </div>
-
-          {/* 2. DESCRIPTION */}
-          <div className="flex flex-col md:items-center">
-            <p className="max-w-[280px] text-sm leading-relaxed text-slate-500 md:text-center">
+            
+            <p className="text-sm leading-relaxed text-slate-500">
               Curated Islamic decor designed for calm interiors, 
               meaningful gifting, and intentional living.
             </p>
-          </div>
 
-          {/* 3. CONTACT & SOCIALS */}
-          <div className="flex flex-col md:items-end gap-5">
-            <div className="flex flex-col md:items-end gap-1">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#C9A883]">
-                Inquiries
-              </span>
-              <a 
-                href="mailto:social@urbanummati.store" 
-                className="flex items-center gap-2 text-sm transition-colors hover:text-[#C9A883]"
-              >
-                <Mail size={14} strokeWidth={1.5} className="text-[#C9A883]" />
-                social@urbanummati.store
-              </a>
-            </div>
-
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-5 pt-2">
               {socialPlatforms.map((platform) => (
                 <a
                   key={platform.id}
@@ -151,15 +124,91 @@ export function Footer() {
               ))}
             </div>
           </div>
+
+          {/* 2. COLLECTIONS */}
+          <div className="flex flex-col gap-5">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#C9A883]">
+              Collections
+            </h3>
+            <div className="flex flex-col gap-3 text-sm text-slate-500">
+              <Link href="/products?featured=true" className="hover:text-[#C9A883] transition-colors flex items-center gap-2">
+                <span className="text-[#C9A883]">•</span> New Arrivals
+              </Link>
+              {!isLoadingCategories && categories.length > 0 ? (
+                categories.slice(0, 4).map((category) => (
+                  <Link 
+                    key={category.id} 
+                    href={`/products?category=${category.slug}`} 
+                    className="hover:text-[#C9A883] transition-colors flex items-center gap-2"
+                  >
+                    <span className="text-[#C9A883]">•</span> {category.name}
+                  </Link>
+                ))
+              ) : (
+                <>
+                  <Link href="/products" className="hover:text-[#C9A883] transition-colors flex items-center gap-2">
+                    <span className="text-[#C9A883]">•</span> Wall Art
+                  </Link>
+                  <Link href="/products" className="hover:text-[#C9A883] transition-colors flex items-center gap-2">
+                    <span className="text-[#C9A883]">•</span> Canvas Prints
+                  </Link>
+                  <Link href="/products" className="hover:text-[#C9A883] transition-colors flex items-center gap-2">
+                    <span className="text-[#C9A883]">•</span> Framed Art
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* 3. CUSTOMER CARE */}
+          <div className="flex flex-col gap-5">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#C9A883]">
+              Customer Care
+            </h3>
+            <div className="flex flex-col gap-3 text-sm text-slate-500">
+              <Link href="/faq" className="hover:text-[#C9A883] transition-colors flex items-center gap-2">
+                <span className="text-[#C9A883]">•</span> FAQs
+              </Link>
+              <Link href="/contact" className="hover:text-[#C9A883] transition-colors flex items-center gap-2">
+                <span className="text-[#C9A883]">•</span> Contact Us
+              </Link>
+              <Link href="/shipping-policy" className="hover:text-[#C9A883] transition-colors flex items-center gap-2">
+                <span className="text-[#C9A883]">•</span> Shipping Policy
+              </Link>
+              <Link href="/returns-policy" className="hover:text-[#C9A883] transition-colors flex items-center gap-2">
+                <span className="text-[#C9A883]">•</span> Returns & Refunds
+              </Link>
+            </div>
+          </div>
+
+          {/* 4. LEGAL INFO (RIGHT) */}
+          <div className="flex flex-col gap-5">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#C9A883]">
+              Legal Info
+            </h3>
+            <div className="flex flex-col gap-3 text-sm text-slate-500">
+              <Link href="/privacy-policy" className="hover:text-[#C9A883] transition-colors flex items-center gap-2">
+                <span className="text-[#C9A883]">•</span> Privacy Policy
+              </Link>
+              <Link href="/terms-and-conditions" className="hover:text-[#C9A883] transition-colors flex items-center gap-2">
+                <span className="text-[#C9A883]">•</span> Terms & Conditions
+              </Link>
+              <Link href="/cookie-policy" className="hover:text-[#C9A883] transition-colors flex items-center gap-2">
+                <span className="text-[#C9A883]">•</span> Cookie Policy
+              </Link>
+            </div>
+          </div>
         </div>
 
-        {/* BOTTOM BAR - Reduced spacing from mt-16 to mt-10 */}
-        <div className="mt-10 flex flex-col items-center justify-between border-t border-[#C9A883]/10 pt-6 text-[10px] font-medium uppercase tracking-[0.2em] text-slate-400 md:flex-row">
-          <p>© {new Date().getFullYear()} Urban Ummati</p>
-          
-          <div className="mt-4 flex items-center gap-6 md:mt-0">
-            <Link href="/privacy" className="hover:text-[#C9A883] transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-[#C9A883] transition-colors">Terms</Link>
+        <div className="mt-8 flex flex-col items-center justify-between border-t border-[#C9A883]/10 pt-6 md:flex-row">
+          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-slate-400">
+            © {new Date().getFullYear()} Urban Ummati
+          </p>
+          <div className="mt-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#C9A883] md:mt-0">
+            <Mail size={12} strokeWidth={2} />
+            <a href="mailto:social@urbanummati.store" className="hover:underline">
+              social@urbanummati.store
+            </a>
           </div>
         </div>
 
