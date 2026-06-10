@@ -95,7 +95,7 @@ export function OrderReceipt({ order }: Props) {
         {/* Footer */}
         <div className="mt-20 border-t pt-8 text-center text-xs text-gray-400 italic">
           <p>Thank you for shopping with Urban Ummati. We hope your new decor brings joy to your home.</p>
-          <p className="mt-2 uppercase tracking-widest">urbanummati.com</p>
+          <p className="mt-2 uppercase tracking-widest">urbanummati.store</p>
         </div>
       </div>
     </div>
