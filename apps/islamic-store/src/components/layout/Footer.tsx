@@ -100,7 +100,7 @@ export function Footer() {
                 </h2>
               </div>
               <p className="mt-1 text-[9px] font-medium uppercase tracking-[0.4em] text-[#C9A883]">
-                Timeless Islamic Living
+                Modern Art. Scared Meaning
               </p>
             </Link>
             

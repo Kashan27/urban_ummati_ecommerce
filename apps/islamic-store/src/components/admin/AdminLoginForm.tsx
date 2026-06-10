@@ -34,7 +34,7 @@ export function AdminLoginForm({
               URBAN UMMATI
             </h1>
           </div>
-          <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground mb-1">Timeless Islamic Living</p>
+          <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground mb-1">Modern Art. Scared Meaning</p>
           <div className="mt-4 inline-flex items-center rounded-md bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
             Admin Panel
           </div>

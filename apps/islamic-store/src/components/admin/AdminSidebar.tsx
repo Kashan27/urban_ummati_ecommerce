@@ -39,7 +39,7 @@ export function AdminSidebar({ navItems, activeSection, onLogout }: Props) {
             </h1>
           </div>
           <p className="mt-1 text-[8px] uppercase tracking-[0.4em] text-muted-foreground">
-            Timeless Islamic Living
+            Modern Art. Scared Meaning
           </p>
         </Link>
         <div className="mt-4 inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-primary">

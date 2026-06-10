@@ -135,6 +135,13 @@ export function OrderDetailsDialog({
                   </div>
                 ) : null}
               </div>
+              <div className="space-y-2">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Order Date</h4>
+                <div className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Placed:</span>{" "}
+                  {new Date(order.createdAt).toLocaleString("en-CA")}
+                </div>
+              </div>
             </div>
 
             <Separator />

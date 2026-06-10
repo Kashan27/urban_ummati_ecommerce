@@ -284,7 +284,7 @@ export function Navbar() {
               </h1>
             </div>
             <p className="mt-1 text-[8px] uppercase tracking-[0.2em] text-muted-foreground md:text-xs md:tracking-[0.42em]">
-              Timeless Islamic Living
+              Modern Art. Scared Meaning
             </p>
           </Link>
         </div>
