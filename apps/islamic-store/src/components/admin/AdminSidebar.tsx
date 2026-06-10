@@ -33,7 +33,8 @@ export function AdminSidebar({ navItems, activeSection, onLogout }: Props) {
       {/* Header - Mirrored from Storefront */}
       <div className="px-5 py-6">
         <Link href="/" className="group block">
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <img src="/shield.png" alt="" className="h-6 w-auto" />
             <h1 className="font-serif text-xl leading-none tracking-[0.2em] text-foreground">
               URBAN UMMATI
             </h1>

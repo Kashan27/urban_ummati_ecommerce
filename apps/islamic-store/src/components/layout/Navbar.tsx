@@ -45,11 +45,16 @@ export function Navbar() {
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [settings, setSettings] = useState<Record<string, string>>({});
+  const [counts, setCounts] = useState({
+    featured: 0,
+    collections: 0,
+    total: 0,
+  });
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const response = await fetch("/api/admin/settings");
+        const response = await fetch("/api/settings");
         if (response.ok) {
           const data = await response.json();
           setSettings(data);
@@ -59,6 +64,35 @@ export function Navbar() {
       }
     };
     fetchSettings();
+  }, []);
+
+  useEffect(() => {
+    const fetchMetadata = async () => {
+      try {
+        const [collectionsRes, featuredRes, totalRes] = await Promise.all([
+          fetch("/api/collections"),
+          fetch("/api/products?featured=true"),
+          fetch("/api/products"),
+        ]);
+
+        if (collectionsRes.ok && featuredRes.ok && totalRes.ok) {
+          const [collectionsData, featuredData, totalData] = await Promise.all([
+            collectionsRes.json(),
+            featuredRes.json(),
+            totalRes.json(),
+          ]);
+
+          setCounts({
+            collections: collectionsData.total || 0,
+            featured: featuredData.total || 0,
+            total: totalData.total || 0,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching navbar metadata:", error);
+      }
+    };
+    fetchMetadata();
   }, []);
 
   const searchPanelId = useMemo(
@@ -117,17 +151,38 @@ export function Navbar() {
   }, []);
 
   const navbarCategories = useMemo(() => {
-    const apiCategories = categories.map(cat => ({
-      name: cat.name.toUpperCase(),
-      href: `/products?category=${cat.slug}`
-    }));
-    return [
-      ...apiCategories,
-      { name: "NEW ARRIVALS", href: "/products?featured=true" },
-      { name: "COLLECTIONS", href: "/collections" },
-      { name: "ALL PRODUCTS", href: "/products" }
-    ];
-  }, [categories]);
+    const items: { name: string; href: string }[] = [];
+
+    // 1. Categories (Shop by Category)
+    if (settings.nav_show_categories !== "false" && categories.length > 0) {
+      categories.forEach(cat => {
+        items.push({
+          name: cat.name.toUpperCase(),
+          href: `/products?category=${cat.slug}`
+        });
+      });
+    }
+
+    // 2. New Arrivals
+    if (settings.nav_show_new_arrivals !== "false" && counts.featured > 0) {
+      items.push({ name: "NEW ARRIVALS", href: "/products?featured=true" });
+    }
+
+    // 3. Collections
+    if (settings.nav_show_collections !== "false" && counts.collections > 0) {
+      items.push({ name: "COLLECTIONS", href: "/collections" });
+    }
+
+    // 4. All Products (with Redundancy Filter)
+    const showAllProducts = settings.nav_show_all_products !== "false" && counts.total > 0;
+    const isRedundant = counts.total <= counts.featured;
+    
+    if (showAllProducts && !isRedundant) {
+      items.push({ name: "ALL PRODUCTS", href: "/products" });
+    }
+
+    return items;
+  }, [categories, settings, counts]);
 
   const categoryMatches = useMemo(() => {
     if (!normalizedQuery) return [];
@@ -278,7 +333,8 @@ export function Navbar() {
 
         <div className="flex shrink-0 flex-col items-center text-center">
           <Link href="/" className="group inline-flex flex-col items-center">
-            <div className="flex items-center">
+            <div className="flex items-center gap-2 md:gap-3">
+              <img src="/shield.png" alt="" className="h-6 w-auto md:h-12" />
               <h1 className="font-serif text-xl leading-none tracking-[0.12em] text-foreground md:text-5xl md:tracking-[0.26em]">
                 URBAN UMMATI
               </h1>
@@ -345,7 +401,10 @@ export function Navbar() {
         <div className="fixed inset-0 z-[100] bg-background md:hidden">
           <div className="flex h-[100dvh] w-full flex-col bg-background">
             <div className="flex items-center justify-between border-b border-border px-4 py-4">
-              <h2 className="font-serif text-2xl tracking-[0.22em]">URBAN UMMATI</h2>
+              <div className="flex items-center gap-2">
+                <img src="/shield.png" alt="" className="h-8 w-auto" />
+                <h2 className="font-serif text-2xl tracking-[0.22em]">URBAN UMMATI</h2>
+              </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="rounded-md border border-border p-2"

@@ -15,7 +15,12 @@ export async function GET() {
       "upsell_discount_percent",
       "low_stock_threshold",
       "display_stock_to_customers",
-      "enforce_stock_restrictions"
+      "enforce_stock_restrictions",
+      "nav_show_new_arrivals",
+      "nav_show_collections",
+      "nav_show_all_products",
+      "nav_show_categories",
+      "signature_art_category_slug"
     ];
 
     const settingsMap = allSettings.reduce((acc, s) => {

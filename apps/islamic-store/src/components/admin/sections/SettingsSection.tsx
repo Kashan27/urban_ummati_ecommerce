@@ -129,6 +129,55 @@ export function SettingsSection({ settings, onUpdateSettings, products, categori
                 </p>
               </div>
             </div>
+
+            <div className="space-y-4 pt-4">
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">Navigation Menu Visibility</h4>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="flex items-center justify-between rounded-lg border border-border bg-muted/20 p-3">
+                  <div className="space-y-0.5">
+                    <label className="text-xs font-bold text-foreground">Show New Arrivals</label>
+                    <p className="text-[10px] text-muted-foreground">Toggle "New Arrivals" link</p>
+                  </div>
+                  <Toggle 
+                    checked={localSettings.nav_show_new_arrivals !== "false"}
+                    onChange={(checked) => setLocalSettings(prev => ({ ...prev, nav_show_new_arrivals: String(checked) }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between rounded-lg border border-border bg-muted/20 p-3">
+                  <div className="space-y-0.5">
+                    <label className="text-xs font-bold text-foreground">Show Collections</label>
+                    <p className="text-[10px] text-muted-foreground">Toggle "Collections" link</p>
+                  </div>
+                  <Toggle 
+                    checked={localSettings.nav_show_collections !== "false"}
+                    onChange={(checked) => setLocalSettings(prev => ({ ...prev, nav_show_collections: String(checked) }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between rounded-lg border border-border bg-muted/20 p-3">
+                  <div className="space-y-0.5">
+                    <label className="text-xs font-bold text-foreground">Show All Products</label>
+                    <p className="text-[10px] text-muted-foreground">Toggle "All Products" link</p>
+                  </div>
+                  <Toggle 
+                    checked={localSettings.nav_show_all_products !== "false"}
+                    onChange={(checked) => setLocalSettings(prev => ({ ...prev, nav_show_all_products: String(checked) }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between rounded-lg border border-border bg-muted/20 p-3">
+                  <div className="space-y-0.5">
+                    <label className="text-xs font-bold text-foreground">Show Shop by Category</label>
+                    <p className="text-[10px] text-muted-foreground">Toggle individual category links</p>
+                  </div>
+                  <Toggle 
+                    checked={localSettings.nav_show_categories !== "false"}
+                    onChange={(checked) => setLocalSettings(prev => ({ ...prev, nav_show_categories: String(checked) }))}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           <Separator />

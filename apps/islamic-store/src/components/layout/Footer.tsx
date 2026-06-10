@@ -94,7 +94,12 @@ export function Footer() {
           {/* 1. BRAND SECTION (LEFT) */}
           <div className="flex flex-col gap-6">
             <Link href="/" className="group inline-block w-fit">
-              <div className="flex items-center">
+              <div className="flex items-center gap-2">
+                <img 
+                  src="/shield.png" 
+                  alt="" 
+                  className="h-8 w-auto" 
+                />
                 <h2 className="font-serif text-2xl tracking-[0.14em]">
                   URBAN UMMATI
                 </h2>

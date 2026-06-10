@@ -34,6 +34,23 @@ export function Home() {
   const [collections, setCollections] = useState<ApiCollection[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [isLoadingCollections, setIsLoadingCollections] = useState(true);
+  const [settings, setSettings] = useState<Record<string, string>>({});
+
+  // Fetch settings from API
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch("/api/settings");
+        if (response.ok) {
+          const data = await response.json();
+          setSettings(data);
+        }
+      } catch (error) {
+        console.error("Error fetching settings:", error);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   // Fetch categories from API
   useEffect(() => {
@@ -113,26 +130,28 @@ export function Home() {
       </div>
 
       {/* Banner Carousel - Showcasing Collections */}
-      {isLoadingCollections ? (
-        <section className="relative h-[140px] sm:h-[200px] md:h-[300px] lg:h-[450px] bg-muted animate-pulse">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          </div>
-        </section>
-      ) : bannerData.length > 0 ? (
-        <section className="relative">
-          <OptimizedBanner
-            banners={bannerData}
-            autoPlay={true}
-            autoPlayInterval={6000}
-            aspectRatio="auto"
-            showIndicators={true}
-            showArrows={true}
-            overlayOpacity={0.5}
-            className="rounded-none"
-          />
-        </section>
-      ) : null}
+      {settings.nav_show_collections !== "false" && (
+        isLoadingCollections ? (
+          <section className="relative h-[140px] sm:h-[200px] md:h-[300px] lg:h-[450px] bg-muted animate-pulse">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            </div>
+          </section>
+        ) : bannerData.length > 0 ? (
+          <section className="relative">
+            <OptimizedBanner
+              banners={bannerData}
+              autoPlay={true}
+              autoPlayInterval={6000}
+              aspectRatio="auto"
+              showIndicators={true}
+              showArrows={true}
+              overlayOpacity={0.5}
+              className="rounded-none"
+            />
+          </section>
+        ) : null
+      )}
 
       {/* <section className="section-glow relative overflow-hidden border-b border-border/70 px-4 py-10 md:px-8 md:py-14">
         <div className="relative z-10 mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[1.05fr_0.95fr]">
@@ -206,89 +225,93 @@ export function Home() {
         </div>
       </section> */}
 
-      <section className="px-4 py-12 md:px-8 md:py-20">
-        <div className="mx-auto w-full max-w-7xl">
-          <div className="mb-10 flex items-end justify-between gap-6">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Browse</p>
-              <h1 className="mt-2 font-serif text-2xl md:text-4xl lg:text-5xl">Shop by Category</h1>
-            </div>
-            <Link href="/products" className="hidden text-xs uppercase tracking-[0.16em] text-primary transition-colors hover:text-secondary md:inline-flex">
-              View All Products
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {isLoadingCategories ? (
-              // Loading skeletons
-              [1, 2, 3, 4].map(i => (
-                <div key={i} className="editorial-card animate-pulse overflow-hidden p-3">
-                  <div className="h-48 md:h-64 rounded-sm bg-muted"></div>
-                  <div className="px-2 pb-1 pt-4">
-                    <div className="h-6 w-3/4 rounded bg-muted"></div>
-                    <div className="mt-2 h-4 w-1/2 rounded bg-muted"></div>
-                    <div className="mt-4 h-4 w-1/4 rounded bg-muted"></div>
-                  </div>
-                </div>
-              ))
-            ) : homeCategories.length > 0 ? (
-              homeCategories.map((cat) => (
-                <Link key={cat.title} href={cat.url} className="editorial-card group block overflow-hidden p-3">
-                  <div className="relative h-48 md:h-64 overflow-hidden rounded-sm">
-                    <img
-                      src={cat.img}
-                      alt={cat.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                  </div>
-                  <div className="px-2 pb-1 pt-4">
-                    <h3 className="font-serif text-xl md:text-2xl">{cat.title}</h3>
-                    <p className="mt-1 text-xs md:text-sm text-muted-foreground">{cat.subtitle}</p>
-                    <span className="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.17em] text-primary">
-                      Explore <ArrowRight size={13} />
-                    </span>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              // Fallback if no categories
-              <div className="col-span-4 text-center py-12">
-                <p className="text-muted-foreground">No categories available</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Collection Products Sections - One section per collection marked for home */}
-      {isLoadingCollections ? (
-        <section className="border-y border-border/70 bg-[hsl(35_40%_95%)] px-4 py-20 md:px-8">
+      {settings.nav_show_categories !== "false" && (
+        <section className="px-4 py-12 md:px-8 md:py-20">
           <div className="mx-auto w-full max-w-7xl">
-            <div className="mb-10">
-              <div className="h-4 w-32 bg-muted animate-pulse mb-2" />
-              <div className="h-10 w-64 bg-muted animate-pulse" />
+            <div className="mb-10 flex items-end justify-between gap-6">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Browse</p>
+                <h1 className="mt-2 font-serif text-2xl md:text-4xl lg:text-5xl">Shop by Category</h1>
+              </div>
+              <Link href="/products" className="hidden text-xs uppercase tracking-[0.16em] text-primary transition-colors hover:text-secondary md:inline-flex">
+                View All Products
+              </Link>
             </div>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="aspect-square w-full bg-muted" />
-                  <div className="mt-4 h-4 w-3/4 bg-muted" />
-                  <div className="mt-2 h-4 w-1/2 bg-muted" />
+
+            <div className="grid grid-cols-1 gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {isLoadingCategories ? (
+                // Loading skeletons
+                [1, 2, 3, 4].map(i => (
+                  <div key={i} className="editorial-card animate-pulse overflow-hidden p-3">
+                    <div className="h-48 md:h-64 rounded-sm bg-muted"></div>
+                    <div className="px-2 pb-1 pt-4">
+                      <div className="h-6 w-3/4 rounded bg-muted"></div>
+                      <div className="mt-2 h-4 w-1/2 rounded bg-muted"></div>
+                      <div className="mt-4 h-4 w-1/4 rounded bg-muted"></div>
+                    </div>
+                  </div>
+                ))
+              ) : homeCategories.length > 0 ? (
+                homeCategories.map((cat) => (
+                  <Link key={cat.title} href={cat.url} className="editorial-card group block overflow-hidden p-3">
+                    <div className="relative h-48 md:h-64 overflow-hidden rounded-sm">
+                      <img
+                        src={cat.img}
+                        alt={cat.title}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                    </div>
+                    <div className="px-2 pb-1 pt-4">
+                      <h3 className="font-serif text-xl md:text-2xl">{cat.title}</h3>
+                      <p className="mt-1 text-xs md:text-sm text-muted-foreground">{cat.subtitle}</p>
+                      <span className="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.17em] text-primary">
+                        Explore <ArrowRight size={13} />
+                      </span>
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                // Fallback if no categories
+                <div className="col-span-4 text-center py-12">
+                  <p className="text-muted-foreground">No categories available</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </section>
-      ) : (
-        collections.map((collection) => (
-          <CollectionProductsSection
-            key={collection.id}
-            collectionSlug={collection.slug}
-            collectionName={collection.name}
-            limit={4}
-          />
-        ))
+      )}
+
+      {/* Collection Products Sections - One section per collection marked for home */}
+      {settings.nav_show_collections !== "false" && (
+        isLoadingCollections ? (
+          <section className="border-y border-border/70 bg-[hsl(35_40%_95%)] px-4 py-20 md:px-8">
+            <div className="mx-auto w-full max-w-7xl">
+              <div className="mb-10">
+                <div className="h-4 w-32 bg-muted animate-pulse mb-2" />
+                <div className="h-10 w-64 bg-muted animate-pulse" />
+              </div>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="aspect-square w-full bg-muted" />
+                    <div className="mt-4 h-4 w-3/4 bg-muted" />
+                    <div className="mt-2 h-4 w-1/2 bg-muted" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : (
+          collections.map((collection) => (
+            <CollectionProductsSection
+              key={collection.id}
+              collectionSlug={collection.slug}
+              collectionName={collection.name}
+              limit={4}
+            />
+          ))
+        )
       )}
 
       {/* <section className="px-4 py-20 md:px-8">
