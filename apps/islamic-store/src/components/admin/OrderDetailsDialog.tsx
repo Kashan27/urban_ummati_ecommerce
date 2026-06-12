@@ -8,6 +8,8 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Button } from "@/components/ui/button";
 import type { Order } from "@workspace/api-zod";
 
+import { Label } from "@/components/ui/label";
+
 type Props = {
   order: Order | null;
   open: boolean;
@@ -16,6 +18,8 @@ type Props = {
   onPrintReceipt: (order: Order) => void;
   onPrintPackingSlip: (order: Order) => void;
   onPrintShippingLabel: (order: Order) => void;
+  printSize: "standard" | "4x6";
+  onPrintSizeChange: (size: "standard" | "4x6") => void;
 };
 
 export function OrderDetailsDialog({
@@ -26,6 +30,8 @@ export function OrderDetailsDialog({
   onPrintReceipt,
   onPrintPackingSlip,
   onPrintShippingLabel,
+  printSize,
+  onPrintSizeChange,
 }: Props) {
   if (!order) return null;
   const currentOrder = order;
@@ -147,8 +153,28 @@ export function OrderDetailsDialog({
             <Separator />
 
             <div className="grid grid-cols-2 gap-8">
-              <div className="space-y-2">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Fulfillment</h4>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Fulfillment</h4>
+                  <div className="flex items-center gap-1 bg-muted p-1 rounded-md scale-90 origin-right">
+                    <Button
+                      variant={printSize === "standard" ? "secondary" : "ghost"}
+                      size="sm"
+                      className="h-7 px-2 text-[10px] uppercase font-bold"
+                      onClick={() => onPrintSizeChange("standard")}
+                    >
+                      Std
+                    </Button>
+                    <Button
+                      variant={printSize === "4x6" ? "secondary" : "ghost"}
+                      size="sm"
+                      className="h-7 px-2 text-[10px] uppercase font-bold text-primary"
+                      onClick={() => onPrintSizeChange("4x6")}
+                    >
+                      4x6
+                    </Button>
+                  </div>
+                </div>
                 <div className="flex flex-wrap gap-2 pt-1">
                   {currentOrder.status === "received" && (
                     <Button

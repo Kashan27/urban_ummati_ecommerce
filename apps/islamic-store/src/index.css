@@ -232,18 +232,36 @@
       margin: 0;
       padding: 0;
     }
+    /* Print Container defaults */
     .print-content {
       width: 100%;
       margin: 0;
-      padding: 1in; /* Standard 1 inch margin */
+      padding: 1in; /* Standard 1 inch margin for Letter */
     }
 
-    /* 4x6 Label Printing */
-    .shipping-label-container {
-      width: 4in;
-      height: 6in;
-      page-break-after: always;
-      padding: 0.25in; /* Less padding for labels */
+    /* Global page margin defaults */
+    @page {
+      margin: 0;
+      size: auto;
+    }
+
+    /* Named Page Size for 4x6 Thermal Labels */
+       @page label4x6 {
+      body {
+    width: 6in; /*width of index card*/
+    height: 4in; /*height of index card*/
+  }
+}
+
+    body.print-4x6 {
+      page: label4x6;
+    }
+
+    body.print-4x6 .print-content {
+      padding: 0 !important;
+      width: 4in !important;
+      height: 6in !important;
+      overflow: hidden;
     }
   }
 

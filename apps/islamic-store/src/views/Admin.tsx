@@ -111,7 +111,8 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   const [categoryStatusFilter, setCategoryStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
-  const [printMode, setPrintMode] = useState<"receipt" | "packing-slip" | "shipping-label">("receipt");
+  const [printMode, setPrintMode] = useState<"receipt" | "packing-slip" | "shipping-label" | null>(null);
+  const [printSize, setPrintSize] = useState<"standard" | "4x6">("4x6");
   const queryClient = useQueryClient();
   const isProgrammaticClose = useRef(false);
 
@@ -672,8 +673,12 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   function handlePrintReceipt(order: Order) {
     setPrintMode("receipt");
     setSelectedOrder(order);
+    if (printSize === "4x6") {
+      document.body.classList.add("print-4x6");
+    }
     setTimeout(() => {
       window.print();
+      document.body.classList.remove("print-4x6");
       if (order.status === "received") {
         handleUpdateOrderStatus(order.id, "processed");
       }
@@ -683,8 +688,12 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   function handlePrintPackingSlip(order: Order) {
     setPrintMode("packing-slip");
     setSelectedOrder(order);
+    if (printSize === "4x6") {
+      document.body.classList.add("print-4x6");
+    }
     setTimeout(() => {
       window.print();
+      document.body.classList.remove("print-4x6");
       if (order.status === "received") {
         handleUpdateOrderStatus(order.id, "processed");
       }
@@ -694,8 +703,12 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
   function handlePrintShippingLabel(order: Order) {
     setPrintMode("shipping-label");
     setSelectedOrder(order);
+    if (printSize === "4x6") {
+      document.body.classList.add("print-4x6");
+    }
     setTimeout(() => {
       window.print();
+      document.body.classList.remove("print-4x6");
       if (order.status === "processed") {
         handleUpdateOrderStatus(order.id, "shipped");
       }
@@ -1191,11 +1204,13 @@ export function Admin({ section = "dashboard" }: { section?: AdminSection }) {
         onPrintReceipt={handlePrintReceipt}
         onPrintPackingSlip={handlePrintPackingSlip}
         onPrintShippingLabel={handlePrintShippingLabel}
+        printSize={printSize}
+        onPrintSizeChange={setPrintSize}
       />
 
-      {printMode === "receipt" && <OrderReceipt order={selectedOrder} />}
-      {printMode === "packing-slip" && <OrderPackingSlip order={selectedOrder} />}
-      {printMode === "shipping-label" && <OrderShippingLabel order={selectedOrder} />}
+      {printMode === "receipt" && <OrderReceipt order={selectedOrder} printSize={printSize} />}
+      {printMode === "packing-slip" && <OrderPackingSlip order={selectedOrder} printSize={printSize} />}
+      {printMode === "shipping-label" && <OrderShippingLabel order={selectedOrder} printSize={printSize} />}
 
       <AdminConfirmDialog
         open={confirmOpen}
