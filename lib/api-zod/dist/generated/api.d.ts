@@ -48,6 +48,7 @@ export declare const ListProductsResponse: zod.ZodObject<{
         categoryId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
         categoryName: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         categorySlug: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        sku: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         imageUrl: zod.ZodString;
         images: zod.ZodArray<zod.ZodString, "many">;
         inStock: zod.ZodBoolean;
@@ -96,6 +97,7 @@ export declare const ListProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -124,6 +126,7 @@ export declare const ListProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -155,6 +158,7 @@ export declare const ListProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -186,6 +190,7 @@ export declare const ListProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -207,6 +212,7 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         categoryId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
         categoryName: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         categorySlug: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        sku: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         imageUrl: zod.ZodString;
         images: zod.ZodArray<zod.ZodString, "many">;
         inStock: zod.ZodBoolean;
@@ -255,6 +261,7 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -283,6 +290,7 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -313,6 +321,7 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -343,6 +352,7 @@ export declare const GetFeaturedProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -370,6 +380,7 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         categoryId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
         categoryName: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         categorySlug: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        sku: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         imageUrl: zod.ZodString;
         images: zod.ZodArray<zod.ZodString, "many">;
         inStock: zod.ZodBoolean;
@@ -418,6 +429,7 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -446,6 +458,7 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -476,6 +489,7 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -506,6 +520,7 @@ export declare const GetUpsellProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -532,6 +547,7 @@ export declare const GetProductResponse: zod.ZodObject<{
     categoryId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
     categoryName: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     categorySlug: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    sku: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     imageUrl: zod.ZodString;
     images: zod.ZodArray<zod.ZodString, "many">;
     inStock: zod.ZodBoolean;
@@ -580,6 +596,7 @@ export declare const GetProductResponse: zod.ZodObject<{
     categoryId?: number | null | undefined;
     categoryName?: string | null | undefined;
     categorySlug?: string | null | undefined;
+    sku?: string | null | undefined;
     upsellDiscount?: number | null | undefined;
     mainProductIds?: number[] | undefined;
     linkedUpsellIds?: number[] | undefined;
@@ -608,6 +625,7 @@ export declare const GetProductResponse: zod.ZodObject<{
     categoryId?: number | null | undefined;
     categoryName?: string | null | undefined;
     categorySlug?: string | null | undefined;
+    sku?: string | null | undefined;
     upsellDiscount?: number | null | undefined;
     mainProductIds?: number[] | undefined;
     linkedUpsellIds?: number[] | undefined;
@@ -729,6 +747,7 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         categoryId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
         categoryName: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         categorySlug: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        sku: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         imageUrl: zod.ZodString;
         images: zod.ZodArray<zod.ZodString, "many">;
         inStock: zod.ZodBoolean;
@@ -777,6 +796,7 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -805,6 +825,7 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -836,6 +857,7 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -877,6 +899,7 @@ export declare const ListCollectionProductsResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -927,6 +950,7 @@ export declare const ListOrdersResponse: zod.ZodObject<{
             id: zod.ZodNumber;
             productId: zod.ZodNumber;
             productName: zod.ZodString;
+            sku: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
             productImage: zod.ZodString;
             price: zod.ZodNumber;
             quantity: zod.ZodNumber;
@@ -940,6 +964,7 @@ export declare const ListOrdersResponse: zod.ZodObject<{
             productName: string;
             productImage: string;
             quantity: number;
+            sku?: string | null | undefined;
             color?: string | null | undefined;
         }, {
             id: number;
@@ -949,6 +974,7 @@ export declare const ListOrdersResponse: zod.ZodObject<{
             productName: string;
             productImage: string;
             quantity: number;
+            sku?: string | null | undefined;
             color?: string | null | undefined;
         }>, "many">;
         subtotal: zod.ZodNumber;
@@ -994,6 +1020,7 @@ export declare const ListOrdersResponse: zod.ZodObject<{
             productName: string;
             productImage: string;
             quantity: number;
+            sku?: string | null | undefined;
             color?: string | null | undefined;
         }[];
         subtotal: number;
@@ -1037,6 +1064,7 @@ export declare const ListOrdersResponse: zod.ZodObject<{
             productName: string;
             productImage: string;
             quantity: number;
+            sku?: string | null | undefined;
             color?: string | null | undefined;
         }[];
         subtotal: number;
@@ -1084,6 +1112,7 @@ export declare const ListOrdersResponse: zod.ZodObject<{
             productName: string;
             productImage: string;
             quantity: number;
+            sku?: string | null | undefined;
             color?: string | null | undefined;
         }[];
         subtotal: number;
@@ -1130,6 +1159,7 @@ export declare const ListOrdersResponse: zod.ZodObject<{
             productName: string;
             productImage: string;
             quantity: number;
+            sku?: string | null | undefined;
             color?: string | null | undefined;
         }[];
         subtotal: number;
@@ -1240,6 +1270,7 @@ export declare const GetOrderResponse: zod.ZodObject<{
         id: zod.ZodNumber;
         productId: zod.ZodNumber;
         productName: zod.ZodString;
+        sku: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         productImage: zod.ZodString;
         price: zod.ZodNumber;
         quantity: zod.ZodNumber;
@@ -1253,6 +1284,7 @@ export declare const GetOrderResponse: zod.ZodObject<{
         productName: string;
         productImage: string;
         quantity: number;
+        sku?: string | null | undefined;
         color?: string | null | undefined;
     }, {
         id: number;
@@ -1262,6 +1294,7 @@ export declare const GetOrderResponse: zod.ZodObject<{
         productName: string;
         productImage: string;
         quantity: number;
+        sku?: string | null | undefined;
         color?: string | null | undefined;
     }>, "many">;
     subtotal: zod.ZodNumber;
@@ -1307,6 +1340,7 @@ export declare const GetOrderResponse: zod.ZodObject<{
         productName: string;
         productImage: string;
         quantity: number;
+        sku?: string | null | undefined;
         color?: string | null | undefined;
     }[];
     subtotal: number;
@@ -1350,6 +1384,7 @@ export declare const GetOrderResponse: zod.ZodObject<{
         productName: string;
         productImage: string;
         quantity: number;
+        sku?: string | null | undefined;
         color?: string | null | undefined;
     }[];
     subtotal: number;
@@ -1405,6 +1440,7 @@ export declare const UpdateOrderStatusResponse: zod.ZodObject<{
         id: zod.ZodNumber;
         productId: zod.ZodNumber;
         productName: zod.ZodString;
+        sku: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         productImage: zod.ZodString;
         price: zod.ZodNumber;
         quantity: zod.ZodNumber;
@@ -1418,6 +1454,7 @@ export declare const UpdateOrderStatusResponse: zod.ZodObject<{
         productName: string;
         productImage: string;
         quantity: number;
+        sku?: string | null | undefined;
         color?: string | null | undefined;
     }, {
         id: number;
@@ -1427,6 +1464,7 @@ export declare const UpdateOrderStatusResponse: zod.ZodObject<{
         productName: string;
         productImage: string;
         quantity: number;
+        sku?: string | null | undefined;
         color?: string | null | undefined;
     }>, "many">;
     subtotal: zod.ZodNumber;
@@ -1472,6 +1510,7 @@ export declare const UpdateOrderStatusResponse: zod.ZodObject<{
         productName: string;
         productImage: string;
         quantity: number;
+        sku?: string | null | undefined;
         color?: string | null | undefined;
     }[];
     subtotal: number;
@@ -1515,6 +1554,7 @@ export declare const UpdateOrderStatusResponse: zod.ZodObject<{
         productName: string;
         productImage: string;
         quantity: number;
+        sku?: string | null | undefined;
         color?: string | null | undefined;
     }[];
     subtotal: number;
@@ -1577,6 +1617,7 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             categoryId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
             categoryName: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
             categorySlug: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+            sku: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
             imageUrl: zod.ZodString;
             images: zod.ZodArray<zod.ZodString, "many">;
             inStock: zod.ZodBoolean;
@@ -1625,6 +1666,7 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             categoryId?: number | null | undefined;
             categoryName?: string | null | undefined;
             categorySlug?: string | null | undefined;
+            sku?: string | null | undefined;
             upsellDiscount?: number | null | undefined;
             mainProductIds?: number[] | undefined;
             linkedUpsellIds?: number[] | undefined;
@@ -1653,6 +1695,7 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             categoryId?: number | null | undefined;
             categoryName?: string | null | undefined;
             categorySlug?: string | null | undefined;
+            sku?: string | null | undefined;
             upsellDiscount?: number | null | undefined;
             mainProductIds?: number[] | undefined;
             linkedUpsellIds?: number[] | undefined;
@@ -1717,6 +1760,7 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             categoryId?: number | null | undefined;
             categoryName?: string | null | undefined;
             categorySlug?: string | null | undefined;
+            sku?: string | null | undefined;
             upsellDiscount?: number | null | undefined;
             mainProductIds?: number[] | undefined;
             linkedUpsellIds?: number[] | undefined;
@@ -1765,6 +1809,7 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             categoryId?: number | null | undefined;
             categoryName?: string | null | undefined;
             categorySlug?: string | null | undefined;
+            sku?: string | null | undefined;
             upsellDiscount?: number | null | undefined;
             mainProductIds?: number[] | undefined;
             linkedUpsellIds?: number[] | undefined;
@@ -1817,6 +1862,7 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             categoryId?: number | null | undefined;
             categoryName?: string | null | undefined;
             categorySlug?: string | null | undefined;
+            sku?: string | null | undefined;
             upsellDiscount?: number | null | undefined;
             mainProductIds?: number[] | undefined;
             linkedUpsellIds?: number[] | undefined;
@@ -1868,6 +1914,7 @@ export declare const ListFreeProductLinksResponse: zod.ZodObject<{
             categoryId?: number | null | undefined;
             categoryName?: string | null | undefined;
             categorySlug?: string | null | undefined;
+            sku?: string | null | undefined;
             upsellDiscount?: number | null | undefined;
             mainProductIds?: number[] | undefined;
             linkedUpsellIds?: number[] | undefined;
@@ -1948,6 +1995,7 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         categoryId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
         categoryName: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         categorySlug: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        sku: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         imageUrl: zod.ZodString;
         images: zod.ZodArray<zod.ZodString, "many">;
         inStock: zod.ZodBoolean;
@@ -1996,6 +2044,7 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -2024,6 +2073,7 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -2088,6 +2138,7 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -2136,6 +2187,7 @@ export declare const UpdateFreeProductLinkResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -2185,6 +2237,7 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         categoryId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
         categoryName: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         categorySlug: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+        sku: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
         imageUrl: zod.ZodString;
         images: zod.ZodArray<zod.ZodString, "many">;
         inStock: zod.ZodBoolean;
@@ -2233,6 +2286,7 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -2261,6 +2315,7 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -2325,6 +2380,7 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -2373,6 +2429,7 @@ export declare const GetFreeProductLinkResponse: zod.ZodObject<{
         categoryId?: number | null | undefined;
         categoryName?: string | null | undefined;
         categorySlug?: string | null | undefined;
+        sku?: string | null | undefined;
         upsellDiscount?: number | null | undefined;
         mainProductIds?: number[] | undefined;
         linkedUpsellIds?: number[] | undefined;
@@ -2533,6 +2590,7 @@ export declare const UpdateProductResponse: zod.ZodObject<{
     categoryId: zod.ZodOptional<zod.ZodNullable<zod.ZodNumber>>;
     categoryName: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     categorySlug: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
+    sku: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
     imageUrl: zod.ZodString;
     images: zod.ZodArray<zod.ZodString, "many">;
     inStock: zod.ZodBoolean;
@@ -2581,6 +2639,7 @@ export declare const UpdateProductResponse: zod.ZodObject<{
     categoryId?: number | null | undefined;
     categoryName?: string | null | undefined;
     categorySlug?: string | null | undefined;
+    sku?: string | null | undefined;
     upsellDiscount?: number | null | undefined;
     mainProductIds?: number[] | undefined;
     linkedUpsellIds?: number[] | undefined;
@@ -2609,6 +2668,7 @@ export declare const UpdateProductResponse: zod.ZodObject<{
     categoryId?: number | null | undefined;
     categoryName?: string | null | undefined;
     categorySlug?: string | null | undefined;
+    sku?: string | null | undefined;
     upsellDiscount?: number | null | undefined;
     mainProductIds?: number[] | undefined;
     linkedUpsellIds?: number[] | undefined;
@@ -2653,6 +2713,7 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
             id: zod.ZodNumber;
             productId: zod.ZodNumber;
             productName: zod.ZodString;
+            sku: zod.ZodOptional<zod.ZodNullable<zod.ZodString>>;
             productImage: zod.ZodString;
             price: zod.ZodNumber;
             quantity: zod.ZodNumber;
@@ -2666,6 +2727,7 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
             productName: string;
             productImage: string;
             quantity: number;
+            sku?: string | null | undefined;
             color?: string | null | undefined;
         }, {
             id: number;
@@ -2675,6 +2737,7 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
             productName: string;
             productImage: string;
             quantity: number;
+            sku?: string | null | undefined;
             color?: string | null | undefined;
         }>, "many">;
         subtotal: zod.ZodNumber;
@@ -2720,6 +2783,7 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
             productName: string;
             productImage: string;
             quantity: number;
+            sku?: string | null | undefined;
             color?: string | null | undefined;
         }[];
         subtotal: number;
@@ -2763,6 +2827,7 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
             productName: string;
             productImage: string;
             quantity: number;
+            sku?: string | null | undefined;
             color?: string | null | undefined;
         }[];
         subtotal: number;
@@ -2831,6 +2896,7 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
             productName: string;
             productImage: string;
             quantity: number;
+            sku?: string | null | undefined;
             color?: string | null | undefined;
         }[];
         subtotal: number;
@@ -2887,6 +2953,7 @@ export declare const GetAdminStatsResponse: zod.ZodObject<{
             productName: string;
             productImage: string;
             quantity: number;
+            sku?: string | null | undefined;
             color?: string | null | undefined;
         }[];
         subtotal: number;

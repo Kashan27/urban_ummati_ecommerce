@@ -2,7 +2,7 @@
 
 import { Link } from "@/lib/router";
 import { ArrowRight, Star, ShieldCheck, Truck, Clock4, Sparkles } from "lucide-react";
-import { useGetFeaturedProducts } from "@workspace/api-client-react";
+import { useGetFeaturedProducts, getGetFeaturedProductsQueryKey } from "@workspace/api-client-react";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { OptimizedBanner, type OptimizedBannerItem } from "@/components/ui/OptimizedBanner";
 import { CollectionProductsSection } from "@/components/home/CollectionProductsSection";
@@ -36,7 +36,8 @@ type ApiCollection = {
 export function Home({ initialData }: { initialData?: any }) {
   const { data: featuredData, isLoading } = useGetFeaturedProducts({
     query: {
-      initialData: initialData?.featuredProducts ? { products: initialData.featuredProducts, total: initialData.featuredProducts.length } : undefined,
+      queryKey: getGetFeaturedProductsQueryKey(),
+      initialData: initialData?.featuredProducts ? { products: initialData.featuredProducts } : undefined,
       staleTime: 60000
     }
   });
