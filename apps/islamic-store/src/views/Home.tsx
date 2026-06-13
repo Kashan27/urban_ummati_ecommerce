@@ -1,3 +1,5 @@
+"use client";
+
 import { Link } from "@/lib/router";
 import { ArrowRight, Star, ShieldCheck, Truck, Clock4, Sparkles } from "lucide-react";
 import { useGetFeaturedProducts } from "@workspace/api-client-react";
@@ -7,6 +9,7 @@ import { CollectionProductsSection } from "@/components/home/CollectionProductsS
 import { FeaturedProductsSection } from "@/components/home/FeaturedProductsSection";
 import { FullScreenLoader } from "@/components/ui/FullScreenLoader";
 import { useEffect, useState, useMemo } from "react";
+import Image from "next/image";
 
 type ApiCategory = {
   id: number;
@@ -30,17 +33,23 @@ type ApiCollection = {
   updatedAt: string | null;
 };
 
-export function Home() {
-  const { data: featuredData, isLoading } = useGetFeaturedProducts();
-  const [categories, setCategories] = useState<ApiCategory[]>([]);
-  const [collections, setCollections] = useState<ApiCollection[]>([]);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-  const [isLoadingCollections, setIsLoadingCollections] = useState(true);
-  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
-  const [settings, setSettings] = useState<Record<string, string> | null>(null);
+export function Home({ initialData }: { initialData?: any }) {
+  const { data: featuredData, isLoading } = useGetFeaturedProducts({
+    query: {
+      initialData: initialData?.featuredProducts ? { products: initialData.featuredProducts, total: initialData.featuredProducts.length } : undefined,
+      staleTime: 60000
+    }
+  });
+  const [categories, setCategories] = useState<ApiCategory[]>(initialData?.categories || []);
+  const [collections, setCollections] = useState<ApiCollection[]>(initialData?.collections || []);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(!initialData?.categories);
+  const [isLoadingCollections, setIsLoadingCollections] = useState(!initialData?.collections);
+  const [isLoadingSettings, setIsLoadingSettings] = useState(!initialData?.settings);
+  const [settings, setSettings] = useState<Record<string, string> | null>(initialData?.settings || null);
 
-  // Fetch settings from API
+  // Fetch settings from API if not provided or empty
   useEffect(() => {
+    if (initialData?.settings && Object.keys(initialData.settings).length > 0) return;
     const fetchSettings = async () => {
       try {
         setIsLoadingSettings(true);
@@ -58,8 +67,9 @@ export function Home() {
     fetchSettings();
   }, []);
 
-  // Fetch categories from API
+  // Fetch categories from API if not provided
   useEffect(() => {
+    if (initialData?.categories?.length > 0) return;
     const fetchCategories = async () => {
       try {
         setIsLoadingCategories(true);
@@ -80,8 +90,9 @@ export function Home() {
     fetchCategories();
   }, []);
 
-  // Fetch collections marked for home screen
+  // Fetch collections marked for home screen if not provided
   useEffect(() => {
+    if (initialData?.collections?.length > 0) return;
     const fetchHomeCollections = async () => {
       try {
         setIsLoadingCollections(true);
@@ -129,8 +140,8 @@ export function Home() {
     }));
   }, [collections]);
 
-  const isOverallLoading = isLoading || isLoadingCategories || isLoadingCollections || isLoadingSettings;
-  const [showLoader, setShowLoader] = useState(true);
+  const isOverallLoading = (!initialData) && (isLoading || isLoadingCategories || isLoadingCollections || isLoadingSettings);
+  const [showLoader, setShowLoader] = useState(!initialData);
   const [isExiting, setIsExiting] = useState(false);
 
   // Handle loader visibility with a smooth fade-out
@@ -256,10 +267,14 @@ export function Home() {
 
       {/* Featured Products Section - Active Products Toggleable */}
       {!isLoadingSettings && settings?.home_show_all_products === "true" && (
-        <FeaturedProductsSection title="Our Products" limit={8} />
+        <FeaturedProductsSection 
+          title="Our Products" 
+          limit={8} 
+          initialProducts={initialData?.featuredProducts}
+        />
       )}
 
-      {!isLoadingSettings && settings?.nav_show_categories !== "false" && (
+      {!isLoadingSettings && settings?.nav_show_categories === "true" && (
         <section className="px-4 py-12 md:px-8 md:py-20">
           <div className="mx-auto w-full max-w-7xl">
             <div className="mb-10 flex items-end justify-between gap-6">
@@ -289,10 +304,12 @@ export function Home() {
                 homeCategories.map((cat) => (
                   <Link key={cat.title} href={cat.url} className="editorial-card group block overflow-hidden p-3">
                     <div className="relative h-48 md:h-64 overflow-hidden rounded-sm">
-                      <img
+                      <Image
                         src={cat.img}
                         alt={cat.title}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
                     </div>
@@ -343,6 +360,7 @@ export function Home() {
               collectionSlug={collection.slug}
               collectionName={collection.name}
               limit={4}
+              initialProducts={initialData?.collectionProducts?.[collection.slug]}
             />
           ))
         )

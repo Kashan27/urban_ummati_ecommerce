@@ -5,23 +5,25 @@ import { Link } from "@/lib/router";
 import { ArrowRight } from "lucide-react";
 import { ProductCard } from "@/components/ui/ProductCard";
 import type { Product } from "@workspace/api-client-react";
-
 type CollectionProductsSectionProps = {
   collectionSlug: string;
   collectionName: string;
   limit?: number;
+  initialProducts?: Product[];
 };
 
 export function CollectionProductsSection({
   collectionSlug,
   collectionName,
   limit = 4,
+  initialProducts,
 }: CollectionProductsSectionProps) {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>(initialProducts || []);
+  const [isLoading, setIsLoading] = useState(!initialProducts);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (initialProducts) return;
     const fetchProducts = async () => {
       try {
         setIsLoading(true);

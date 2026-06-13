@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Link } from "@/lib/router";
 import { HelpCircle, Mail, Truck, Clock, Globe, ShieldCheck, Info, Package, AlertTriangle, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -377,9 +378,9 @@ export function Shipping() {
                   <h3 className="font-serif text-2xl mb-2 text-white">Specific Shipping Query?</h3>
                   <p className="text-slate-300 text-sm">Our logistics team is here to assist with your delivery.</p>
                 </div>
-                <a href="/contact" className="px-8 py-3 bg-[#C9A883] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#b8976f] transition-all whitespace-nowrap shadow-lg hover:-translate-y-0.5">
+                <Link href="/contact" className="px-8 py-3 bg-[#C9A883] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#b8976f] transition-all whitespace-nowrap shadow-lg hover:-translate-y-0.5">
                   Contact Logistics
-                </a>
+                </Link>
               </div>
             </div>
           </article>

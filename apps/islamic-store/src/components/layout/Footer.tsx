@@ -1,6 +1,7 @@
 import { Link } from "@/lib/router";
 import { Facebook, Globe, Instagram, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 type ApiCategory = {
   id: number;
@@ -95,9 +96,11 @@ export function Footer() {
           <div className="flex flex-col gap-6">
             <Link href="/" className="group inline-block w-fit">
               <div className="flex items-center gap-2">
-                <img 
+                <Image 
                   src="/shield.png" 
                   alt="" 
+                  width={32}
+                  height={32}
                   className="h-8 w-auto" 
                 />
                 <h2 className="font-serif text-2xl tracking-[0.14em]">

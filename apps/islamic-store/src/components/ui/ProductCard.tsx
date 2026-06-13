@@ -1,3 +1,5 @@
+"use client";
+
 import { Link } from "@/lib/router";
 import { Star, StarHalf } from "lucide-react";
 import type { Product } from "@workspace/api-client-react";
