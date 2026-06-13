@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 
 export interface OptimizedBannerItem {
@@ -98,13 +99,15 @@ function OptimizedBannerImage({
         />
       )}
       
-      {/* Banner Image - using regular img for better compatibility */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      {/* Banner Image - using Next.js Image for optimization */}
+      <Image
         src={src}
         alt={alt}
+        fill={fill}
+        priority={priority}
+        sizes={sizes}
         className={cn(
-          "w-full h-full object-cover transition-all duration-700 ease-out",
+          "object-cover transition-all duration-700 ease-out",
           isLoading ? "scale-105 blur-sm opacity-0" : "scale-100 blur-0 opacity-100",
           className
         )}

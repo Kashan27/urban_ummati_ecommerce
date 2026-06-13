@@ -18,8 +18,8 @@ const nextConfig: NextConfig = {
         hostname: '**',
       },
     ],
-    // Also support unoptimized images for local files
-    unoptimized: true,
+    // Enable image optimization
+    unoptimized: false,
   },
 };
 

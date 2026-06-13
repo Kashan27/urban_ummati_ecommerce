@@ -6,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useCart } from "@/lib/cart-context";
+import Image from "next/image";
 
 type ApiCategory = {
   id: number;
@@ -336,7 +337,14 @@ export function Navbar() {
         <div className="flex shrink-0 flex-col items-center text-center">
           <Link href="/" className="group inline-flex flex-col items-center">
             <div className="flex items-center gap-2 md:gap-3">
-              <img src="/shield.png" alt="" className="h-6 w-auto md:h-12" />
+              <Image 
+                src="/shield.png" 
+                alt="" 
+                width={48} 
+                height={48} 
+                className="h-6 w-auto md:h-12"
+                priority
+              />
               <h1 className="font-serif text-xl leading-none tracking-[0.12em] text-foreground md:text-5xl md:tracking-[0.26em]">
                 URBAN UMMATI
               </h1>
@@ -404,7 +412,13 @@ export function Navbar() {
           <div className="flex h-[100dvh] w-full flex-col bg-background">
             <div className="flex items-center justify-between border-b border-border px-4 py-4">
               <div className="flex items-center gap-2">
-                <img src="/shield.png" alt="" className="h-8 w-auto" />
+                <Image 
+                  src="/shield.png" 
+                  alt="" 
+                  width={32} 
+                  height={32} 
+                  className="h-8 w-auto"
+                />
                 <h2 className="font-serif text-2xl tracking-[0.22em]">URBAN UMMATI</h2>
               </div>
               <button
@@ -523,7 +537,15 @@ export function Navbar() {
                       {suggestion.type === 'product' && suggestion.product && (
                         <>
                           {suggestion.product.imageUrl ? (
-                            <img src={suggestion.product.imageUrl} alt="" className="h-10 w-10 rounded object-cover" />
+                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded">
+                              <Image 
+                                src={suggestion.product.imageUrl} 
+                                alt="" 
+                                fill
+                                sizes="40px"
+                                className="object-cover" 
+                              />
+                            </div>
                           ) : (
                             <div className="flex h-10 w-10 items-center justify-center rounded bg-muted">
                               <Search className="h-4 w-4 text-muted-foreground" />

@@ -2,6 +2,21 @@ import "@/index.css";
 import type { ReactNode } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Metadata } from "next";
+import { Cormorant_Garamond, Manrope } from "next/font/google";
+
+const cormorantGaramond = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-cormorant-garamond",
+  display: "swap",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-manrope",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -33,8 +48,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={`${cormorantGaramond.variable} ${manrope.variable}`}>
+      <body className="antialiased font-sans">
         <AppShell>{children}</AppShell>
       </body>
     </html>

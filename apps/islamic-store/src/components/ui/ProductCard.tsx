@@ -2,8 +2,12 @@ import { Link } from "@/lib/router";
 import { Star, StarHalf } from "lucide-react";
 import type { Product } from "@workspace/api-client-react";
 import { getProductSlug } from "@/lib/utils";
+import Image from "next/image";
+import { useState } from "react";
 
 export function ProductCard({ product }: { product: Product }) {
+  const [imgSrc, setImgSrc] = useState(product.imageUrl || '/product-1.png');
+
   // Generate star rating display
   const renderStars = (rating: number) => {
     const stars = [];
@@ -26,13 +30,13 @@ export function ProductCard({ product }: { product: Product }) {
     <Link href={`/products/${getProductSlug(product.name, product.id)}`} className="group block w-full bg-white transition-all duration-300 hover:shadow-xl border border-transparent hover:border-border/50">
       <div className="relative aspect-square overflow-hidden bg-muted">
         {/* Placeholder if no image */}
-        <img 
-          src={product.imageUrl || '/product-1.png'} 
+        <Image 
+          src={imgSrc} 
           alt={product.name}
-          className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = '/product-1.png';
-          }}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
+          onError={() => setImgSrc('/product-1.png')}
         />
         
         {/* Badges */}
