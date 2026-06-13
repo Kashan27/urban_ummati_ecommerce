@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     let stripeExpired = false;
 
-    // Cancel locally + restock only if the order is still pending.
+    // Cancel locally only if the order is still pending.
     const canceled = await db.transaction(async (tx) => {
       const [updated] = await tx
         .update(ordersTable)
@@ -63,28 +63,6 @@ export async function POST(request: NextRequest) {
         .returning({ id: ordersTable.id });
 
       if (!updated) return false;
-
-      const items = await tx
-        .select({ productId: orderItemsTable.productId, quantity: orderItemsTable.quantity })
-        .from(orderItemsTable)
-        .where(eq(orderItemsTable.orderId, orderId));
-
-      for (const item of items) {
-        const qty = Number(item.quantity ?? 0);
-        const productId = Number(item.productId ?? 0);
-        if (!Number.isFinite(qty) || qty <= 0) continue;
-        if (!Number.isFinite(productId) || productId <= 0) continue;
-
-        await tx
-          .update(productsTable)
-          .set({
-            inventoryQuantity: sql`case when ${productsTable.inventoryQuantity} is null then null else ${productsTable.inventoryQuantity} + ${qty} end`,
-            inStock: sql`case when ${productsTable.inventoryQuantity} is null then ${productsTable.inStock} else (${productsTable.inventoryQuantity} + ${qty}) > 0 end`,
-            totalSold: sql`greatest(0, ${productsTable.totalSold} - ${qty})`,
-            updatedAt: now,
-          })
-          .where(eq(productsTable.id, productId));
-      }
 
       return true;
     });

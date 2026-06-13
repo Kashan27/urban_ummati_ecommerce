@@ -89,23 +89,19 @@ export async function POST(request: NextRequest) {
           if (!Number.isFinite(qty) || qty <= 0) continue;
           if (!Number.isFinite(productId) || productId <= 0) continue;
 
-          const updates = await tx
-            .update(productsTable)
-            .set({
-              totalSold: sql`${productsTable.totalSold} + ${qty}`,
-              inventoryQuantity: sql`case when ${productsTable.inventoryQuantity} is null then null else greatest(0, ${productsTable.inventoryQuantity} - ${qty}) end`,
-              inStock: sql`case when ${productsTable.inventoryQuantity} is null then ${productsTable.inStock} else (${productsTable.inventoryQuantity} - ${qty}) > 0 end`,
-              updatedAt: now,
-            })
+          // ONLY CHECK availability
+          const [product] = await tx
+            .select({ id: productsTable.id })
+            .from(productsTable)
             .where(
               and(
                 eq(productsTable.id, productId),
                 sql`(${productsTable.inventoryQuantity} is null or ${productsTable.inventoryQuantity} >= ${qty})`,
               ),
             )
-            .returning({ id: productsTable.id });
+            .limit(1);
 
-          if (updates.length === 0) {
+          if (!product) {
             throw new Error("INSUFFICIENT_STOCK");
           }
         }

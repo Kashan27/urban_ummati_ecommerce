@@ -321,24 +321,43 @@ export async function POST(request: Request) {
       );
 
       for (const item of data.items) {
-        const updates = await tx
-          .update(productsTable)
-          .set({
-            totalSold: sql`${productsTable.totalSold} + ${item.quantity}`,
-            inventoryQuantity: sql`case when ${productsTable.inventoryQuantity} is null then null else greatest(0, ${productsTable.inventoryQuantity} - ${item.quantity}) end`,
-            inStock: sql`case when ${productsTable.inventoryQuantity} is null then ${productsTable.inStock} else (${productsTable.inventoryQuantity} - ${item.quantity}) > 0 end`,
-            updatedAt: new Date(),
-          })
-          .where(
-            and(
-              eq(productsTable.id, item.productId),
-              sql`(${productsTable.inventoryQuantity} is null or ${productsTable.inventoryQuantity} >= ${item.quantity})`,
-            ),
-          )
-          .returning({ id: productsTable.id });
+        if (total <= 0) {
+          // Decrement stock immediately for free/immediate orders
+          const [updatedProduct] = await tx
+            .update(productsTable)
+            .set({
+              totalSold: sql`${productsTable.totalSold} + ${item.quantity}`,
+              inventoryQuantity: sql`CASE WHEN ${productsTable.inventoryQuantity} IS NULL THEN NULL ELSE GREATEST(0, ${productsTable.inventoryQuantity} - ${item.quantity}) END`,
+              inStock: sql`CASE WHEN ${productsTable.inventoryQuantity} IS NULL THEN ${productsTable.inStock} ELSE (${productsTable.inventoryQuantity} - ${item.quantity}) > 0 END`,
+              updatedAt: new Date(),
+            })
+            .where(
+              and(
+                eq(productsTable.id, item.productId),
+                sql`(${productsTable.inventoryQuantity} IS NULL OR ${productsTable.inventoryQuantity} >= ${item.quantity})`,
+              ),
+            )
+            .returning({ id: productsTable.id });
 
-        if (updates.length === 0) {
-          throw new Error("INSUFFICIENT_STOCK");
+          if (!updatedProduct) {
+            throw new Error("INSUFFICIENT_STOCK");
+          }
+        } else {
+          // For pending orders, ONLY CHECK availability
+          const [product] = await tx
+            .select({ id: productsTable.id })
+            .from(productsTable)
+            .where(
+              and(
+                eq(productsTable.id, item.productId),
+                sql`(${productsTable.inventoryQuantity} is null or ${productsTable.inventoryQuantity} >= ${item.quantity})`,
+              ),
+            )
+            .limit(1);
+
+          if (!product) {
+            throw new Error("INSUFFICIENT_STOCK");
+          }
         }
       }
 

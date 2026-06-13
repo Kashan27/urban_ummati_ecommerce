@@ -164,9 +164,9 @@ export function Navbar() {
     }
 
     // 2. New Arrivals
-    if (settings.nav_show_new_arrivals !== "false" && counts.featured > 0) {
+    /* if (settings.nav_show_new_arrivals !== "false" && counts.featured > 0) {
       items.push({ name: "NEW ARRIVALS", href: "/products?featured=true" });
-    }
+    } */
 
     // 3. Collections
     if (settings.nav_show_collections !== "false" && counts.collections > 0) {
@@ -296,13 +296,15 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/80 bg-[#fbfbf9]/95 backdrop-blur-md">
-      <div className="hidden lg:flex items-center justify-between border-b border-border/70 bg-[#f9f4ec] px-6 py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-        <div className="flex items-center gap-4">
-          <span>Canadian Dispatch</span>
-          <span className="text-border">|</span>
-          <span> {settings.free_shipping_threshold ?  `Free Shipping Over $${settings.free_shipping_threshold}` : `Free Shipping Available`}</span>
+      {settings.free_shipping_threshold && settings.free_shipping_threshold !== "0" && (
+        <div className="hidden lg:flex items-center justify-between border-b border-border/70 bg-[#f9f4ec] px-6 py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <span>Canadian Dispatch</span>
+            <span className="text-border">|</span>
+            <span>Free Shipping Over ${settings.free_shipping_threshold}</span>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="mx-auto flex w-full max-w-7xl items-center bg-[#fbfbf9] px-4 py-4 md:px-6">
         <div className="flex flex-1 items-center justify-start">
@@ -313,7 +315,7 @@ export function Navbar() {
           >
             <Menu className="h-6 w-6" />
           </button>
-          <div className="hidden items-center gap-4 text-sm uppercase tracking-[0.15em] text-muted-foreground md:flex">
+          {/* <div className="hidden items-center gap-4 text-sm uppercase tracking-[0.15em] text-muted-foreground md:flex">
             <Link href="/products?featured=true" className="transition-colors hover:text-foreground">
               New Arrivals
             </Link>
@@ -328,7 +330,7 @@ export function Navbar() {
                 </Link>
               </>
             )}
-          </div>
+          </div> */}
         </div>
 
         <div className="flex shrink-0 flex-col items-center text-center">

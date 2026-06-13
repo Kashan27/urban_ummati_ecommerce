@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { db, ordersTable } from "@workspace/db";
-import { and, eq } from "drizzle-orm";
+import { db, ordersTable, orderItemsTable, productsTable } from "@workspace/db";
+import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -50,6 +50,39 @@ export async function POST(request: NextRequest) {
         .returning();
 
       if (!updated) return false;
+
+      // DECREMENT STOCK NOW THAT PAYMENT IS CONFIRMED
+      const items = await tx
+        .select({ productId: orderItemsTable.productId, quantity: orderItemsTable.quantity })
+        .from(orderItemsTable)
+        .where(eq(orderItemsTable.orderId, orderId));
+
+      for (const item of items) {
+        const qty = Number(item.quantity ?? 0);
+        const productId = Number(item.productId ?? 0);
+        if (!Number.isFinite(qty) || qty <= 0) continue;
+        if (!Number.isFinite(productId) || productId <= 0) continue;
+
+        // Use raw SQL via tx.execute() to ensure column references are properly
+        // resolved as identifiers, not as bind parameters.
+        await tx.execute(
+          sql`
+            UPDATE "products"
+            SET
+              "total_sold" = "total_sold" + ${qty},
+              "inventory_quantity" = CASE
+                WHEN "inventory_quantity" IS NULL THEN NULL
+                ELSE GREATEST(0, "inventory_quantity" - ${qty})
+              END,
+              "in_stock" = CASE
+                WHEN "inventory_quantity" IS NULL THEN "in_stock"
+                ELSE ("inventory_quantity" - ${qty}) > 0
+              END,
+              "updated_at" = ${now}
+            WHERE "products"."id" = ${productId}
+          `,
+        );
+      }
 
       return true;
     });

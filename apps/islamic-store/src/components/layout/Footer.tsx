@@ -131,7 +131,7 @@ export function Footer() {
           </div>
 
           {/* 2. COLLECTIONS */}
-          <div className="flex flex-col gap-5">
+          {/* <div className="flex flex-col gap-5">
             <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#C9A883]">
               Collections
             </h3>
@@ -163,7 +163,7 @@ export function Footer() {
                 </>
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* 3. CUSTOMER CARE */}
           <div className="flex flex-col gap-5">

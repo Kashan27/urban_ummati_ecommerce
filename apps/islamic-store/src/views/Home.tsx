@@ -4,6 +4,8 @@ import { useGetFeaturedProducts } from "@workspace/api-client-react";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { OptimizedBanner, type OptimizedBannerItem } from "@/components/ui/OptimizedBanner";
 import { CollectionProductsSection } from "@/components/home/CollectionProductsSection";
+import { FeaturedProductsSection } from "@/components/home/FeaturedProductsSection";
+import { FullScreenLoader } from "@/components/ui/FullScreenLoader";
 import { useEffect, useState, useMemo } from "react";
 
 type ApiCategory = {
@@ -34,12 +36,14 @@ export function Home() {
   const [collections, setCollections] = useState<ApiCollection[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [isLoadingCollections, setIsLoadingCollections] = useState(true);
-  const [settings, setSettings] = useState<Record<string, string>>({});
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
+  const [settings, setSettings] = useState<Record<string, string> | null>(null);
 
   // Fetch settings from API
   useEffect(() => {
     const fetchSettings = async () => {
       try {
+        setIsLoadingSettings(true);
         const response = await fetch("/api/settings");
         if (response.ok) {
           const data = await response.json();
@@ -47,6 +51,8 @@ export function Home() {
         }
       } catch (error) {
         console.error("Error fetching settings:", error);
+      } finally {
+        setIsLoadingSettings(false);
       }
     };
     fetchSettings();
@@ -123,14 +129,37 @@ export function Home() {
     }));
   }, [collections]);
 
+  const isOverallLoading = isLoading || isLoadingCategories || isLoadingCollections || isLoadingSettings;
+  const [showLoader, setShowLoader] = useState(true);
+  const [isExiting, setIsExiting] = useState(false);
+
+  // Handle loader visibility with a smooth fade-out
+  useEffect(() => {
+    if (!isOverallLoading) {
+      // Start exit animation
+      setIsExiting(true);
+      // Remove from DOM after animation completes
+      const timer = setTimeout(() => {
+        setShowLoader(false);
+      }, 700); // Matches the duration-700 in FullScreenLoader
+      return () => clearTimeout(timer);
+    } else {
+      setShowLoader(true);
+      setIsExiting(false);
+      return undefined;
+    }
+  }, [isOverallLoading]);
+
   return (
-    <main className="flex-1 w-full overflow-x-hidden">
-      <div className="border-b border-border/70 bg-primary py-2 text-center text-[11px] font-medium uppercase tracking-[0.22em] text-primary-foreground">
-        Handpicked Urban Ummati | Fast Canada-Wide Shipping
-      </div>
+    <>
+      {showLoader && <FullScreenLoader isExiting={isExiting} />}
+      <main className="flex-1 w-full overflow-x-hidden">
+        <div className="border-b border-border/70 bg-primary py-2 text-center text-[11px] font-medium uppercase tracking-[0.22em] text-primary-foreground">
+          Handpicked Urban Ummati | Fast Canada-Wide Shipping
+        </div>
 
       {/* Banner Carousel - Showcasing Collections */}
-      {settings.nav_show_collections !== "false" && (
+      {!isLoadingSettings && settings?.nav_show_collections !== "false" && (
         isLoadingCollections ? (
           <section className="relative h-[140px] sm:h-[200px] md:h-[300px] lg:h-[450px] bg-muted animate-pulse">
             <div className="absolute inset-0 flex items-center justify-center">
@@ -225,7 +254,12 @@ export function Home() {
         </div>
       </section> */}
 
-      {settings.nav_show_categories !== "false" && (
+      {/* Featured Products Section - Active Products Toggleable */}
+      {!isLoadingSettings && settings?.home_show_all_products === "true" && (
+        <FeaturedProductsSection title="Our Products" limit={8} />
+      )}
+
+      {!isLoadingSettings && settings?.nav_show_categories !== "false" && (
         <section className="px-4 py-12 md:px-8 md:py-20">
           <div className="mx-auto w-full max-w-7xl">
             <div className="mb-10 flex items-end justify-between gap-6">
@@ -283,7 +317,7 @@ export function Home() {
       )}
 
       {/* Collection Products Sections - One section per collection marked for home */}
-      {settings.nav_show_collections !== "false" && (
+      {!isLoadingSettings && settings?.nav_show_collections !== "false" && (
         isLoadingCollections ? (
           <section className="border-y border-border/70 bg-[hsl(35_40%_95%)] px-4 py-20 md:px-8">
             <div className="mx-auto w-full max-w-7xl">
@@ -333,5 +367,6 @@ export function Home() {
         </div>
       </section> */}
     </main>
+    </>
   );
 }

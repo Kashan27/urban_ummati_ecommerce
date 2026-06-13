@@ -168,6 +168,17 @@ export function SettingsSection({ settings, onUpdateSettings, products, categori
 
                 <div className="flex items-center justify-between rounded-lg border border-border bg-muted/20 p-3">
                   <div className="space-y-0.5">
+                    <label className="text-xs font-bold text-foreground">Home: All Products Section</label>
+                    <p className="text-[10px] text-muted-foreground">Toggle "Our Products" section on home</p>
+                  </div>
+                  <Toggle 
+                    checked={localSettings.home_show_all_products === "true"}
+                    onChange={(checked) => setLocalSettings(prev => ({ ...prev, home_show_all_products: String(checked) }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between rounded-lg border border-border bg-muted/20 p-3">
+                  <div className="space-y-0.5">
                     <label className="text-xs font-bold text-foreground">Show Shop by Category</label>
                     <p className="text-[10px] text-muted-foreground">Toggle individual category links</p>
                   </div>

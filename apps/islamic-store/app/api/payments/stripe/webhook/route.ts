@@ -82,7 +82,39 @@ export async function POST(request: NextRequest) {
             return;
           }
 
-          console.info("[Stripe Webhook] Order marked as paid", { orderId });
+          // DECREMENT STOCK NOW THAT PAYMENT IS CONFIRMED
+          const items = await tx
+            .select({ productId: orderItemsTable.productId, quantity: orderItemsTable.quantity })
+            .from(orderItemsTable)
+            .where(eq(orderItemsTable.orderId, orderId));
+
+          console.info(`[Stripe Webhook] Processing ${items.length} items for stock decrement`, { orderId });
+
+          for (const item of items) {
+            const qty = Number(item.quantity ?? 0);
+            const productId = Number(item.productId ?? 0);
+            if (!Number.isFinite(qty) || qty <= 0) continue;
+            if (!Number.isFinite(productId) || productId <= 0) continue;
+
+            const [updatedProduct] = await tx
+              .update(productsTable)
+              .set({
+                totalSold: sql`${productsTable.totalSold} + ${qty}`,
+                inventoryQuantity: sql`CASE WHEN ${productsTable.inventoryQuantity} IS NULL THEN NULL ELSE GREATEST(0, ${productsTable.inventoryQuantity} - ${qty}) END`,
+                inStock: sql`CASE WHEN ${productsTable.inventoryQuantity} IS NULL THEN ${productsTable.inStock} ELSE (${productsTable.inventoryQuantity} - ${qty}) > 0 END`,
+                updatedAt: now,
+              })
+              .where(eq(productsTable.id, productId))
+              .returning({ id: productsTable.id });
+
+            if (updatedProduct) {
+              console.info(`[Stripe Webhook] Successfully decremented stock for product ${productId}`, { orderId, qty });
+            } else {
+              console.error(`[Stripe Webhook] FAILED to decrement stock for product ${productId}`, { orderId });
+            }
+          }
+
+          console.info("[Stripe Webhook] Order marked as paid and stock processing completed", { orderId });
         });
 
         console.info("[Stripe Webhook] Starting ShipStation sync", { orderId });
@@ -106,45 +138,19 @@ export async function POST(request: NextRequest) {
       const orderId = session.metadata?.orderId ? Number(session.metadata.orderId) : null;
       if (orderId && Number.isFinite(orderId)) {
         const now = new Date();
-        await db.transaction(async (tx) => {
-          const [updated] = await tx
-            .update(ordersTable)
-            .set({
-              paymentProvider: "stripe",
-              paymentStatus: "canceled",
-              stripeCheckoutSessionId: session.id,
-              stripePaymentIntentId:
-                typeof session.payment_intent === "string" ? session.payment_intent : null,
-              updatedAt: now,
-            })
-            .where(
-              and(eq(ordersTable.id, orderId), eq(ordersTable.paymentStatus, "pending")),
-            )
-            .returning();
-
-          if (!updated) return;
-
-          const items = await tx
-            .select({ productId: orderItemsTable.productId, quantity: orderItemsTable.quantity })
-            .from(orderItemsTable)
-            .where(eq(orderItemsTable.orderId, orderId));
-
-          for (const item of items) {
-            const qty = Number(item.quantity ?? 0);
-            const productId = Number(item.productId ?? 0);
-            if (!Number.isFinite(qty) || qty <= 0) continue;
-            if (!Number.isFinite(productId) || productId <= 0) continue;
-            await tx
-              .update(productsTable)
-              .set({
-                inventoryQuantity: sql`case when ${productsTable.inventoryQuantity} is null then null else ${productsTable.inventoryQuantity} + ${qty} end`,
-                inStock: sql`case when ${productsTable.inventoryQuantity} is null then ${productsTable.inStock} else (${productsTable.inventoryQuantity} + ${qty}) > 0 end`,
-                totalSold: sql`greatest(0, ${productsTable.totalSold} - ${qty})`,
-                updatedAt: now,
-              })
-              .where(eq(productsTable.id, productId));
-          }
-        });
+        await db
+          .update(ordersTable)
+          .set({
+            paymentProvider: "stripe",
+            paymentStatus: "canceled",
+            stripeCheckoutSessionId: session.id,
+            stripePaymentIntentId:
+              typeof session.payment_intent === "string" ? session.payment_intent : null,
+            updatedAt: now,
+          })
+          .where(
+            and(eq(ordersTable.id, orderId), eq(ordersTable.paymentStatus, "pending")),
+          );
       }
     }
 
@@ -153,43 +159,17 @@ export async function POST(request: NextRequest) {
       const orderId = paymentIntent.metadata?.orderId ? Number(paymentIntent.metadata.orderId) : null;
       if (orderId && Number.isFinite(orderId)) {
         const now = new Date();
-        await db.transaction(async (tx) => {
-          const [updated] = await tx
-            .update(ordersTable)
-            .set({
-              paymentProvider: "stripe",
-              paymentStatus: "failed",
-              stripePaymentIntentId: paymentIntent.id,
-              updatedAt: now,
-            })
-            .where(
-              and(eq(ordersTable.id, orderId), eq(ordersTable.paymentStatus, "pending")),
-            )
-            .returning();
-
-          if (!updated) return;
-
-          const items = await tx
-            .select({ productId: orderItemsTable.productId, quantity: orderItemsTable.quantity })
-            .from(orderItemsTable)
-            .where(eq(orderItemsTable.orderId, orderId));
-
-          for (const item of items) {
-            const qty = Number(item.quantity ?? 0);
-            const productId = Number(item.productId ?? 0);
-            if (!Number.isFinite(qty) || qty <= 0) continue;
-            if (!Number.isFinite(productId) || productId <= 0) continue;
-            await tx
-              .update(productsTable)
-              .set({
-                inventoryQuantity: sql`case when ${productsTable.inventoryQuantity} is null then null else ${productsTable.inventoryQuantity} + ${qty} end`,
-                inStock: sql`case when ${productsTable.inventoryQuantity} is null then ${productsTable.inStock} else (${productsTable.inventoryQuantity} + ${qty}) > 0 end`,
-                totalSold: sql`greatest(0, ${productsTable.totalSold} - ${qty})`,
-                updatedAt: now,
-              })
-              .where(eq(productsTable.id, productId));
-          }
-        });
+        await db
+          .update(ordersTable)
+          .set({
+            paymentProvider: "stripe",
+            paymentStatus: "failed",
+            stripePaymentIntentId: paymentIntent.id,
+            updatedAt: now,
+          })
+          .where(
+            and(eq(ordersTable.id, orderId), eq(ordersTable.paymentStatus, "pending")),
+          );
       }
     }
 

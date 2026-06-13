@@ -20,6 +20,7 @@ export async function GET() {
       "nav_show_collections",
       "nav_show_all_products",
       "nav_show_categories",
+      "home_show_all_products",
       "signature_art_category_slug"
     ];
 
