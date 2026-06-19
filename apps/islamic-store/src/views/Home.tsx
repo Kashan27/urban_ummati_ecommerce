@@ -281,7 +281,7 @@ export function Home({ initialData }: { initialData?: any }) {
             <div className="mb-10 flex items-end justify-between gap-6">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Browse</p>
-                <h1 className="mt-2 font-serif text-2xl md:text-4xl lg:text-5xl">Shop by Category</h1>
+                <h2 className="mt-2 font-serif text-2xl md:text-4xl lg:text-5xl">Shop by Category</h2>
               </div>
               <Link href="/products" className="hidden text-xs uppercase tracking-[0.16em] text-primary transition-colors hover:text-secondary md:inline-flex">
                 View All Products
