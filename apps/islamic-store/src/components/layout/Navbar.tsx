@@ -32,7 +32,19 @@ type SearchSuggestion =
   | { type: "category"; id: string; href: string; label: string }
   | { type: "query"; id: string; href: string; label: string };
 
-export function Navbar() {
+type NavbarCounts = {
+  featured: number;
+  collections: number;
+  total: number;
+};
+
+type NavbarProps = {
+  initialCategories: ApiCategory[];
+  initialSettings: Record<string, string>;
+  initialCounts: NavbarCounts;
+};
+
+export function Navbar({ initialCategories, initialSettings, initialCounts }: NavbarProps) {
   const { itemCount } = useCart();
   const isMobile = useIsMobile();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -42,60 +54,8 @@ export function Navbar() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [productResults, setProductResults] = useState<SearchProduct[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const [categories, setCategories] = useState<ApiCategory[]>([]);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-  const [settings, setSettings] = useState<Record<string, string>>({});
-  const [counts, setCounts] = useState({
-    featured: 0,
-    collections: 0,
-    total: 0,
-  });
   const router = useRouter();
   const pathname = usePathname() ?? "";
-
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const response = await fetch("/api/settings");
-        if (response.ok) {
-          const data = await response.json();
-          setSettings(data);
-        }
-      } catch (error) {
-        console.error("Error fetching settings:", error);
-      }
-    };
-    fetchSettings();
-  }, []);
-
-  useEffect(() => {
-    const fetchMetadata = async () => {
-      try {
-        const [collectionsRes, featuredRes, totalRes] = await Promise.all([
-          fetch("/api/collections"),
-          fetch("/api/products?featured=true"),
-          fetch("/api/products"),
-        ]);
-
-        if (collectionsRes.ok && featuredRes.ok && totalRes.ok) {
-          const [collectionsData, featuredData, totalData] = await Promise.all([
-            collectionsRes.json(),
-            featuredRes.json(),
-            totalRes.json(),
-          ]);
-
-          setCounts({
-            collections: collectionsData.total || 0,
-            featured: featuredData.total || 0,
-            total: totalData.total || 0,
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching navbar metadata:", error);
-      }
-    };
-    fetchMetadata();
-  }, []);
 
   const searchPanelId = useMemo(
     () => `search-panel-${Math.random().toString(36).slice(2, 9)}`,
@@ -132,32 +92,12 @@ export function Navbar() {
   const query = searchTerm.trim();
   const normalizedQuery = query.toLowerCase();
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setIsLoadingCategories(true);
-        const response = await fetch("/api/categories");
-        if (!response.ok) {
-          throw new Error("Failed to fetch categories");
-        }
-        const data = await response.json();
-        setCategories(data.categories || []);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        setCategories([]);
-      } finally {
-        setIsLoadingCategories(false);
-      }
-    };
-    fetchCategories();
-  }, []);
-
   const navbarCategories = useMemo(() => {
     const items: { name: string; href: string }[] = [];
 
     // 1. Categories (Shop by Category)
-    if (settings.nav_show_categories !== "false" && categories.length > 0) {
-      categories.forEach(cat => {
+    if (initialSettings.nav_show_categories !== "false" && initialCategories.length > 0) {
+      initialCategories.forEach(cat => {
         items.push({
           name: cat.name.toUpperCase(),
           href: `/products?category=${cat.slug}`
@@ -171,20 +111,20 @@ export function Navbar() {
     } */
 
     // 3. Collections
-    if (settings.nav_show_collections !== "false" && counts.collections > 0) {
+    if (initialSettings.nav_show_collections !== "false" && initialCounts.collections > 0) {
       items.push({ name: "COLLECTIONS", href: "/collections" });
     }
 
     // 4. All Products (with Redundancy Filter)
-    const showAllProducts = settings.nav_show_all_products !== "false" && counts.total > 0;
-    const isRedundant = counts.total <= counts.featured;
+    const showAllProducts = initialSettings.nav_show_all_products !== "false" && initialCounts.total > 0;
+    const isRedundant = initialCounts.total <= initialCounts.featured;
     
     if (showAllProducts && !isRedundant) {
       items.push({ name: "ALL PRODUCTS", href: "/products" });
     }
 
     return items;
-  }, [categories, settings, counts]);
+  }, [initialCategories, initialSettings, initialCounts]);
 
   const categoryMatches = useMemo(() => {
     if (!normalizedQuery) return [];
@@ -298,12 +238,12 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/80 bg-[#fbfbf9]/95 backdrop-blur-md">
-      {settings.free_shipping_threshold && settings.free_shipping_threshold !== "0" && (
+      {initialSettings.free_shipping_threshold && initialSettings.free_shipping_threshold !== "0" && (
         <div className="hidden lg:flex items-center justify-between border-b border-border/70 bg-[#f9f4ec] px-6 py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
           <div className="flex items-center gap-4">
             <span>Canadian Dispatch</span>
             <span className="text-border">|</span>
-            <span>Free Shipping Over ${settings.free_shipping_threshold}</span>
+            <span>Free Shipping Over ${initialSettings.free_shipping_threshold}</span>
           </div>
         </div>
       )}
@@ -378,33 +318,25 @@ export function Navbar() {
         </div>
       </div>
 
-      {(isLoadingCategories || navbarCategories.length > 0) && (
+      {navbarCategories.length > 0 && (
         <div className="hidden border-t border-border/70 bg-[#f9f4ec] md:block">
           <nav className="mx-auto flex max-w-7xl items-center justify-center gap-1 px-4 py-3 lg:gap-2">
-            {isLoadingCategories ? (
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="h-8 w-20 animate-pulse rounded-full bg-muted"></div>
-                ))}
-              </div>
-            ) : (
-              navbarCategories.map((category) => {
-                const isActive = category.href === "/collections" && pathname === "/collections";
-                return (
-                  <Link
-                    key={category.name}
-                    href={category.href}
-                    className={`rounded-full px-4 py-2 text-[11px] font-medium uppercase tracking-[0.15em] transition-all lg:text-xs ${
-                      isActive
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    }`}
-                  >
-                    {category.name}
-                  </Link>
-                );
-              })
-            )}
+            {navbarCategories.map((category) => {
+              const isActive = category.href === "/collections" && pathname === "/collections";
+              return (
+                <Link
+                  key={category.name}
+                  href={category.href}
+                  className={`rounded-full px-4 py-2 text-[11px] font-medium uppercase tracking-[0.15em] transition-all lg:text-xs ${
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  {category.name}
+                </Link>
+              );
+            })}
           </nav>
         </div>
       )}
@@ -445,7 +377,7 @@ export function Navbar() {
                 <Search className="h-5 w-5" />
               </button>
               <div className="space-y-1">
-                {!isLoadingCategories && navbarCategories.map((category) => (
+                {navbarCategories.map((category) => (
                   <Link
                     key={category.name}
                     href={category.href}

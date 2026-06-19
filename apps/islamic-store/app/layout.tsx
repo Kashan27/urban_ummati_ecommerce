@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Metadata } from "next";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
+import { and, asc, eq, sql } from "drizzle-orm";
+import { categoriesTable, collectionsTable, db, productsTable, settingsTable } from "@workspace/db";
 
 const cormorantGaramond = Cormorant_Garamond({
   subsets: ["latin"],
@@ -94,7 +96,57 @@ const siteJsonLd = {
   ],
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+async function getNavbarData() {
+  const [settingsRows, categoryRows, featuredRows, totalRows, collectionRows] = await Promise.all([
+    db.select().from(settingsTable),
+    db
+      .select()
+      .from(categoriesTable)
+      .where(eq(categoriesTable.isActive, true))
+      .orderBy(asc(categoriesTable.name)),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(productsTable)
+      .where(and(eq(productsTable.status, "active"), eq(productsTable.featured, true))),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(productsTable)
+      .where(eq(productsTable.status, "active")),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(collectionsTable)
+      .where(eq(collectionsTable.isActive, true)),
+  ]);
+
+  const settings = settingsRows.reduce(
+    (acc, row) => {
+      acc[row.key] = row.value;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+
+  return {
+    settings,
+    categories: categoryRows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      isActive: row.isActive,
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt?.toISOString() ?? null,
+    })),
+    counts: {
+      featured: Number(featuredRows[0]?.count ?? 0),
+      total: Number(totalRows[0]?.count ?? 0),
+      collections: Number(collectionRows[0]?.count ?? 0),
+    },
+  };
+}
+
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const navbarData = await getNavbarData();
+
   return (
     <html lang="en" className={`${cormorantGaramond.variable} ${manrope.variable}`}>
       <body className="antialiased font-sans">
@@ -102,7 +154,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
         />
-        <AppShell>{children}</AppShell>
+        <AppShell navbarData={navbarData}>{children}</AppShell>
       </body>
     </html>
   );
