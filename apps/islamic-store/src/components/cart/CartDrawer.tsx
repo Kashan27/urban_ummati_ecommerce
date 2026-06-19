@@ -1,13 +1,13 @@
 "use client";
 
 import { X, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
-import { Link, useLocation } from "@/lib/router";
+import { Link, useRouter } from "@/lib/router";
 import { useCart } from "@/lib/cart-context";
 import { getProductSlug } from "@/lib/utils";
 
 export function CartDrawer() {
   const { items, removeItem, updateQuantity, subtotal, isCartOpen, setIsCartOpen } = useCart();
-  const [, setLocation] = useLocation();
+  const router = useRouter();
 
   if (!isCartOpen) return null;
 
@@ -44,7 +44,7 @@ export function CartDrawer() {
               <button 
                 onClick={() => {
                   setIsCartOpen(false);
-                  setLocation('/products');
+                  router.push("/products");
                 }}
                 className="bg-primary text-primary-foreground px-8 py-3 font-sans uppercase tracking-widest text-sm hover:bg-primary/90 transition-colors"
               >
@@ -129,7 +129,7 @@ export function CartDrawer() {
               <button 
                 onClick={() => {
                   setIsCartOpen(false);
-                  setLocation('/cart');
+                  router.push("/cart");
                 }}
                 className="w-full bg-white border border-primary text-primary px-6 py-4 font-sans uppercase tracking-widest text-sm hover:bg-muted transition-colors flex items-center justify-center"
               >
@@ -138,7 +138,7 @@ export function CartDrawer() {
               <button 
                 onClick={() => {
                   setIsCartOpen(false);
-                  setLocation('/checkout');
+                  router.push("/checkout");
                 }}
                 className="w-full bg-primary text-primary-foreground px-6 py-4 font-sans uppercase tracking-widest text-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group"
               >

@@ -68,10 +68,40 @@ export const metadata: Metadata = {
   },
 };
 
+const siteJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://urban-ummati.vercel.app/#organization",
+      name: "Urban Ummati",
+      url: "https://urban-ummati.vercel.app",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://urban-ummati.vercel.app/title-shidle.png",
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://urban-ummati.vercel.app/#website",
+      url: "https://urban-ummati.vercel.app",
+      name: "Urban Ummati",
+      publisher: {
+        "@id": "https://urban-ummati.vercel.app/#organization",
+      },
+      inLanguage: "en-CA",
+    },
+  ],
+};
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${cormorantGaramond.variable} ${manrope.variable}`}>
       <body className="antialiased font-sans">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
+        />
         <AppShell>{children}</AppShell>
       </body>
     </html>

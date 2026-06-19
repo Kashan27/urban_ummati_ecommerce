@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { OrderConfirmation } from "@/views/OrderConfirmation";
 import { buildSeoMetadata } from "@/lib/seo";
 
@@ -9,5 +10,9 @@ export const metadata = buildSeoMetadata({
 });
 
 export default function Page() {
-  return <OrderConfirmation />;
+  return (
+    <Suspense fallback={null}>
+      <OrderConfirmation />
+    </Suspense>
+  );
 }

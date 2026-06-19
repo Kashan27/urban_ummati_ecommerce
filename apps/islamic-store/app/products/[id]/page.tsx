@@ -1,11 +1,28 @@
 import { type Metadata } from "next";
 import { and, eq } from "drizzle-orm";
 import { categoriesTable, db, productsTable } from "@workspace/db";
+import { cache } from "react";
+import { loadProductMediaMaps } from "@/lib/api-formatters";
 import { buildSeoMetadata } from "@/lib/seo";
 import { getProductIdFromSlug } from "@/lib/utils";
 import { ProductDetail } from "@/views/ProductDetail";
 
-async function getProductSeoData(productId: number) {
+const siteUrl = "https://urban-ummati.vercel.app";
+const brandName = "Urban Ummati";
+
+function stripHtml(input: string) {
+  return input.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function toAbsoluteUrl(pathOrUrl: string) {
+  if (/^https?:\/\//i.test(pathOrUrl)) {
+    return pathOrUrl;
+  }
+
+  return new URL(pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`, siteUrl).toString();
+}
+
+const getProductSeoData = cache(async (productId: number) => {
   const rows = await db
     .select({ product: productsTable, category: categoriesTable })
     .from(productsTable)
@@ -13,8 +30,18 @@ async function getProductSeoData(productId: number) {
     .where(and(eq(productsTable.id, productId), eq(productsTable.status, "active")))
     .limit(1);
 
-  return rows[0] ?? null;
-}
+  const row = rows[0] ?? null;
+  if (!row) {
+    return null;
+  }
+
+  const { imagesByProductId } = await loadProductMediaMaps([productId]);
+
+  return {
+    ...row,
+    galleryImages: imagesByProductId.get(productId) ?? [],
+  };
+});
 
 export async function generateMetadata({
   params,
@@ -46,10 +73,9 @@ export async function generateMetadata({
 
   const productName = productRow.product.name;
   const categoryName = productRow.category?.name;
+  const cleanDescription = stripHtml(productRow.product.description);
   const description =
-    productRow.product.description.length > 160
-      ? `${productRow.product.description.slice(0, 157)}...`
-      : productRow.product.description;
+    cleanDescription.length > 160 ? `${cleanDescription.slice(0, 157)}...` : cleanDescription;
 
   return buildSeoMetadata({
     title: categoryName ? `${productName} | ${categoryName}` : productName,
@@ -66,6 +92,103 @@ export async function generateMetadata({
   });
 }
 
-export default function Page() {
-  return <ProductDetail />;
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const productId = Number.parseInt(getProductIdFromSlug(id), 10);
+
+  let productJsonLd = null;
+  let breadcrumbJsonLd = null;
+  if (!Number.isNaN(productId)) {
+    const row = await getProductSeoData(productId);
+    if (row) {
+      const productUrl = `${siteUrl}/products/${id}`;
+      const cleanDescription = stripHtml(row.product.description);
+      const allImages = [...new Set([row.product.imageUrl, ...row.galleryImages].filter(Boolean))].map(toAbsoluteUrl);
+
+      productJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: row.product.name,
+        description: cleanDescription,
+        image: allImages,
+        url: productUrl,
+        sku: row.product.sku ?? undefined,
+        category: row.category?.name ?? undefined,
+        brand: { "@type": "Brand", name: brandName },
+        offers: {
+          "@type": "Offer",
+          url: productUrl,
+          priceCurrency: "CAD",
+          price: Number(row.product.price).toFixed(2),
+          availability: row.product.inStock
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+          itemCondition: "https://schema.org/NewCondition",
+          seller: { "@type": "Organization", name: brandName },
+        },
+      };
+
+      if (row.product.reviewCount > 0) {
+        productJsonLd = {
+          ...productJsonLd,
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: Number(row.product.rating).toFixed(1),
+            reviewCount: row.product.reviewCount,
+          },
+        };
+      }
+
+      breadcrumbJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: siteUrl,
+          },
+          ...(row.category
+            ? [
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: row.category.name,
+                  item: `${siteUrl}/products?category=${row.category.slug}`,
+                },
+              ]
+            : []),
+          {
+            "@type": "ListItem",
+            position: row.category ? 3 : 2,
+            name: row.product.name,
+            item: productUrl,
+          },
+        ],
+      };
+    }
+  }
+
+  return (
+    <>
+      {productJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        />
+      )}
+      {breadcrumbJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        />
+      )}
+      <ProductDetail />
+    </>
+  );
 }

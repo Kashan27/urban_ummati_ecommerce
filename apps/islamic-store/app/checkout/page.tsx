@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Checkout } from "@/views/Checkout";
 import { buildSeoMetadata } from "@/lib/seo";
 
@@ -9,5 +10,9 @@ export const metadata = buildSeoMetadata({
 });
 
 export default function Page() {
-  return <Checkout />;
+  return (
+    <Suspense fallback={null}>
+      <Checkout />
+    </Suspense>
+  );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Link, useLocation } from "@/lib/router";
+import { Link, usePathname, useRouter } from "@/lib/router";
 import { Search, User, ShoppingBag, Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -36,7 +36,6 @@ export function Navbar() {
   const { itemCount } = useCart();
   const isMobile = useIsMobile();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [location, setLocation] = useLocation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -51,6 +50,8 @@ export function Navbar() {
     collections: 0,
     total: 0,
   });
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -117,7 +118,7 @@ export function Navbar() {
       } catch {}
     }
     setIsSearchOpen(false);
-    setLocation(nextUrl);
+    router.push(nextUrl);
   };
 
   const closeSearch = () => {
@@ -292,7 +293,7 @@ export function Navbar() {
 
   const activateSuggestion = (s: SearchSuggestion) => {
     setIsSearchOpen(false);
-    setLocation(s.href);
+    router.push(s.href);
   };
 
   return (
@@ -388,7 +389,7 @@ export function Navbar() {
               </div>
             ) : (
               navbarCategories.map((category) => {
-                const isActive = location === category.href;
+                const isActive = category.href === "/collections" && pathname === "/collections";
                 return (
                   <Link
                     key={category.name}
