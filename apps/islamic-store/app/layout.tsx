@@ -19,30 +19,52 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://urban-ummati.vercel.app"),
   title: {
     default: "Urban Ummati | Modern Islamic Wall Art",
     template: "%s | Urban Ummati",
   },
-  description: "Modern Islamic wall art and handcrafted decor for contemporary Muslim homes.",
-  keywords: ["Islamic wall art", "Muslim home decor", "Islamic gifts", "Modern Islamic art"],
+  description:
+    "Shop modern Islamic wall art, Kun artwork, Arabic calligraphy prints, and premium Muslim home decor by Urban Ummati.",
+  keywords: [
+    "Urban Ummati",
+    "Islamic wall art",
+    "Kun artwork",
+    "Arabic calligraphy",
+    "Muslim home decor",
+    "Islamic prints",
+  ],
   authors: [{ name: "Urban Ummati" }],
   icons: {
     icon: "/title-shidle.png",
     apple: "/title-shidle.png",
   },
   openGraph: {
-    type: "website",
-    locale: "en_CA",
-    url: "https://urbanummati.store",
+    title: "Urban Ummati | Modern Islamic Wall Art",
+    description:
+      "Shop modern Islamic wall art, Kun artwork, Arabic calligraphy prints, and premium Muslim home decor by Urban Ummati.",
+    url: "https://urban-ummati.vercel.app",
     siteName: "Urban Ummati",
+    locale: "en_CA",
+    type: "website",
     images: [
       {
-        url: "/opengraph.jpg",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Urban Ummati - Modern Islamic Wall Art",
+        alt: "Urban Ummati Islamic Wall Art",
       },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Urban Ummati | Modern Islamic Wall Art",
+    description:
+      "Shop modern Islamic wall art, Kun artwork, Arabic calligraphy prints, and premium Muslim home decor by Urban Ummati.",
+    images: ["/og-image.jpg"],
+  },
+  alternates: {
+    canonical: "https://urban-ummati.vercel.app",
   },
 };
 

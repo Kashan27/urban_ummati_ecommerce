@@ -33,7 +33,7 @@ type ApiCollection = {
   updatedAt: string | null;
 };
 
-export function Home({ initialData }: { initialData?: any }) {
+export function Home({ initialData, children }: { initialData?: any; children?: React.ReactNode }) {
   const { data: featuredData, isLoading } = useGetFeaturedProducts({
     query: {
       queryKey: getGetFeaturedProductsQueryKey(),
@@ -169,6 +169,9 @@ export function Home({ initialData }: { initialData?: any }) {
         <div className="border-b border-border/70 bg-primary py-2 text-center text-[11px] font-medium uppercase tracking-[0.22em] text-primary-foreground">
           Handpicked Urban Ummati | Fast Canada-Wide Shipping
         </div>
+
+        {/* Server-Rendered SEO Content Section */}
+        {children}
 
       {/* Banner Carousel - Showcasing Collections */}
       {!isLoadingSettings && settings?.nav_show_collections !== "false" && (

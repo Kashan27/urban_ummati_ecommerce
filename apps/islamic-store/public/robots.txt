@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://urban-ummati.vercel.app/sitemap.xml

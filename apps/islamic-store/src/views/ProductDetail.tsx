@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { useParams, Link } from "@/lib/router";
 import { useGetProduct, getGetProductQueryKey } from "@workspace/api-client-react";

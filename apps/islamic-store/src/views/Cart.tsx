@@ -1,3 +1,5 @@
+"use client";
+
 import { Link, useLocation, useSearch } from "@/lib/router";
 import { useCart } from "@/lib/cart-context";
 import { Minus, Plus, X, ArrowRight, ShieldCheck, Truck, Gift } from "lucide-react";

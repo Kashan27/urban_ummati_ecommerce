@@ -1,3 +1,5 @@
+"use client";
+
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useSearch } from "@/lib/router";
 import { useListProducts, getListProductsQueryKey } from "@workspace/api-client-react";

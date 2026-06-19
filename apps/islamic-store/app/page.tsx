@@ -1,4 +1,5 @@
 import { Home } from "@/views/Home";
+import Link from "next/link";
 import { 
   db, 
   settingsTable, 
@@ -9,15 +10,16 @@ import {
 } from "@workspace/db";
 import { eq, and, asc, desc } from "drizzle-orm";
 import { formatProduct, loadProductMediaMaps } from "@/lib/api-formatters";
-import { Metadata } from "next";
+import { buildSeoMetadata, defaultSeoDescription } from "@/lib/seo";
+
+export const metadata = buildSeoMetadata({
+  title: "Urban Ummati | Modern Islamic Wall Art",
+  description: defaultSeoDescription,
+  path: "/",
+});
 
 // Enable ISR (Incremental Static Regeneration)
 export const revalidate = 60;
-
-export const metadata: Metadata = {
-  title: "Urban Ummati | Modern Islamic Wall Art",
-  description: "Modern Islamic wall art and handcrafted decor for contemporary Muslim homes. Explore our collections of modern design with traditional craftsmanship.",
-};
 
 async function getCollectionProducts(slug: string, limit: number = 4) {
   try {
@@ -194,5 +196,62 @@ async function getHomeData() {
 export default async function Page() {
   const initialData = await getHomeData();
   
-  return <Home initialData={initialData} />;
+  return (
+    <Home initialData={initialData}>
+      {/*
+        SEO CONTENT BLOCK — Server Component (no "use client")
+        This section renders in the initial HTML response so crawlers can
+        index the H1, description text, keywords and crawlable href links
+        immediately, before any JavaScript executes.
+      */}
+      <section
+        aria-label="About Urban Ummati"
+        className="sr-only"
+      >
+        <h1>Modern Islamic Wall Art for Muslim Homes</h1>
+        <p>
+          Urban Ummati offers premium Islamic wall art, Kun artwork, Arabic calligraphy
+          prints, and modern Muslim home decor for peaceful and meaningful spaces.
+        </p>
+        <nav aria-label="Shop navigation">
+          <Link href="/products">Shop Islamic Wall Art</Link>
+          <Link href="/collections">Browse Collections</Link>
+          <Link href="/products?category=wall-art">Wall Art</Link>
+          <Link href="/products?category=arabic-calligraphy">Arabic Calligraphy</Link>
+          <Link href="/products?category=wall-clocks">Islamic Wall Clocks</Link>
+          <Link href="/about">About Urban Ummati</Link>
+          <Link href="/contact">Contact Us</Link>
+        </nav>
+
+        <section aria-label="Kun Islamic Wall Art">
+          <h2>Kun Islamic Wall Art</h2>
+          <p>
+            Explore Kun Fayakun wall art and Arabic calligraphy designs created
+            for modern Islamic interiors. Each piece is handcrafted to bring
+            spiritual meaning and contemporary elegance to your home.
+          </p>
+          <Link href="/products?category=wall-art">View Islamic Wall Art</Link>
+        </section>
+
+        <section aria-label="Arabic Calligraphy Prints">
+          <h2>Arabic Calligraphy Prints</h2>
+          <p>
+            Beautiful Islamic prints and wall decor for homes, offices, and prayer
+            spaces. Our Arabic calligraphy collection brings faith-inspired beauty
+            to every room.
+          </p>
+          <Link href="/products">View All Products</Link>
+        </section>
+
+        <section aria-label="Featured Collections">
+          <h2>Featured Islamic Decor Collections</h2>
+          <p>
+            Discover curated collections of Islamic home decor, prayer room
+            accessories, and Muslim home art designed by Urban Ummati.
+          </p>
+          <Link href="/collections">Browse All Collections</Link>
+        </section>
+      </section>
+    </Home>
+  );
 }

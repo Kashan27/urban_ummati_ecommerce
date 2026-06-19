@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useSearch } from "@/lib/router";
 import { useForm } from "react-hook-form";

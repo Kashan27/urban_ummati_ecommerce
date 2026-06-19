@@ -1,3 +1,5 @@
+"use client";
+
 import { useParams } from "@/lib/router";
 import { useGetFreeProductLink, getGetFreeProductLinkQueryKey } from "@workspace/api-client-react";
 import { useCart } from "@/lib/cart-context";

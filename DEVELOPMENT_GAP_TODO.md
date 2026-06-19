@@ -189,11 +189,16 @@ It complements `TODO_PENDING_TASKS.md`, which remains the main spec-aligned chec
 
 ### 5. Legal And Content Pages
 
-- [ ] Add Privacy Policy route/page.
-- [ ] Add Terms and Conditions route/page.
-- [ ] Add Contact route/page with usable contact behavior.
-- [ ] Add Shipping and Delivery route/page if footer link remains.
-- [ ] Add Returns and Exchanges route/page if footer link remains.
+- [x] Add Privacy Policy route/page.
+  - Evidence: `/privacy-policy` has route metadata and build passes (`pnpm --filter @workspace/islamic-store run build`).
+- [x] Add Terms and Conditions route/page.
+  - Evidence: `/terms-and-conditions` has route metadata and build passes (`pnpm --filter @workspace/islamic-store run build`).
+- [x] Add Contact route/page with usable contact behavior.
+  - Evidence: `/contact` has route metadata and build passes (`pnpm --filter @workspace/islamic-store run build`).
+- [x] Add Shipping and Delivery route/page if footer link remains.
+  - Evidence: `/shipping-policy` has route metadata and build passes (`pnpm --filter @workspace/islamic-store run build`).
+- [x] Add Returns and Exchanges route/page if footer link remains.
+  - Evidence: `/returns-policy` has route metadata and build passes (`pnpm --filter @workspace/islamic-store run build`).
 - [x] Add footer social platform links.
   - Evidence: `apps/islamic-store/app/api/social-platforms/route.ts` + `apps/islamic-store/src/components/layout/Footer.tsx`; `curl -sSf http://localhost:3009/api/social-platforms`
 
