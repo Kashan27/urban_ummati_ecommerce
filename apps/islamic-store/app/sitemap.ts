@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { db, productsTable, collectionsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import { getProductSlug } from "@/lib/utils";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://urban-ummati.vercel.app";
@@ -77,26 +78,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     // 1. Fetch active products
     const activeProducts = await db
-      .select({ id: productsTable.id })
+      .select({
+        id: productsTable.id,
+        name: productsTable.name,
+        createdAt: productsTable.createdAt,
+        updatedAt: productsTable.updatedAt,
+      })
       .from(productsTable)
       .where(eq(productsTable.status, "active"));
 
     const productRoutes = activeProducts.map((p) => ({
-      url: `${baseUrl}/products/${p.id}`,
-      lastModified: new Date(),
+      url: `${baseUrl}/products/${getProductSlug(p.name, p.id)}`,
+      lastModified: p.updatedAt ?? p.createdAt,
       changeFrequency: "weekly" as const,
       priority: 0.7,
     }));
 
     // 2. Fetch active collections
     const activeCollections = await db
-      .select({ slug: collectionsTable.slug })
+      .select({
+        slug: collectionsTable.slug,
+        createdAt: collectionsTable.createdAt,
+        updatedAt: collectionsTable.updatedAt,
+      })
       .from(collectionsTable)
       .where(eq(collectionsTable.isActive, true));
 
     const collectionRoutes = activeCollections.map((c) => ({
       url: `${baseUrl}/collections/${c.slug}`,
-      lastModified: new Date(),
+      lastModified: c.updatedAt ?? c.createdAt,
       changeFrequency: "weekly" as const,
       priority: 0.8,
     }));

@@ -104,9 +104,9 @@ export function OrderConfirmation() {
         </div>
         <h1 className="font-serif text-3xl md:text-4xl mb-2 text-foreground">Thank You, {order.customerName.split(" ")[0]}!</h1>
         <p className="text-muted-foreground text-lg">Your order has been confirmed.</p>
-        <p className="text-sm text-muted-foreground mt-2">
+        {/* <p className="text-sm text-muted-foreground mt-2">
           A confirmation email will be sent to <span className="font-medium text-foreground">{order.customerEmail}</span>
-        </p>
+        </p> */}
       </div>
 
       <div className="bg-card border border-border rounded-sm overflow-hidden mb-8 shadow-sm">
