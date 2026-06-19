@@ -286,9 +286,9 @@ export function Navbar({ initialCategories, initialSettings, initialCounts }: Na
                 className="h-6 w-auto md:h-12"
                 priority
               />
-              <h1 className="font-serif text-xl leading-none tracking-[0.12em] text-foreground md:text-5xl md:tracking-[0.26em]">
+              <div className="font-serif text-xl leading-none tracking-[0.12em] text-foreground md:text-5xl md:tracking-[0.26em]">
                 URBAN UMMATI
-              </h1>
+              </div>
             </div>
             <p className="mt-1 text-[8px] uppercase tracking-[0.2em] text-muted-foreground md:text-xs md:tracking-[0.42em]">
               Modern Art. Scared Meaning
